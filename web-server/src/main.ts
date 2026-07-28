@@ -7,22 +7,32 @@ import { GlobalExceptionFilter } from './common/filters/global-exception.filter'
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.setGlobalPrefix(process.env.API_PREFIX || 'api');
+
   const config = new DocumentBuilder()
     .setTitle('AgencyOS API')
     .setDescription('The AgencyOS API documentation')
     .setVersion('1.0')
-    .addBearerAuth()
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+      'JWT',
+    )
+    .addSecurityRequirements('JWT')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('api/docs', app, document, {
+    customCss: '.swagger-ui .topbar { display: none }',
+  });
 
   app.enableCors({
     origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
     credentials: true,
   });
-
-  app.setGlobalPrefix(process.env.API_PREFIX || 'api');
 
   app.useGlobalPipes(
     new ValidationPipe({

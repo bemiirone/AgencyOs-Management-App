@@ -85,8 +85,12 @@ async function bootstrap() {
       }
 
       const adminUser = seededUsers.find((u) => u.tenantId === tenant.id && u.role === 'admin');
+      const allUserIds = seededUsers.filter((u) => u.tenantId === tenant.id).map((u) => u.id);
       if (adminUser) {
-        await tenantModel.findByIdAndUpdate(tenant.id, { ownerId: adminUser.id });
+        await tenantModel.findByIdAndUpdate(tenant.id, {
+          ownerId: adminUser.id,
+          memberIds: allUserIds,
+        });
       }
     }
 

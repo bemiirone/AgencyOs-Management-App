@@ -12,6 +12,9 @@ export class Tenant extends Document {
   @Prop({ type: Types.ObjectId, ref: 'User' })
   ownerId: string;
 
+  @Prop({ type: [{ type: String }], default: [] })
+  memberIds: string[];
+
   @Prop({ default: true })
   isActive: boolean;
 

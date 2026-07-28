@@ -25,8 +25,10 @@ export class TenantService {
     return tenant;
   }
 
-  async findAll(tenantId: string) {
-    return this.tenantModel.find({ tenantId }).exec();
+  async findAll(userId: string) {
+    return this.tenantModel.find({
+      $or: [{ ownerId: userId }, { memberIds: userId }],
+    }).exec();
   }
 
   async findOne(id: string, tenantId: string) {

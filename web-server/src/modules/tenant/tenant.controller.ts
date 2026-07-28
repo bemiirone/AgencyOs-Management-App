@@ -24,8 +24,8 @@ export class TenantController {
 
   @Get()
   @ApiOperation({ summary: 'Get all tenants for current user' })
-  async findAll(@TenantId() tenantId: string) {
-    return this.tenantService.findAll(tenantId);
+  async findAll(@CurrentUser() user: any) {
+    return this.tenantService.findAll(user.userId);
   }
 
   @Get(':id')
