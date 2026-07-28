@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule, getConnectionToken } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Connection } from 'mongoose';
 import { User, UserSchema } from '../modules/auth/schemas/user.schema';
 import { Tenant, TenantSchema } from '../modules/tenant/schemas/tenant.schema';
 import { Project, ProjectSchema } from '../modules/project/schemas/project.schema';
@@ -31,5 +32,13 @@ import databaseConfig from '../config/database.config';
       { name: Invoice.name, schema: InvoiceSchema },
     ]),
   ],
+  providers: [
+    {
+      provide: 'DATABASE_CONNECTION',
+      useFactory: (connection: Connection) => connection,
+      inject: [getConnectionToken()],
+    },
+  ],
+  exports: ['DATABASE_CONNECTION'],
 })
 export class SeedModule {}

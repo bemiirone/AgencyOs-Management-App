@@ -3,10 +3,9 @@ import { Document, Types } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class BaseDocument extends Document {
-  @Prop({ required: true, index: true })
+  @Prop({ required: true, index: true, type: String })
   tenantId: string;
 
-  @Prop({ type: Types.ObjectId, auto: true })
   _id: Types.ObjectId;
 
   createdAt: Date;

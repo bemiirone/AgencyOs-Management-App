@@ -28,7 +28,7 @@ import { Invoice } from '../modules/billing/schemas/invoice.schema';
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(SeedModule);
-  const connection = app.get(Connection);
+  const connection = app.get<Connection>('DATABASE_CONNECTION');
 
   const userModel = app.get<Model<User>>(getModelToken(User.name));
   const tenantModel = app.get<Model<Tenant>>(getModelToken(Tenant.name));
@@ -57,7 +57,10 @@ async function bootstrap() {
     const seededTenants: SeededTenant[] = [];
 
     for (const tenantData of tenants) {
-      const tenant = await tenantModel.create(tenantData);
+      const tenant = await tenantModel.create({
+        ...tenantData,
+        ownerId: null,
+      });
       seededTenants.push({ id: tenant._id.toString(), ...tenantData });
       counts.tenants++;
       console.log(`   ✓ Tenant: ${tenant.name} (${tenant.slug})`);
@@ -79,6 +82,11 @@ async function bootstrap() {
         seededUsers.push({ id: user._id.toString(), ...userData });
         counts.users++;
         logUser(user.email, DEFAULT_PASSWORD, user.role, tenant.name);
+      }
+
+      const adminUser = seededUsers.find((u) => u.tenantId === tenant.id && u.role === 'admin');
+      if (adminUser) {
+        await tenantModel.findByIdAndUpdate(tenant.id, { ownerId: adminUser.id });
       }
     }
 
@@ -128,7 +136,10 @@ async function bootstrap() {
       const tasks = generateTasks(project.id, memberIds, 5);
 
       for (const taskData of tasks) {
-        const task = await taskModel.create(taskData);
+        const task = await taskModel.create({
+          ...taskData,
+          tenantId: project.tenantId,
+        });
         seededTasks.push({
           id: task._id.toString(),
           title: task.title,
@@ -169,6 +180,7 @@ async function bootstrap() {
           for (const entryData of entries) {
             const entry = await timeEntryModel.create({
               ...entryData,
+              tenantId: tenant.id,
               endTime: entryData.endTime || undefined,
             });
             seededTimeEntries.push({
@@ -203,6 +215,7 @@ async function bootstrap() {
           for (const entryData of runningEntries) {
             const entry = await timeEntryModel.create({
               ...entryData,
+              tenantId: tenant.id,
               endTime: entryData.endTime || undefined,
             });
             seededTimeEntries.push({
