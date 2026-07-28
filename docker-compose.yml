@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: agencyos-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: agencyos-mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: "false"
+      ME_CONFIG_MONGODB_URL: ${MONGODB_URI}
+      ME_CONFIG_BASICAUTH: "false"
+    depends_on:
+      - redis
+    restart: unless-stopped
+    profiles:
+      - tools
+
+volumes:
+  redis-data:
+    driver: local

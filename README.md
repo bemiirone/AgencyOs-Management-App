@@ -1,107 +1,208 @@
-# New Nx Repository
+# AgencyOS - Backend API
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+A multi-tenant B2B SaaS platform for digital agencies to manage their operations.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+## Tech Stack
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/docs/technologies/typescript/introduction?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
-🚀 If you haven't connected to Nx Cloud yet, [complete your setup here](https://cloud.nx.app/get-started). Get faster builds with remote caching, distributed task execution, and self-healing CI. [See how your workspace can benefit](#nx-cloud).
-## Generate a library
+- **Framework**: NestJS (Node.js)
+- **Database**: MongoDB Atlas
+- **Cache/Queue**: Redis (BullMQ)
+- **Authentication**: JWT with RBAC
+- **API Documentation**: Swagger/OpenAPI
+- **Monorepo**: Nx
+- **Payments**: Stripe (mock mode for development)
+- **Email**: SendGrid (placeholder for development)
 
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
-```
-
-## Run tasks
-
-To build the library use:
-
-```sh
-npx nx run pkg1:build
-```
-
-To run any task with Nx use:
-
-```sh
-npx nx run <project-name>:<target>
-```
-
-These targets are either [inferred automatically](https://nx.dev/docs/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/docs/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Versioning and releasing
-
-To version and release the library use
+## Project Structure
 
 ```
-npx nx release
+agency-os/
+├── web-server/                 # NestJS backend application
+│   └── src/
+│       ├── modules/
+│       │   ├── auth/          # JWT authentication, RBAC
+│       │   ├── tenant/        # Workspace management
+│       │   ├── project/       # Projects & tasks
+│       │   ├── time/          # Time tracking + WebSocket
+│       │   ├── billing/       # Invoicing + Stripe
+│       │   └── notification/  # Email + notifications
+│       ├── common/
+│       │   ├── decorators/    # Custom decorators
+│       │   ├── guards/        # JWT & RBAC guards
+│       │   ├── filters/       # Exception filters
+│       │   └── interceptors/  # Tenant interceptor
+│       ├── config/            # Configuration modules
+│       └── main.ts
+├── docker-compose.yml         # Redis + Mongo Express
+├── .env                       # Environment variables
+└── .env.example               # Example environment file
 ```
 
-Pass `--dry-run` to see what would happen without actually releasing the library.
+## Getting Started
 
-[Learn more about Nx release &raquo;](https://nx.dev/docs/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Prerequisites
 
-## Keep TypeScript project references up to date
+- Node.js 18+
+- npm or yarn
+- MongoDB Atlas account
+- Docker (for Redis)
 
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
+### Installation
 
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd agency-os
+   ```
 
-```sh
-npx nx sync
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   ```
+   Edit `.env` with your MongoDB Atlas URI and other configuration.
+
+4. **Start Redis (via Docker)**
+   ```bash
+   docker-compose up -d
+   ```
+
+5. **Start the development server**
+   ```bash
+   npx nx serve web-server
+   ```
+
+The API will be available at `http://localhost:3000`
+
+## API Documentation
+
+Swagger documentation is available at:
+```
+http://localhost:3000/api/docs
 ```
 
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
+## API Endpoints
 
-```sh
-npx nx sync:check
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login
+
+### Tenants
+- `POST /api/tenants` - Create workspace (Admin)
+- `GET /api/tenants` - Get all tenants
+- `GET /api/tenants/:id` - Get tenant by ID
+- `PATCH /api/tenants/:id` - Update tenant (Admin)
+- `DELETE /api/tenants/:id` - Delete tenant (Admin)
+
+### Projects
+- `POST /api/projects` - Create project
+- `GET /api/projects` - Get all projects
+- `GET /api/projects/:id` - Get project by ID
+- `PATCH /api/projects/:id` - Update project
+- `DELETE /api/projects/:id` - Delete project
+
+### Tasks
+- `POST /api/tasks` - Create task
+- `GET /api/tasks/project/:projectId` - Get tasks by project
+- `GET /api/tasks/:id` - Get task by ID
+- `PATCH /api/tasks/:id` - Update task
+- `PATCH /api/tasks/:id/status` - Update task status
+- `DELETE /api/tasks/:id` - Delete task
+
+### Time Entries
+- `POST /api/time-entries` - Start timer
+- `POST /api/time-entries/:id/stop` - Stop timer
+- `GET /api/time-entries` - Get all time entries
+- `GET /api/time-entries/running` - Get running entry
+- `GET /api/time-entries/:id` - Get time entry by ID
+- `PATCH /api/time-entries/:id` - Update time entry
+- `DELETE /api/time-entries/:id` - Delete time entry
+
+### Invoices
+- `POST /api/invoices` - Create invoice
+- `GET /api/invoices` - Get all invoices
+- `GET /api/invoices/:id` - Get invoice by ID
+- `PATCH /api/invoices/:id` - Update invoice
+- `POST /api/invoices/:id/send` - Send invoice
+- `POST /api/invoices/:id/pay` - Process payment
+- `DELETE /api/invoices/:id` - Delete invoice
+
+### Notifications
+- `GET /api/notifications` - Get all notifications
+- `PATCH /api/notifications/:id/read` - Mark as read
+
+## WebSocket Events
+
+Connect to `ws://localhost:3000` for real-time timer updates:
+
+- `startTimer` - Start timer tick emissions
+- `stopTimer` - Stop timer and finalize duration
+- `timerTick` - Received every second with elapsed time
+- `timerStopped` - Received when timer stops with final duration
+
+## User Roles
+
+- **Admin**: Full access to workspace settings, billing, and all data
+- **Manager**: Can create/manage projects, assign tasks, approve timesheets
+- **Member**: Can view assigned tasks, log time, update task statuses
+- **Client**: External user restricted to Client Portal
+
+## Multi-Tenancy
+
+Every document in MongoDB includes a `tenantId` field. A global interceptor automatically extracts the `tenantId` from the JWT and ensures strict data isolation between tenants.
+
+## Testing
+
+```bash
+# Unit tests
+npx nx test web-server
+
+# E2E tests
+npx nx test web-server-e2e
 ```
 
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
+## Build
 
-## Nx Cloud
-
-Nx Cloud ensures a [fast and scalable CI](https://nx.dev/nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/docs/features/ci-features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/docs/features/ci-features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/docs/features/ci-features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/docs/features/ci-features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Set up CI (non-Github Actions CI)
-
-**Note:** This is only required if your CI provider is not GitHub Actions.
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
+```bash
+npx nx build web-server
 ```
 
-[Learn more about Nx on CI](https://nx.dev/docs/features/ci-features?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Environment Variables
 
-## Install Nx Console
+See `.env.example` for all available configuration options.
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+Key variables:
+- `MONGODB_URI` - MongoDB Atlas connection string
+- `JWT_SECRET` - Secret for signing JWT tokens
+- `REDIS_HOST` - Redis host (default: localhost)
+- `STRIPE_SECRET_KEY` - Stripe API key (placeholder for mock mode)
+- `SENDGRID_API_KEY` - SendGrid API key (placeholder for mock mode)
 
-[Install Nx Console &raquo;](https://nx.dev/docs/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Development
 
-## 🔗 Learn More
+### Code Style
 
-- [Nx Documentation](https://nx.dev/docs)
-- [Crafting Your Workspace Tutorial](https://nx.dev/docs/getting-started/tutorials/crafting-your-workspace)
-- [Module Boundaries](https://nx.dev/docs/features/enforce-module-boundaries)
-- [Releasing Packages](https://nx.dev/docs/features/manage-releases)
-- [Nx Plugins](https://nx.dev/docs/concepts/nx-plugins)
-- [Nx Cloud](https://nx.dev/nx-cloud)
+This project uses ESLint and Prettier for code formatting.
 
-## 💬 Community
+```bash
+# Lint
+npx nx lint web-server
 
-Join the Nx community:
+# Format
+npx nx format:write
+```
 
-- [Discord](https://go.nx.dev/community)
-- [X (Twitter)](https://twitter.com/nxdevtools)
-- [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [YouTube](https://www.youtube.com/@nxdevtools)
-- [Blog](https://nx.dev/blog)
+### Adding New Modules
+
+1. Create module directory in `web-server/src/modules/`
+2. Create schema, DTOs, service, controller, and module files
+3. Import module in `app.module.ts`
+4. Add Swagger decorators to controller endpoints
+
+## License
+
+MIT
