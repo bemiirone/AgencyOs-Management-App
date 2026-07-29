@@ -24,6 +24,8 @@ export const API_CONFIG = {
   },
   TIME_ENTRIES: {
     LIST: '/api/time-entries',
+    BY_PROJECT: (projectId: string) => `/api/time-entries?projectId=${projectId}`,
+    BY_TASK: (taskId: string) => `/api/time-entries?taskId=${taskId}`,
     RUNNING: '/api/time-entries/running',
     CLEANUP_ORPHANED: '/api/time-entries/cleanup-orphaned',
     CLEANUP_ALL_ORPHANED: '/api/time-entries/cleanup-all-orphaned',

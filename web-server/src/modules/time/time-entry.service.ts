@@ -46,11 +46,17 @@ export class TimeEntryService {
     return timeEntry;
   }
 
-  async findAll(tenantId: string, userId?: string) {
+  async findAll(tenantId: string, userId?: string, projectId?: string, taskId?: string) {
     const query: any = { tenantId };
 
     if (userId) {
       query.userId = userId;
+    }
+    if (projectId) {
+      query.projectId = projectId;
+    }
+    if (taskId) {
+      query.taskId = taskId;
     }
 
     return this.timeEntryModel.find(query).sort({ createdAt: -1 }).exec();

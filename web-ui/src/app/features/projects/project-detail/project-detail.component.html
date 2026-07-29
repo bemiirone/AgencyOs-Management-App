@@ -55,12 +55,10 @@
 
       <div class="stat bg-base-100 shadow rounded-box">
         <div class="stat-figure text-info">
-          <fa-icon [icon]="faTasks"></fa-icon>
+          <fa-icon [icon]="faClock"></fa-icon>
         </div>
-        <div class="stat-title">Status</div>
-        <div class="stat-value text-info text-lg">
-          <span class="badge {{ getStatusClass(project()!.status) }} badge-lg">{{ project()!.status }}</span>
-        </div>
+        <div class="stat-title">Total Time</div>
+        <div class="stat-value text-info text-lg">{{ getTotalTimeFormatted() }}</div>
       </div>
     </div>
 
@@ -68,7 +66,7 @@
       <div class="card bg-base-100 shadow lg:col-span-2">
         <div class="card-body">
           <h2 class="card-title">Description</h2>
-          <p class="text-base-content/70 mt-2">{{ project()?.description }}</p>
+          <p class="text-base-content/70 mt-2">{{ project()?.description || 'No description provided.' }}</p>
         </div>
       </div>
 
@@ -78,62 +76,101 @@
             <fa-icon [icon]="faClock" class="text-primary"></fa-icon>
             Recent Time Entries
           </h2>
-          <div class="mt-4 space-y-3">
-            <div class="p-3 bg-base-200 rounded-lg">
-              <p class="font-medium text-sm">Homepage Design</p>
-              <p class="text-xs text-base-content/50">2.5 hours - Yesterday</p>
+          @if (timeEntries().length > 0) {
+            <div class="mt-4 space-y-3">
+              @for (entry of timeEntries().slice(0, 5); track entry._id) {
+                <div class="p-3 bg-base-200 rounded-lg">
+                  <div class="flex justify-between items-start">
+                    <div>
+                      <p class="font-medium text-sm">{{ entry.description || 'No description' }}</p>
+                      @if (entry.taskId) {
+                        <p class="text-xs text-base-content/50">Task #{{ entry.taskId.slice(-6) }}</p>
+                      }
+                    </div>
+                    <span class="text-xs font-mono">{{ timeEntryStore.formatDuration(entry.duration) }}</span>
+                  </div>
+                  <p class="text-xs text-base-content/40 mt-1">{{ formatDate(entry.startTime) }}</p>
+                </div>
+              }
             </div>
-            <div class="p-3 bg-base-200 rounded-lg">
-              <p class="font-medium text-sm">API Integration</p>
-              <p class="text-xs text-base-content/50">4 hours - 2 days ago</p>
+          } @else {
+            <div class="text-center py-6 text-base-content/40">
+              <p class="text-sm">No time entries yet</p>
             </div>
-            <div class="p-3 bg-base-200 rounded-lg">
-              <p class="font-medium text-sm">Testing & QA</p>
-              <p class="text-xs text-base-content/50">1.5 hours - 3 days ago</p>
-            </div>
-          </div>
+          }
         </div>
       </div>
     </div>
 
     <div class="card bg-base-100 shadow mt-6">
       <div class="card-body">
-        <h2 class="card-title">
-          <fa-icon [icon]="faTasks" class="text-secondary"></fa-icon>
-          Tasks
-        </h2>
-        <div class="mt-4 overflow-x-auto">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Task</th>
-                <th>Assignee</th>
-                <th>Status</th>
-                <th>Due Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="hover">
-                <td class="font-medium">Design Homepage</td>
-                <td>Alice Smith</td>
-                <td><span class="badge badge-success badge-sm">Completed</span></td>
-                <td>Jan 30, 2024</td>
-              </tr>
-              <tr class="hover">
-                <td class="font-medium">Build API Endpoints</td>
-                <td>Bob Johnson</td>
-                <td><span class="badge badge-warning badge-sm">In Progress</span></td>
-                <td>Feb 15, 2024</td>
-              </tr>
-              <tr class="hover">
-                <td class="font-medium">Setup CI/CD Pipeline</td>
-                <td>Bob Johnson</td>
-                <td><span class="badge badge-ghost badge-sm">Todo</span></td>
-                <td>Feb 20, 2024</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="card-title">
+            <fa-icon [icon]="faTasks" class="text-secondary"></fa-icon>
+            Tasks ({{ tasks().length }})
+          </h2>
+          <a [routerLink]="['/tasks/create']" class="btn btn-sm btn-primary">
+            <fa-icon [icon]="faPlay" class="mr-1"></fa-icon>
+            Add Task
+          </a>
         </div>
+
+        @if (tasks().length > 0) {
+          <div class="overflow-x-auto">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Task</th>
+                  <th>Status</th>
+                  <th>Priority</th>
+                  <th>Due Date</th>
+                  <th>Time Logged</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (task of tasks(); track task._id) {
+                  <tr class="hover">
+                    <td>
+                      <a [routerLink]="['/tasks', task._id]" class="font-medium link link-hover link-primary">
+                        {{ task.title }}
+                      </a>
+                    </td>
+                    <td>
+                      <span class="badge {{ getTaskStatusClass(task.status) }} badge-sm">
+                        {{ getTaskStatusLabel(task.status) }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="text-sm {{ getTaskPriorityClass(task.priority) }}">
+                        {{ task.priority }}
+                      </span>
+                    </td>
+                    <td class="text-sm">{{ formatDate(task.dueDate) }}</td>
+                    <td class="text-sm font-mono">
+                      {{ timeEntryStore.formatDurationShort(getTaskTimeEntries(task._id).reduce((sum, e) => sum + e.duration, 0)) }}
+                    </td>
+                    <td>
+                      <div class="flex gap-1">
+                        <a [routerLink]="['/tasks', task._id]" class="btn btn-ghost btn-xs">
+                          <fa-icon [icon]="faHourglassHalf"></fa-icon>
+                        </a>
+                        <button class="btn btn-ghost btn-xs text-error" (click)="deleteTask(task._id)">
+                          <fa-icon [icon]="faTrash"></fa-icon>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <div class="text-center py-8 text-base-content/40">
+            <fa-icon [icon]="faTasks" class="text-3xl mb-2"></fa-icon>
+            <p class="text-sm">No tasks yet. Add one to get started.</p>
+          </div>
+        }
       </div>
     </div>
   }

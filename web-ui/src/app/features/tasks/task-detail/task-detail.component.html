@@ -28,7 +28,11 @@
         @if (!editing()) {
           <button class="btn btn-primary" (click)="toggleEdit()">
             <fa-icon [icon]="faEdit" class="mr-2"></fa-icon>
-            Edit Task
+            Edit
+          </button>
+          <button class="btn btn-error" (click)="deleteTask()">
+            <fa-icon [icon]="faTrash" class="mr-2"></fa-icon>
+            Delete
           </button>
         } @else {
           <button class="btn btn-ghost" (click)="cancelEdit()">
@@ -104,10 +108,10 @@
 
       <div class="stat bg-base-100 shadow rounded-box">
         <div class="stat-figure text-info">
-          <fa-icon [icon]="faCalendar"></fa-icon>
+          <fa-icon [icon]="faClock"></fa-icon>
         </div>
-        <div class="stat-title">Created</div>
-        <div class="stat-value text-info text-lg">{{ formatDate(task()!.createdAt) }}</div>
+        <div class="stat-title">Time Logged</div>
+        <div class="stat-value text-info text-lg">{{ getTotalTimeFormatted() }}</div>
       </div>
     </div>
 
@@ -141,6 +145,10 @@
               <span class="text-sm font-mono">{{ task()?._id?.slice(-6) }}</span>
             </div>
             <div class="flex justify-between">
+              <span class="text-base-content/60 text-sm">Created</span>
+              <span class="text-sm">{{ formatDate(task()!.createdAt) }}</span>
+            </div>
+            <div class="flex justify-between">
               <span class="text-base-content/60 text-sm">Updated</span>
               <span class="text-sm">{{ formatDate(task()!.updatedAt) }}</span>
             </div>
@@ -148,5 +156,60 @@
         </div>
       </div>
     </div>
+
+    @if (subtasks().length > 0) {
+      <div class="card bg-base-100 shadow mt-6">
+        <div class="card-body">
+          <h2 class="card-title">
+            <fa-icon [icon]="faListUl" class="text-secondary"></fa-icon>
+            Subtasks ({{ subtasks().length }})
+          </h2>
+          <div class="mt-4 space-y-2">
+            @for (sub of subtasks(); track sub._id) {
+              <a [routerLink]="['/tasks', sub._id]" class="flex items-center justify-between p-3 bg-base-200 rounded-lg hover:bg-base-300 transition-colors">
+                <div>
+                  <span class="font-medium text-sm">{{ sub.title }}</span>
+                  <span class="badge {{ getStatusBadgeClass(sub.status) }} badge-sm ml-2">
+                    {{ getStatusLabel(sub.status) }}
+                  </span>
+                </div>
+                @if (sub.dueDate) {
+                  <span class="text-xs text-base-content/50">{{ formatDate(sub.dueDate) }}</span>
+                }
+              </a>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (timeEntries().length > 0) {
+      <div class="card bg-base-100 shadow mt-6">
+        <div class="card-body">
+          <h2 class="card-title">
+            <fa-icon [icon]="faClock" class="text-primary"></fa-icon>
+            Time Entries ({{ timeEntries().length }})
+          </h2>
+          <div class="mt-4 space-y-2">
+            @for (entry of timeEntries(); track entry._id) {
+              <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                <div>
+                  <p class="font-medium text-sm">{{ entry.description || 'No description' }}</p>
+                  <p class="text-xs text-base-content/50">{{ formatDate(entry.startTime) }}</p>
+                </div>
+                <div class="flex items-center gap-3">
+                  @if (entry.isBillable) {
+                    <span class="badge badge-success badge-sm">Billable</span>
+                  }
+                  <span class="font-mono text-sm font-medium">
+                    {{ timeEntryStore.formatDuration(entry.duration) }}
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
   }
 </div>

@@ -39,6 +39,40 @@ export class TimeEntryStore {
     );
   }
 
+  loadEntriesByProject(projectId: string) {
+    this._isLoading.set(true);
+    this._error.set(null);
+
+    return this.http.get<TimeEntry[]>(API_CONFIG.TIME_ENTRIES.BY_PROJECT(projectId)).pipe(
+      tap((entries) => {
+        this._entries.set(entries);
+        this._isLoading.set(false);
+      }),
+      catchError((error) => {
+        this._error.set(error.error?.message || 'Failed to load time entries');
+        this._isLoading.set(false);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  loadEntriesByTask(taskId: string) {
+    this._isLoading.set(true);
+    this._error.set(null);
+
+    return this.http.get<TimeEntry[]>(API_CONFIG.TIME_ENTRIES.BY_TASK(taskId)).pipe(
+      tap((entries) => {
+        this._entries.set(entries);
+        this._isLoading.set(false);
+      }),
+      catchError((error) => {
+        this._error.set(error.error?.message || 'Failed to load time entries');
+        this._isLoading.set(false);
+        return throwError(() => error);
+      })
+    );
+  }
+
   getRunningEntry() {
     return this.http.get<TimeEntry | null>(API_CONFIG.TIME_ENTRIES.RUNNING).pipe(
       tap((entry) => {

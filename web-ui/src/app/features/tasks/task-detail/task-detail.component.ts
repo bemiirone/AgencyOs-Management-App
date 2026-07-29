@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -11,10 +11,15 @@ import {
   faEdit,
   faSave,
   faTimes,
+  faTrash,
+  faClock,
+  faListUl,
 } from '@fortawesome/free-solid-svg-icons';
 import { Task } from '../../../shared/models/task.model';
 import { TaskStore } from '../../../stores/task.store';
 import { ProjectStore } from '../../../stores/project.store';
+import { TimeEntryStore } from '../../../stores/time-entry.store';
+import { TimeEntry } from '../../../shared/models/time-entry.model';
 
 @Component({
   selector: 'app-task-detail',
@@ -25,10 +30,14 @@ import { ProjectStore } from '../../../stores/project.store';
 })
 export class TaskDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private taskStore = inject(TaskStore);
   private projectStore = inject(ProjectStore);
+  private timeEntryStore = inject(TimeEntryStore);
 
   task = signal<Task | null>(null);
+  subtasks = signal<Task[]>([]);
+  timeEntries = signal<TimeEntry[]>([]);
   projects = signal<any[]>([]);
   loading = signal(false);
   editing = signal(false);
@@ -40,6 +49,9 @@ export class TaskDetailComponent implements OnInit {
   faEdit = faEdit;
   faSave = faSave;
   faTimes = faTimes;
+  faTrash = faTrash;
+  faClock = faClock;
+  faListUl = faListUl;
 
   editForm = {
     title: '',
@@ -72,10 +84,36 @@ export class TaskDetailComponent implements OnInit {
           priority: task.priority,
           dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '',
         };
-        this.loading.set(false);
+        this.loadTaskData(id);
       },
       error: () => this.loading.set(false),
     });
+  }
+
+  private loadTaskData(taskId: string): void {
+    const t = this.task();
+    if (!t) return;
+
+    this.taskStore.loadTasksByProject(t.projectId).subscribe({
+      next: (tasks) => {
+        const subs = tasks.filter((task) => task.parentTaskId === taskId);
+        this.subtasks.set(subs);
+        this.checkLoadingComplete();
+      },
+      error: () => this.checkLoadingComplete(),
+    });
+
+    this.timeEntryStore.loadEntriesByTask(taskId).subscribe({
+      next: (entries) => {
+        this.timeEntries.set(entries);
+        this.checkLoadingComplete();
+      },
+      error: () => this.checkLoadingComplete(),
+    });
+  }
+
+  private checkLoadingComplete(): void {
+    this.loading.set(false);
   }
 
   toggleEdit(): void {
@@ -107,6 +145,20 @@ export class TaskDetailComponent implements OnInit {
       };
     }
     this.editing.set(false);
+  }
+
+  deleteTask(): void {
+    const id = this.task()?._id;
+    if (!id) return;
+
+    if (confirm('Are you sure you want to delete this task?')) {
+      this.taskStore.deleteTask(id).subscribe({
+        next: () => {
+          this.router.navigate(['/tasks']);
+        },
+        error: (err) => console.error('Failed to delete task:', err),
+      });
+    }
   }
 
   formatDate(date: string | Date | undefined): string {
@@ -157,5 +209,19 @@ export class TaskDetailComponent implements OnInit {
       urgent: 'Urgent',
     };
     return labels[priority] || priority;
+  }
+
+  getTotalTimeSeconds(): number {
+    return this.timeEntries().reduce((sum, e) => sum + (e.duration || 0), 0);
+  }
+
+  getTotalTimeFormatted(): string {
+    const totalSeconds = this.getTotalTimeSeconds();
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
   }
 }

@@ -30,8 +30,13 @@ export class TimeEntryController {
 
   @Get()
   @ApiOperation({ summary: 'Get all time entries' })
-  async findAll(@TenantId() tenantId: string, @Query('userId') userId?: string) {
-    return this.timeEntryService.findAll(tenantId, userId);
+  async findAll(
+    @TenantId() tenantId: string,
+    @Query('userId') userId?: string,
+    @Query('projectId') projectId?: string,
+    @Query('taskId') taskId?: string,
+  ) {
+    return this.timeEntryService.findAll(tenantId, userId, projectId, taskId);
   }
 
   @Get('running')
