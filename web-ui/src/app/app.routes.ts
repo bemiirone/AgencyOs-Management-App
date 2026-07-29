@@ -45,7 +45,30 @@ export const routes: Routes = [
       {
         path: 'tasks',
         loadComponent: () =>
-          import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+          import('./features/tasks/task-list/task-list.component').then(
+            (m) => m.TaskListComponent
+          ),
+      },
+      {
+        path: 'tasks/create',
+        loadComponent: () =>
+          import('./features/tasks/task-create/task-create.component').then(
+            (m) => m.TaskCreateComponent
+          ),
+      },
+      {
+        path: 'tasks/:id/edit',
+        loadComponent: () =>
+          import('./features/tasks/task-edit/task-edit.component').then(
+            (m) => m.TaskEditComponent
+          ),
+      },
+      {
+        path: 'tasks/:id',
+        loadComponent: () =>
+          import('./features/tasks/task-detail/task-detail.component').then(
+            (m) => m.TaskDetailComponent
+          ),
       },
       {
         path: 'time',

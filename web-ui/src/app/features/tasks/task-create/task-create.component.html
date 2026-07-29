@@ -1,0 +1,133 @@
+<div class="p-6">
+  <div class="mb-6">
+    <a routerLink="/tasks" class="btn btn-ghost btn-sm gap-2">
+      <fa-icon [icon]="faArrowLeft"></fa-icon>
+      Back to Tasks
+    </a>
+  </div>
+
+  <div class="card bg-base-100 shadow max-w-2xl">
+    <div class="card-body">
+      <h2 class="card-title text-2xl mb-4">Create New Task</h2>
+
+      @if (error()) {
+        <div class="alert alert-error mb-4">
+          <span>{{ error() }}</span>
+        </div>
+      }
+
+      <form (ngSubmit)="onSubmit()" #taskForm="ngForm">
+        <div class="form-control mb-4">
+          <label class="label">
+            <span class="label-text font-medium">Title</span>
+          </label>
+          <input
+            type="text"
+            [(ngModel)]="form.title"
+            name="title"
+            placeholder="Enter task title"
+            class="input input-bordered w-full"
+            required
+            #titleModel="ngModel"
+          />
+          @if (titleModel.invalid && titleModel.touched) {
+            <label class="label">
+              <span class="label-text-alt text-error">Title is required</span>
+            </label>
+          }
+        </div>
+
+        <div class="form-control mb-4">
+          <label class="label">
+            <span class="label-text font-medium">Description</span>
+          </label>
+          <textarea
+            [(ngModel)]="form.description"
+            name="description"
+            placeholder="Enter task description"
+            class="textarea textarea-bordered w-full"
+            rows="4"
+          ></textarea>
+        </div>
+
+        <div class="form-control mb-4">
+          <label class="label">
+            <span class="label-text font-medium">Project</span>
+          </label>
+          <select
+            [(ngModel)]="form.projectId"
+            name="projectId"
+            class="select select-bordered w-full"
+            required
+            #projectModel="ngModel"
+          >
+            <option value="" disabled>Select a project</option>
+            @for (project of projects(); track project._id) {
+              <option [value]="project._id">{{ project.name }}</option>
+            }
+          </select>
+          @if (projectModel.invalid && projectModel.touched) {
+            <label class="label">
+              <span class="label-text-alt text-error">Project is required</span>
+            </label>
+          }
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">Status</span>
+            </label>
+            <select [(ngModel)]="form.status" name="status" class="select select-bordered w-full">
+              <option value="todo">To Do</option>
+              <option value="in_progress">In Progress</option>
+              <option value="in_review">In Review</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">Priority</span>
+            </label>
+            <select [(ngModel)]="form.priority" name="priority" class="select select-bordered w-full">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-control mb-6">
+          <label class="label">
+            <span class="label-text font-medium">Due Date</span>
+          </label>
+          <input
+            type="date"
+            [(ngModel)]="form.dueDate"
+            name="dueDate"
+            class="input input-bordered w-full"
+          />
+        </div>
+
+        <div class="flex gap-3">
+          <button
+            type="submit"
+            class="btn btn-primary flex-1"
+            [disabled]="taskForm.invalid || loading()"
+          >
+            @if (loading()) {
+              <fa-icon [icon]="faSpinner" class="animate-spin mr-2"></fa-icon>
+              Creating...
+            } @else {
+              <fa-icon [icon]="faSave" class="mr-2"></fa-icon>
+              Create Task
+            }
+          </button>
+          <a routerLink="/tasks" class="btn btn-ghost">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

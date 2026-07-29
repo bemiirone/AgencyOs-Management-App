@@ -1,0 +1,113 @@
+import { Component, inject, signal, OnInit } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import {
+  faArrowLeft,
+  faSpinner,
+  faSave,
+} from '@fortawesome/free-solid-svg-icons';
+import { Task } from '../../../shared/models/task.model';
+import { TaskStore } from '../../../stores/task.store';
+import { ProjectStore } from '../../../stores/project.store';
+
+@Component({
+  selector: 'app-task-edit',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule],
+  templateUrl: './task-edit.component.html',
+  styleUrl: './task-edit.component.scss',
+})
+export class TaskEditComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private taskStore = inject(TaskStore);
+  private projectStore = inject(ProjectStore);
+  private router = inject(Router);
+
+  projects = signal<any[]>([]);
+  loading = signal(true);
+  saving = signal(false);
+  error = signal('');
+  taskId = signal('');
+  dataLoaded = signal(false);
+
+  faArrowLeft = faArrowLeft;
+  faSpinner = faSpinner;
+  faSave = faSave;
+
+  form = {
+    title: '',
+    description: '',
+    projectId: '',
+    status: 'todo' as Task['status'],
+    priority: 'medium' as Task['priority'],
+    dueDate: '',
+  };
+
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (!id) {
+      this.loading.set(false);
+      return;
+    }
+
+    this.taskId.set(id);
+
+    this.projectStore.loadProjects().subscribe({
+      next: (projects) => this.projects.set(projects),
+      error: () => {},
+    });
+
+    this.taskStore.loadTask(id).subscribe({
+      next: (task) => {
+        this.form.title = task.title;
+        this.form.description = task.description || '';
+        this.form.projectId = task.projectId;
+        this.form.status = task.status;
+        this.form.priority = task.priority;
+        this.form.dueDate = task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '';
+        this.dataLoaded.set(true);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('Failed to load task');
+        this.loading.set(false);
+      },
+    });
+  }
+
+  onSubmit(): void {
+    const id = this.taskId();
+    if (!id || !this.form.title || !this.form.projectId) {
+      this.error.set('Title and Project are required');
+      return;
+    }
+
+    this.saving.set(true);
+    this.error.set('');
+
+    const taskData: any = {
+      title: this.form.title,
+      description: this.form.description,
+      projectId: this.form.projectId,
+      status: this.form.status,
+      priority: this.form.priority,
+    };
+
+    if (this.form.dueDate) {
+      taskData.dueDate = new Date(this.form.dueDate);
+    }
+
+    this.taskStore.updateTask(id, taskData).subscribe({
+      next: (task) => {
+        this.saving.set(false);
+        this.router.navigate(['/tasks', task._id]);
+      },
+      error: (err) => {
+        this.error.set(err.error?.message || 'Failed to update task');
+        this.saving.set(false);
+      },
+    });
+  }
+}

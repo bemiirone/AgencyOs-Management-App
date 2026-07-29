@@ -1,0 +1,152 @@
+<div class="p-6">
+  @if (loading()) {
+    <div class="flex justify-center py-16">
+      <fa-icon [icon]="faSpinner" class="animate-spin text-4xl text-primary"></fa-icon>
+    </div>
+  } @else if (task()) {
+    <div class="mb-6">
+      <a routerLink="/tasks" class="btn btn-ghost btn-sm gap-2">
+        <fa-icon [icon]="faArrowLeft"></fa-icon>
+        Back to Tasks
+      </a>
+    </div>
+
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+      <div>
+        @if (!editing()) {
+          <h1 class="text-3xl font-bold text-base-content">{{ task()?.title }}</h1>
+        } @else {
+          <input
+            type="text"
+            [(ngModel)]="editForm.title"
+            class="input input-bordered input-lg w-full max-w-md"
+          />
+        }
+        <p class="text-base-content/60 mt-1">{{ getProjectName(task()!.projectId) }}</p>
+      </div>
+      <div class="flex gap-2">
+        @if (!editing()) {
+          <button class="btn btn-primary" (click)="toggleEdit()">
+            <fa-icon [icon]="faEdit" class="mr-2"></fa-icon>
+            Edit Task
+          </button>
+        } @else {
+          <button class="btn btn-ghost" (click)="cancelEdit()">
+            <fa-icon [icon]="faTimes" class="mr-2"></fa-icon>
+            Cancel
+          </button>
+          <button class="btn btn-primary" (click)="saveTask()">
+            <fa-icon [icon]="faSave" class="mr-2"></fa-icon>
+            Save
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div class="stat bg-base-100 shadow rounded-box">
+        <div class="stat-figure text-primary">
+          <fa-icon [icon]="faFlag"></fa-icon>
+        </div>
+        <div class="stat-title">Status</div>
+        @if (!editing()) {
+          <div class="stat-value text-lg">
+            <span class="badge {{ getStatusBadgeClass(task()!.status) }} badge-lg">
+              {{ getStatusLabel(task()!.status) }}
+            </span>
+          </div>
+        } @else {
+          <select [(ngModel)]="editForm.status" class="select select-bordered select-sm mt-2">
+            <option value="todo">To Do</option>
+            <option value="in_progress">In Progress</option>
+            <option value="in_review">In Review</option>
+            <option value="done">Done</option>
+          </select>
+        }
+      </div>
+
+      <div class="stat bg-base-100 shadow rounded-box">
+        <div class="stat-figure text-secondary">
+          <fa-icon [icon]="faFlag"></fa-icon>
+        </div>
+        <div class="stat-title">Priority</div>
+        @if (!editing()) {
+          <div class="stat-value text-lg">
+            <span class="badge {{ getPriorityBadgeClass(task()!.priority) }} badge-lg">
+              {{ getPriorityLabel(task()!.priority) }}
+            </span>
+          </div>
+        } @else {
+          <select [(ngModel)]="editForm.priority" class="select select-bordered select-sm mt-2">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+          </select>
+        }
+      </div>
+
+      <div class="stat bg-base-100 shadow rounded-box">
+        <div class="stat-figure text-accent">
+          <fa-icon [icon]="faCalendar"></fa-icon>
+        </div>
+        <div class="stat-title">Due Date</div>
+        @if (!editing()) {
+          <div class="stat-value text-secondary text-lg">{{ formatDate(task()!.dueDate) }}</div>
+        } @else {
+          <input
+            type="date"
+            [(ngModel)]="editForm.dueDate"
+            class="input input-bordered input-sm mt-2"
+          />
+        }
+      </div>
+
+      <div class="stat bg-base-100 shadow rounded-box">
+        <div class="stat-figure text-info">
+          <fa-icon [icon]="faCalendar"></fa-icon>
+        </div>
+        <div class="stat-title">Created</div>
+        <div class="stat-value text-info text-lg">{{ formatDate(task()!.createdAt) }}</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="card bg-base-100 shadow lg:col-span-2">
+        <div class="card-body">
+          <h2 class="card-title">Description</h2>
+          @if (!editing()) {
+            <p class="text-base-content/70 mt-2">{{ task()?.description || 'No description provided.' }}</p>
+          } @else {
+            <textarea
+              [(ngModel)]="editForm.description"
+              class="textarea textarea-bordered w-full mt-2"
+              rows="4"
+              placeholder="Enter task description..."
+            ></textarea>
+          }
+        </div>
+      </div>
+
+      <div class="card bg-base-100 shadow">
+        <div class="card-body">
+          <h2 class="card-title">Details</h2>
+          <div class="mt-4 space-y-3">
+            <div class="flex justify-between">
+              <span class="text-base-content/60 text-sm">Project</span>
+              <span class="text-sm font-medium">{{ getProjectName(task()!.projectId) }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-base-content/60 text-sm">Task ID</span>
+              <span class="text-sm font-mono">{{ task()?._id?.slice(-6) }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-base-content/60 text-sm">Updated</span>
+              <span class="text-sm">{{ formatDate(task()!.updatedAt) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

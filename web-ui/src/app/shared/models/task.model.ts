@@ -1,15 +1,14 @@
 export interface Task {
-  id: string;
+  _id: string;
   title: string;
   description?: string;
-  status: 'todo' | 'in-progress' | 'review' | 'completed';
+  status: 'todo' | 'in_progress' | 'in_review' | 'done';
   priority: 'low' | 'medium' | 'high' | 'urgent';
   projectId: string;
-  assigneeId?: string;
-  assigneeName?: string;
-  dueDate?: Date;
-  estimatedHours?: number;
-  actualHours?: number;
-  createdAt: Date;
-  updatedAt: Date;
+  assigneeIds?: string[];
+  dueDate?: string | Date;
+  parentTaskId?: string;
+  order?: number;
+  createdAt: string | Date;
+  updatedAt: string | Date;
 }

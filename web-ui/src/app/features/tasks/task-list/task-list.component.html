@@ -1,0 +1,114 @@
+<div class="p-6">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-base-content">Tasks</h1>
+      <p class="text-base-content/60 mt-1">Track and manage all tasks across projects</p>
+    </div>
+    <a routerLink="/tasks/create" class="btn btn-primary">
+      <fa-icon [icon]="faPlus" class="mr-2"></fa-icon>
+      New Task
+    </a>
+  </div>
+
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <div class="flex flex-col sm:flex-row gap-4 mb-4">
+        <div class="form-control flex-1">
+          <div class="relative">
+            <fa-icon [icon]="faSearch" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              placeholder="Search tasks..."
+              class="input input-bordered w-full pl-10"
+            />
+          </div>
+        </div>
+        <div class="form-control sm:w-48">
+          <select [(ngModel)]="statusFilter" class="select select-bordered">
+            <option value="">All Statuses</option>
+            <option value="todo">To Do</option>
+            <option value="in_progress">In Progress</option>
+            <option value="in_review">In Review</option>
+            <option value="done">Done</option>
+          </select>
+        </div>
+        <div class="form-control sm:w-48">
+          <select [(ngModel)]="priorityFilter" class="select select-bordered">
+            <option value="">All Priorities</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+          </select>
+        </div>
+      </div>
+
+      @if (loading()) {
+        <div class="flex justify-center py-8">
+          <fa-icon [icon]="faSpinner" class="animate-spin text-3xl text-primary"></fa-icon>
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Task</th>
+                <th>Project</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Due Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (task of filteredTasks; track task._id) {
+                <tr class="hover">
+                  <td>
+                    <div>
+                      <div class="font-bold">{{ task.title }}</div>
+                      @if (task.description) {
+                        <div class="text-sm text-base-content/50">{{ task.description | slice:0:50 }}{{ task.description.length > 50 ? '...' : '' }}</div>
+                      }
+                    </div>
+                  </td>
+                  <td class="text-sm">{{ getProjectName(task.projectId) }}</td>
+                  <td>
+                    <span class="badge {{ getStatusBadgeClass(task.status) }} badge-sm gap-1">
+                      {{ getStatusLabel(task.status) }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge {{ getPriorityBadgeClass(task.priority) }} badge-sm gap-1">
+                      {{ getPriorityLabel(task.priority) }}
+                    </span>
+                  </td>
+                  <td class="text-sm">{{ formatDate(task.dueDate) }}</td>
+                  <td>
+                    <div class="flex gap-2">
+                      <a [routerLink]="['/tasks', task._id]" class="btn btn-ghost btn-xs">
+                        <fa-icon [icon]="faEye"></fa-icon>
+                      </a>
+                      <a [routerLink]="['/tasks', task._id, 'edit']" class="btn btn-ghost btn-xs">
+                        <fa-icon [icon]="faEdit"></fa-icon>
+                      </a>
+                      <button class="btn btn-ghost btn-xs text-error" (click)="deleteTask(task._id)">
+                        <fa-icon [icon]="faTrash"></fa-icon>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6" class="text-center py-8 text-base-content/50">
+                    No tasks found
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+</div>

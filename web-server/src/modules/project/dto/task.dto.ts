@@ -70,6 +70,11 @@ export class UpdateTaskDto {
   @IsOptional()
   priority?: TaskPriority;
 
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  projectId?: string;
+
   @ApiProperty({ type: [String], required: false })
   @IsString({ each: true })
   @IsOptional()
