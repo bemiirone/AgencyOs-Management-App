@@ -1,5 +1,5 @@
 export const API_CONFIG = {
-  baseUrl: '/api',
+  baseUrl: '',
   AUTH: {
     LOGIN: '/api/auth/login',
     REGISTER: '/api/auth/register',

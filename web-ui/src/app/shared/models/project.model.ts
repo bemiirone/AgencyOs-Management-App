@@ -7,9 +7,9 @@ export interface Project {
   ownerId: string;
   teamMemberIds?: string[];
   clientId?: string;
-  startDate?: Date;
-  endDate?: Date;
+  startDate?: string | Date;
+  endDate?: string | Date;
   budget?: number;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string | Date;
+  updatedAt: string | Date;
 }

@@ -69,15 +69,22 @@
           <div class="relative">
             <fa-icon [icon]="faLock" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
             <input
-              type="password"
+              [type]="showPassword() ? 'text' : 'password'"
               [(ngModel)]="password"
               name="password"
               placeholder="Create a password"
-              class="input input-bordered w-full pl-10"
+              class="input input-bordered w-full pl-10 pr-10"
               required
               minlength="6"
               #passwordModel="ngModel"
             />
+            <button
+              type="button"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content/70"
+              (click)="togglePasswordVisibility()"
+            >
+              <fa-icon [icon]="showPassword() ? faEyeSlash : faEye"></fa-icon>
+            </button>
           </div>
           @if (passwordModel.invalid && passwordModel.touched) {
             <label class="label">
@@ -93,14 +100,21 @@
           <div class="relative">
             <fa-icon [icon]="faLock" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
             <input
-              type="password"
+              [type]="showConfirmPassword() ? 'text' : 'password'"
               [(ngModel)]="confirmPassword"
               name="confirmPassword"
               placeholder="Confirm your password"
-              class="input input-bordered w-full pl-10"
+              class="input input-bordered w-full pl-10 pr-10"
               required
               #confirmModel="ngModel"
             />
+            <button
+              type="button"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content/70"
+              (click)="toggleConfirmPasswordVisibility()"
+            >
+              <fa-icon [icon]="showConfirmPassword() ? faEyeSlash : faEye"></fa-icon>
+            </button>
           </div>
           @if (confirmModel.touched && !passwordsMatch()) {
             <label class="label">

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faEnvelope, faLock, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faLock, faSpinner, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -20,11 +20,18 @@ export class LoginComponent {
   faEnvelope = faEnvelope;
   faLock = faLock;
   faSpinner = faSpinner;
+  faEye = faEye;
+  faEyeSlash = faEyeSlash;
 
   email = signal('');
   password = signal('');
   error = signal('');
   loading = signal(false);
+  showPassword = signal(false);
+
+  togglePasswordVisibility(): void {
+    this.showPassword.update((v) => !v);
+  }
 
   async onSubmit(): Promise<void> {
     this.error.set('');

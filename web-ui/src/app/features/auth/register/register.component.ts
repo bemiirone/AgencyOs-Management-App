@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faUser, faEnvelope, faLock, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faEnvelope, faLock, faSpinner, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -21,6 +21,8 @@ export class RegisterComponent {
   faEnvelope = faEnvelope;
   faLock = faLock;
   faSpinner = faSpinner;
+  faEye = faEye;
+  faEyeSlash = faEyeSlash;
 
   name = signal('');
   email = signal('');
@@ -28,6 +30,16 @@ export class RegisterComponent {
   confirmPassword = signal('');
   error = signal('');
   loading = signal(false);
+  showPassword = signal(false);
+  showConfirmPassword = signal(false);
+
+  togglePasswordVisibility(): void {
+    this.showPassword.update((v) => !v);
+  }
+
+  toggleConfirmPasswordVisibility(): void {
+    this.showConfirmPassword.update((v) => !v);
+  }
 
   passwordsMatch(): boolean {
     return this.password() === this.confirmPassword() && this.password().length > 0;

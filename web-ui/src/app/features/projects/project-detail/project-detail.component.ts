@@ -49,7 +49,7 @@ export class ProjectDetailComponent implements OnInit {
     });
   }
 
-  formatDate(date: Date | undefined): string {
+  formatDate(date: string | Date | undefined): string {
     if (!date) return 'N/A';
     return new Date(date).toLocaleDateString();
   }
