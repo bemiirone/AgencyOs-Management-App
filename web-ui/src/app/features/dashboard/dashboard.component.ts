@@ -81,20 +81,52 @@ export class DashboardComponent implements OnInit {
     const timeEntries$ = this.http.get<any[]>(API_CONFIG.TIME_ENTRIES.LIST);
     const invoices$ = this.http.get<any[]>(API_CONFIG.INVOICES.LIST);
 
+    let projectsLoaded = false;
+    let tasksLoaded = false;
+    let recentProjects: any[] = [];
+    let recentTasks: any[] = [];
+
+    const mergeActivities = () => {
+      const projectActs: Activity[] = recentProjects.map((p) => ({
+        icon: faPlus,
+        color: 'bg-primary',
+        message: `Project "${p.name}" created`,
+        time: this.timeAgo(p.createdAt),
+      }));
+
+      const taskActs: Activity[] = recentTasks.map((t) => ({
+        icon: faTasks,
+        color: 'bg-secondary',
+        message: `Task "${t.title}" created`,
+        time: this.timeAgo(t.createdAt),
+      }));
+
+      const allActs = [...projectActs, ...taskActs]
+        .sort((a, b) => {
+          const parseTime = (timeStr: string) => {
+            if (timeStr === 'Just now') return 0;
+            const num = parseInt(timeStr);
+            if (timeStr.includes('h')) return num * 60;
+            if (timeStr.includes('d')) return num * 24 * 60;
+            return 999999;
+          };
+          return parseTime(a.time) - parseTime(b.time);
+        })
+        .slice(0, 6);
+
+      this.activities.set(allActs);
+    };
+
     projects$.subscribe({
       next: (projects) => {
         const totalProjects = projects.length;
         this.stats.update((s) => ({ ...s, totalProjects }));
 
-        const recentProjects = projects.slice(-3).reverse();
-        const acts: Activity[] = recentProjects.map((p) => ({
-          icon: faPlus,
-          color: 'bg-primary',
-          message: `Project "${p.name}" created`,
-          time: this.timeAgo(p.createdAt),
-        }));
-
-        this.activities.set(acts);
+        recentProjects = projects.slice(0, 3);
+        projectsLoaded = true;
+        if (projectsLoaded && tasksLoaded) {
+          mergeActivities();
+        }
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
@@ -106,6 +138,12 @@ export class DashboardComponent implements OnInit {
           (t) => t.status === 'in_progress' || t.status === 'todo'
         ).length;
         this.stats.update((s) => ({ ...s, activeTasks }));
+
+        recentTasks = tasks.slice(0, 3);
+        tasksLoaded = true;
+        if (projectsLoaded && tasksLoaded) {
+          mergeActivities();
+        }
       },
       error: () => {},
     });

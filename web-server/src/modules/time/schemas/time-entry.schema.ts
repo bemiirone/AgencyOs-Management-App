@@ -7,8 +7,8 @@ export class TimeEntry extends BaseDocument {
   @Prop({ required: true })
   userId: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'Task', required: true })
-  taskId: string;
+  @Prop({ type: Types.ObjectId, ref: 'Task' })
+  taskId?: string;
 
   @Prop({ type: Types.ObjectId, ref: 'Project', required: true })
   projectId: string;

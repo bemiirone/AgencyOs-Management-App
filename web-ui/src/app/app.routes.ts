@@ -36,10 +36,24 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'projects/create',
+        loadComponent: () =>
+          import('./features/projects/project-create/project-create.component').then(
+            (m) => m.ProjectCreateComponent
+          ),
+      },
+      {
         path: 'projects/:id',
         loadComponent: () =>
           import('./features/projects/project-detail/project-detail.component').then(
             (m) => m.ProjectDetailComponent
+          ),
+      },
+      {
+        path: 'projects/:id/edit',
+        loadComponent: () =>
+          import('./features/projects/project-edit/project-edit.component').then(
+            (m) => m.ProjectEditComponent
           ),
       },
       {
@@ -73,7 +87,9 @@ export const routes: Routes = [
       {
         path: 'time',
         loadComponent: () =>
-          import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+          import('./features/time/time-tracking.component').then(
+            (m) => m.TimeTrackingComponent
+          ),
       },
       {
         path: 'invoices',

@@ -11,6 +11,11 @@ export class TimeEntryService {
   ) {}
 
   async create(createTimeEntryDto: CreateTimeEntryDto, tenantId: string, userId: string) {
+    const runningEntry = await this.getRunningEntry(tenantId, userId);
+    if (runningEntry) {
+      await this.stop(runningEntry._id.toString(), tenantId, userId);
+    }
+
     const timeEntry = await this.timeEntryModel.create({
       ...createTimeEntryDto,
       tenantId,
@@ -87,5 +92,65 @@ export class TimeEntryService {
 
   async getRunningEntry(tenantId: string, userId: string) {
     return this.timeEntryModel.findOne({ tenantId, userId, isRunning: true }).exec();
+  }
+
+  async cleanupOrphanedTimers(tenantId: string, userId: string) {
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const result = await this.timeEntryModel.updateMany(
+      { tenantId, isRunning: true, startTime: { $lt: twentyFourHoursAgo } },
+      {
+        $set: {
+          isRunning: false,
+          endTime: new Date(),
+        },
+      },
+    ).exec();
+
+    if (result.modifiedCount > 0) {
+      const entries = await this.timeEntryModel.find({
+        tenantId,
+        isRunning: false,
+        endTime: { $gte: twentyFourHoursAgo },
+      }).exec();
+
+      for (const entry of entries) {
+        if (entry.startTime && entry.endTime) {
+          entry.duration = Math.floor((entry.endTime.getTime() - entry.startTime.getTime()) / 1000);
+          await entry.save();
+        }
+      }
+    }
+
+    return result.modifiedCount;
+  }
+
+  async cleanupAllOrphanedTimers(tenantId: string) {
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const result = await this.timeEntryModel.updateMany(
+      { tenantId, isRunning: true, startTime: { $lt: twentyFourHoursAgo } },
+      {
+        $set: {
+          isRunning: false,
+          endTime: new Date(),
+        },
+      },
+    ).exec();
+
+    if (result.modifiedCount > 0) {
+      const entries = await this.timeEntryModel.find({
+        tenantId,
+        isRunning: false,
+        endTime: { $gte: twentyFourHoursAgo },
+      }).exec();
+
+      for (const entry of entries) {
+        if (entry.startTime && entry.endTime) {
+          entry.duration = Math.floor((entry.endTime.getTime() - entry.startTime.getTime()) / 1000);
+          await entry.save();
+        }
+      }
+    }
+
+    return result.modifiedCount;
   }
 }

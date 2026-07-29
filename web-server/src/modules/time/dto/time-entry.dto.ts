@@ -5,12 +5,12 @@ export class CreateTimeEntryDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  taskId: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
   projectId: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  taskId?: string;
 
   @ApiProperty({ required: false })
   @IsString()

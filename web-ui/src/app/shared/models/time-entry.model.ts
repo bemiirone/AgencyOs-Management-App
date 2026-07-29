@@ -1,5 +1,5 @@
 export interface TimeEntry {
-  id: string;
+  _id: string;
   description?: string;
   projectId: string;
   projectName?: string;
@@ -10,7 +10,8 @@ export interface TimeEntry {
   startTime: Date;
   endTime?: Date;
   duration: number;
-  billable: boolean;
+  isBillable: boolean;
+  isRunning: boolean;
   hourlyRate?: number;
   createdAt: Date;
   updatedAt: Date;

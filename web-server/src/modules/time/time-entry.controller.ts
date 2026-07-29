@@ -40,6 +40,20 @@ export class TimeEntryController {
     return this.timeEntryService.getRunningEntry(tenantId, user.userId);
   }
 
+  @Post('cleanup-orphaned')
+  @ApiOperation({ summary: 'Stop orphaned timers older than 24 hours for current user' })
+  async cleanupOrphaned(@TenantId() tenantId: string, @CurrentUser() user: any) {
+    const count = await this.timeEntryService.cleanupOrphanedTimers(tenantId, user.userId);
+    return { cleaned: count };
+  }
+
+  @Post('cleanup-all-orphaned')
+  @ApiOperation({ summary: 'Stop all orphaned timers older than 24 hours (all users)' })
+  async cleanupAllOrphaned(@TenantId() tenantId: string) {
+    const count = await this.timeEntryService.cleanupAllOrphanedTimers(tenantId);
+    return { cleaned: count };
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get time entry by ID' })
   async findOne(@Param('id') id: string, @TenantId() tenantId: string) {

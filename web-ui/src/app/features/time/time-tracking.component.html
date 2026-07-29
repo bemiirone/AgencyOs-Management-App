@@ -1,0 +1,183 @@
+<div class="p-6">
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-base-content">Time Tracking</h1>
+    <p class="text-base-content/60 mt-1">Track your time across projects and tasks</p>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center py-16">
+      <fa-icon [icon]="faSpinner" class="animate-spin text-4xl text-primary"></fa-icon>
+    </div>
+  } @else {
+    @if (showRunningBanner()) {
+      <div class="alert alert-warning mb-4">
+        <fa-icon [icon]="faClock" class="text-lg"></fa-icon>
+        <div>
+          <span class="font-medium">You have a running timer</span>
+          <div class="text-sm">
+            Project: {{ runningTimerInfo().projectName }} — started {{ runningTimerInfo().startedAgo }}
+          </div>
+        </div>
+        <button class="btn btn-sm btn-error" (click)="stopTimer()">Stop</button>
+        <button class="btn btn-sm btn-ghost" (click)="dismissBanner()">Dismiss</button>
+      </div>
+    }
+
+    <div class="card bg-base-100 shadow mb-6">
+      <div class="card-body">
+        <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-end">
+          <div class="form-control flex-1">
+            <label class="label">
+              <span class="label-text font-medium">Project</span>
+            </label>
+            <select
+              [(ngModel)]="selectedProjectId"
+              (ngModelChange)="onProjectChange()"
+              class="select select-bordered w-full"
+            >
+              <option value="" disabled>Select a project</option>
+              @for (project of projects(); track project._id) {
+                <option [value]="project._id">{{ project.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-control flex-1">
+            <label class="label">
+              <span class="label-text font-medium">Task (optional)</span>
+            </label>
+            <select [(ngModel)]="selectedTaskId" class="select select-bordered w-full">
+              <option value="">No task</option>
+              @for (task of tasks(); track task._id) {
+                <option [value]="task._id">{{ task.title }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-control flex-2 flex-grow-2">
+            <label class="label">
+              <span class="label-text font-medium">Description</span>
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="timerDescription"
+              placeholder="What are you working on?"
+              class="input input-bordered w-full"
+            />
+          </div>
+
+          <div class="form-control">
+            <label class="label cursor-pointer">
+              <span class="label-text font-medium">Billable</span>
+              <input type="checkbox" [(ngModel)]="isBillable" class="checkbox checkbox-primary" />
+            </label>
+          </div>
+
+          <div class="flex flex-col items-end gap-2">
+            @if (timeEntryStore.runningEntry()) {
+              <div class="text-xs text-base-content/60">
+                Running: {{ getProjectName(timeEntryStore.runningEntry()!.projectId) }}
+                @if (timeEntryStore.runningEntry()!.taskId) {
+                  / {{ getTaskTitle(timeEntryStore.runningEntry()!.taskId) }}
+                }
+              </div>
+            }
+            <div class="flex items-center gap-2">
+              <button
+                class="btn btn-primary"
+                [disabled]="!selectedProjectId()"
+                (click)="startTimer()"
+              >
+                <fa-icon [icon]="faPlay" class="mr-2"></fa-icon>
+                Start
+              </button>
+              @if (timeEntryStore.runningEntry()) {
+                <button class="btn btn-error" (click)="stopTimer()">
+                  <fa-icon [icon]="faStop" class="mr-2"></fa-icon>
+                  {{ timeEntryStore.formatDuration(timeEntryStore.runningEntry()!.duration + elapsedSeconds()) }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="text-xs text-base-content/40 mt-2">
+          Starting a new timer will automatically stop any currently running timer.
+        </div>
+      </div>
+    </div>
+
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        <div class="form-control mb-4">
+          <div class="relative">
+            <fa-icon [icon]="faSearch" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              placeholder="Search entries..."
+              class="input input-bordered w-full pl-10"
+            />
+          </div>
+        </div>
+
+        @for (group of filteredGroups; track group.label) {
+          <div class="mb-6">
+            <div class="flex justify-between items-center mb-3 pb-2 border-b border-base-200">
+              <h3 class="text-lg font-semibold text-base-content">{{ group.label }}</h3>
+              <span class="text-sm text-base-content/60">
+                Total: {{ timeEntryStore.formatDurationShort(group.totalSeconds) }}
+              </span>
+            </div>
+
+            <div class="space-y-2">
+              @for (entry of group.entries; track entry._id) {
+                <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg hover:bg-base-300 transition-colors">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3">
+                      @if (entry.isRunning) {
+                        <span class="badge badge-primary badge-sm gap-1">
+                          <fa-icon [icon]="faClock" class="text-xs"></fa-icon>
+                          Running
+                        </span>
+                      }
+                      <span class="font-medium">{{ entry.description || 'No description' }}</span>
+                    </div>
+                    <div class="text-sm text-base-content/60 mt-1">
+                      {{ getProjectName(entry.projectId) }}
+                      @if (entry.taskId) {
+                        <span class="mx-1">/</span>
+                        <span>{{ getTaskTitle(entry.taskId) }}</span>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-4">
+                    @if (entry.isBillable) {
+                      <span class="badge badge-success badge-sm">Billable</span>
+                    }
+                    <span class="font-mono text-sm font-medium">
+                      {{ entry.isRunning ? timeEntryStore.formatDuration(timeEntryStore.runningEntry()!.duration + elapsedSeconds()) : timeEntryStore.formatDuration(entry.duration) }}
+                    </span>
+                    <button
+                      class="btn btn-ghost btn-xs text-error"
+                      (click)="deleteEntry(entry._id)"
+                      [disabled]="entry.isRunning"
+                    >
+                      <fa-icon [icon]="faTrash"></fa-icon>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        } @empty {
+          <div class="text-center py-12 text-base-content/50">
+            <fa-icon [icon]="faClock" class="text-4xl mb-4"></fa-icon>
+            <p class="text-lg">No time entries yet</p>
+            <p class="text-sm mt-1">Start the timer to track your time</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

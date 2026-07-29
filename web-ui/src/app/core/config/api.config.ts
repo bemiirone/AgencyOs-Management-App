@@ -25,6 +25,8 @@ export const API_CONFIG = {
   TIME_ENTRIES: {
     LIST: '/api/time-entries',
     RUNNING: '/api/time-entries/running',
+    CLEANUP_ORPHANED: '/api/time-entries/cleanup-orphaned',
+    CLEANUP_ALL_ORPHANED: '/api/time-entries/cleanup-all-orphaned',
     DETAIL: (id: string) => `/api/time-entries/${id}`,
     CREATE: '/api/time-entries',
     STOP: (id: string) => `/api/time-entries/${id}/stop`,
