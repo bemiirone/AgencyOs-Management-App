@@ -18,6 +18,12 @@ export class TaskController {
     return this.taskService.create(createTaskDto, tenantId);
   }
 
+  @Get()
+  @ApiOperation({ summary: 'Get all tasks' })
+  async findAll(@TenantId() tenantId: string, @Query('status') status?: TaskStatus) {
+    return this.taskService.findAll(tenantId, status);
+  }
+
   @Get('project/:projectId')
   @ApiOperation({ summary: 'Get tasks by project' })
   async findByProject(

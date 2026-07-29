@@ -5,7 +5,7 @@ import { BaseDocument } from '../../../common/schemas/base.schema';
 export enum ProjectStatus {
   DRAFT = 'draft',
   ACTIVE = 'active',
-  ON_HOLD = 'on_hold',
+  ON_HOLD = 'on hold',
   COMPLETED = 'completed',
   ARCHIVED = 'archived',
 }

@@ -19,6 +19,16 @@ export class TaskService {
     return task;
   }
 
+  async findAll(tenantId: string, status?: TaskStatus) {
+    const query: any = { tenantId };
+
+    if (status) {
+      query.status = status;
+    }
+
+    return this.taskModel.find(query).sort({ order: 1, createdAt: 1 }).exec();
+  }
+
   async findByProject(projectId: string, tenantId: string, status?: TaskStatus) {
     const query: any = { projectId, tenantId };
 
