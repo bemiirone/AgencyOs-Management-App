@@ -49,4 +49,8 @@ export const API_CONFIG = {
     DETAIL: (id: string) => `/api/users/${id}`,
     UPDATE: (id: string) => `/api/users/${id}`,
   },
+  NOTIFICATIONS: {
+    LIST: '/api/notifications',
+    MARK_READ: (id: string) => `/api/notifications/${id}/read`,
+  },
 };

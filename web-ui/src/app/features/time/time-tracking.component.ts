@@ -74,7 +74,7 @@ export class TimeTrackingComponent implements OnInit, OnDestroy {
   }
 
   private loadEntries(): void {
-    const userId = this.currentUserId();
+    const userId = this.currentUserId() || undefined;
     this.timeEntryStore.loadEntries(userId).subscribe({
       next: (entries) => {
         this.groupEntries(entries);

@@ -112,6 +112,7 @@ export class DashboardComponent implements OnInit {
           };
           return parseTime(a.time) - parseTime(b.time);
         })
+        .reverse()
         .slice(0, 6);
 
       this.activities.set(allActs);
@@ -145,7 +146,12 @@ export class DashboardComponent implements OnInit {
           mergeActivities();
         }
       },
-      error: () => {},
+      error: () => {
+        tasksLoaded = true;
+        if (projectsLoaded) {
+          mergeActivities();
+        }
+      },
     });
 
     timeEntries$.subscribe({

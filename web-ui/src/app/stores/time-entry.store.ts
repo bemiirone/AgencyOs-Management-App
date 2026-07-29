@@ -3,10 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { catchError, tap, throwError } from 'rxjs';
 import { TimeEntry } from '../shared/models/time-entry.model';
 import { API_CONFIG } from '../core/config/api.config';
+import { ToastService } from '../core/services/toast.service';
 
 @Injectable({ providedIn: 'root' })
 export class TimeEntryStore {
   private http = inject(HttpClient);
+  private toast = inject(ToastService);
 
   private _entries = signal<TimeEntry[]>([]);
   private _runningEntry = signal<TimeEntry | null>(null);
@@ -111,10 +113,12 @@ export class TimeEntryStore {
         this._runningEntry.set(entry);
         this._entries.update((entries) => [entry, ...entries]);
         this._isLoading.set(false);
+        this.toast.info('Timer started');
       }),
       catchError((error) => {
         this._error.set(error.error?.message || 'Failed to start timer');
         this._isLoading.set(false);
+        this.toast.error('Failed to start timer');
         return throwError(() => error);
       })
     );
@@ -131,10 +135,12 @@ export class TimeEntryStore {
           entries.map((e) => (e._id === id ? entry : e))
         );
         this._isLoading.set(false);
+        this.toast.success(`Timer stopped — ${this.formatDurationShort(entry.duration)}`);
       }),
       catchError((error) => {
         this._error.set(error.error?.message || 'Failed to stop timer');
         this._isLoading.set(false);
+        this.toast.error('Failed to stop timer');
         return throwError(() => error);
       })
     );
@@ -151,10 +157,12 @@ export class TimeEntryStore {
           this._runningEntry.set(null);
         }
         this._isLoading.set(false);
+        this.toast.success('Time entry deleted');
       }),
       catchError((error) => {
         this._error.set(error.error?.message || 'Failed to delete time entry');
         this._isLoading.set(false);
+        this.toast.error('Failed to delete time entry');
         return throwError(() => error);
       })
     );

@@ -22,7 +22,7 @@ export class ProjectDetailComponent implements OnInit {
   private router = inject(Router);
   private projectStore = inject(ProjectStore);
   private taskStore = inject(TaskStore);
-  private timeEntryStore = inject(TimeEntryStore);
+  timeEntryStore = inject(TimeEntryStore);
 
   project = signal<Project | null>(null);
   tasks = signal<Task[]>([]);

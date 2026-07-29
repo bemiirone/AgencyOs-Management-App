@@ -33,7 +33,7 @@ export class TaskDetailComponent implements OnInit {
   private router = inject(Router);
   private taskStore = inject(TaskStore);
   private projectStore = inject(ProjectStore);
-  private timeEntryStore = inject(TimeEntryStore);
+  timeEntryStore = inject(TimeEntryStore);
 
   task = signal<Task | null>(null);
   subtasks = signal<Task[]>([]);

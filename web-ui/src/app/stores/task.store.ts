@@ -3,10 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { catchError, tap, throwError } from 'rxjs';
 import { Task } from '../shared/models/task.model';
 import { API_CONFIG } from '../core/config/api.config';
+import { ToastService } from '../core/services/toast.service';
 
 @Injectable({ providedIn: 'root' })
 export class TaskStore {
   private http = inject(HttpClient);
+  private toast = inject(ToastService);
 
   private _tasks = signal<Task[]>([]);
   private _selectedTask = signal<Task | null>(null);
@@ -77,10 +79,12 @@ export class TaskStore {
       tap((task) => {
         this._tasks.update((tasks) => [...tasks, task]);
         this._isLoading.set(false);
+        this.toast.success('Task created successfully');
       }),
       catchError((error) => {
         this._error.set(error.error?.message || 'Failed to create task');
         this._isLoading.set(false);
+        this.toast.error('Failed to create task');
         return throwError(() => error);
       })
     );
@@ -97,10 +101,12 @@ export class TaskStore {
         );
         this._selectedTask.set(task);
         this._isLoading.set(false);
+        this.toast.success('Task updated successfully');
       }),
       catchError((error) => {
         this._error.set(error.error?.message || 'Failed to update task');
         this._isLoading.set(false);
+        this.toast.error('Failed to update task');
         return throwError(() => error);
       })
     );
@@ -121,6 +127,7 @@ export class TaskStore {
       catchError((error) => {
         this._error.set(error.error?.message || 'Failed to update task status');
         this._isLoading.set(false);
+        this.toast.error('Failed to update task status');
         return throwError(() => error);
       })
     );
@@ -134,10 +141,12 @@ export class TaskStore {
       tap(() => {
         this._tasks.update((tasks) => tasks.filter((t) => t._id !== id));
         this._isLoading.set(false);
+        this.toast.success('Task deleted successfully');
       }),
       catchError((error) => {
         this._error.set(error.error?.message || 'Failed to delete task');
         this._isLoading.set(false);
+        this.toast.error('Failed to delete task');
         return throwError(() => error);
       })
     );
