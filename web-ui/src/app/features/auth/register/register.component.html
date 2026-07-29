@@ -1,0 +1,134 @@
+<div class="min-h-screen bg-base-200 flex items-center justify-center p-4">
+  <div class="card w-full max-w-md shadow-2xl bg-base-100">
+    <div class="card-body">
+      <div class="text-center mb-6">
+        <h1 class="text-3xl font-bold text-primary">AgencyOS</h1>
+        <p class="text-base-content/60 mt-2">Create your account</p>
+      </div>
+
+      @if (error()) {
+        <div class="alert alert-error mb-4">
+          <fa-icon [icon]="faSpinner" class="animate-spin"></fa-icon>
+          <span>{{ error() }}</span>
+        </div>
+      }
+
+      <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+        <div class="form-control mb-4">
+          <label class="label">
+            <span class="label-text font-medium">Full Name</span>
+          </label>
+          <div class="relative">
+            <fa-icon [icon]="faUser" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
+            <input
+              type="text"
+              [(ngModel)]="name"
+              name="name"
+              placeholder="John Doe"
+              class="input input-bordered w-full pl-10"
+              required
+              minlength="2"
+              #nameModel="ngModel"
+            />
+          </div>
+          @if (nameModel.invalid && nameModel.touched) {
+            <label class="label">
+              <span class="label-text-alt text-error">Name is required</span>
+            </label>
+          }
+        </div>
+
+        <div class="form-control mb-4">
+          <label class="label">
+            <span class="label-text font-medium">Email</span>
+          </label>
+          <div class="relative">
+            <fa-icon [icon]="faEnvelope" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
+            <input
+              type="email"
+              [(ngModel)]="email"
+              name="email"
+              placeholder="you@example.com"
+              class="input input-bordered w-full pl-10"
+              required
+              email
+              #emailModel="ngModel"
+            />
+          </div>
+          @if (emailModel.invalid && emailModel.touched) {
+            <label class="label">
+              <span class="label-text-alt text-error">Please enter a valid email</span>
+            </label>
+          }
+        </div>
+
+        <div class="form-control mb-4">
+          <label class="label">
+            <span class="label-text font-medium">Password</span>
+          </label>
+          <div class="relative">
+            <fa-icon [icon]="faLock" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
+            <input
+              type="password"
+              [(ngModel)]="password"
+              name="password"
+              placeholder="Create a password"
+              class="input input-bordered w-full pl-10"
+              required
+              minlength="6"
+              #passwordModel="ngModel"
+            />
+          </div>
+          @if (passwordModel.invalid && passwordModel.touched) {
+            <label class="label">
+              <span class="label-text-alt text-error">Password must be at least 6 characters</span>
+            </label>
+          }
+        </div>
+
+        <div class="form-control mb-6">
+          <label class="label">
+            <span class="label-text font-medium">Confirm Password</span>
+          </label>
+          <div class="relative">
+            <fa-icon [icon]="faLock" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
+            <input
+              type="password"
+              [(ngModel)]="confirmPassword"
+              name="confirmPassword"
+              placeholder="Confirm your password"
+              class="input input-bordered w-full pl-10"
+              required
+              #confirmModel="ngModel"
+            />
+          </div>
+          @if (confirmModel.touched && !passwordsMatch()) {
+            <label class="label">
+              <span class="label-text-alt text-error">Passwords do not match</span>
+            </label>
+          }
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary w-full"
+          [disabled]="registerForm.invalid || loading() || !passwordsMatch()"
+        >
+          @if (loading()) {
+            <fa-icon [icon]="faSpinner" class="animate-spin mr-2"></fa-icon>
+            Creating account...
+          } @else {
+            Create Account
+          }
+        </button>
+      </form>
+
+      <div class="text-center mt-4">
+        <p class="text-base-content/60">
+          Already have an account?
+          <a routerLink="/login" class="link link-primary">Sign in</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

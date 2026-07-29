@@ -1,0 +1,120 @@
+<div class="p-6">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-base-content">Welcome back, {{ userName() }}!</h1>
+    <p class="text-base-content/60 mt-1">Here's what's happening with your projects today.</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="stat bg-base-100 shadow rounded-box">
+      <div class="stat-figure text-primary">
+        <fa-icon [icon]="faProjectDiagram" size="2x"></fa-icon>
+      </div>
+      <div class="stat-title">Total Projects</div>
+      <div class="stat-value text-primary">{{ stats().totalProjects }}</div>
+      <div class="stat-desc">Active and completed</div>
+    </div>
+
+    <div class="stat bg-base-100 shadow rounded-box">
+      <div class="stat-figure text-secondary">
+        <fa-icon [icon]="faTasks" size="2x"></fa-icon>
+      </div>
+      <div class="stat-title">Active Tasks</div>
+      <div class="stat-value text-secondary">{{ stats().activeTasks }}</div>
+      <div class="stat-desc">In progress</div>
+    </div>
+
+    <div class="stat bg-base-100 shadow rounded-box">
+      <div class="stat-figure text-accent">
+        <fa-icon [icon]="faClock" size="2x"></fa-icon>
+      </div>
+      <div class="stat-title">Total Hours</div>
+      <div class="stat-value text-accent">{{ stats().totalHours }}</div>
+      <div class="stat-desc">Tracked this month</div>
+    </div>
+
+    <div class="stat bg-base-100 shadow rounded-box">
+      <div class="stat-figure text-info">
+        <fa-icon [icon]="faFileInvoiceDollar" size="2x"></fa-icon>
+      </div>
+      <div class="stat-title">Pending Invoices</div>
+      <div class="stat-value text-info">{{ stats().pendingInvoices }}</div>
+      <div class="stat-desc">Awaiting payment</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        <h2 class="card-title">
+          <fa-icon [icon]="faChartLine" class="text-primary"></fa-icon>
+          Recent Activity
+        </h2>
+        <div class="mt-4">
+          <ul class="space-y-3">
+            <li class="flex items-center gap-3 p-3 bg-base-200 rounded-lg">
+              <div class="w-2 h-2 bg-primary rounded-full"></div>
+              <span class="text-sm">New project "Website Redesign" created</span>
+              <span class="text-xs text-base-content/50 ml-auto">2h ago</span>
+            </li>
+            <li class="flex items-center gap-3 p-3 bg-base-200 rounded-lg">
+              <div class="w-2 h-2 bg-secondary rounded-full"></div>
+              <span class="text-sm">Task "Design Homepage" completed</span>
+              <span class="text-xs text-base-content/50 ml-auto">5h ago</span>
+            </li>
+            <li class="flex items-center gap-3 p-3 bg-base-200 rounded-lg">
+              <div class="w-2 h-2 bg-accent rounded-full"></div>
+              <span class="text-sm">Invoice #1024 sent to client</span>
+              <span class="text-xs text-base-content/50 ml-auto">1d ago</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        <h2 class="card-title">
+          <fa-icon [icon]="faUsers" class="text-secondary"></fa-icon>
+          Team Members
+        </h2>
+        <div class="mt-4">
+          <div class="space-y-3">
+            <div class="flex items-center gap-3 p-3 bg-base-200 rounded-lg">
+              <div class="avatar placeholder">
+                <div class="bg-primary text-primary-content w-10 rounded-full">
+                  <span class="text-sm">JD</span>
+                </div>
+              </div>
+              <div>
+                <p class="font-medium">John Doe</p>
+                <p class="text-xs text-base-content/50">Project Manager</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-base-200 rounded-lg">
+              <div class="avatar placeholder">
+                <div class="bg-secondary text-secondary-content w-10 rounded-full">
+                  <span class="text-sm">AS</span>
+                </div>
+              </div>
+              <div>
+                <p class="font-medium">Alice Smith</p>
+                <p class="text-xs text-base-content/50">Designer</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-base-200 rounded-lg">
+              <div class="avatar placeholder">
+                <div class="bg-accent text-accent-content w-10 rounded-full">
+                  <span class="text-sm">BJ</span>
+                </div>
+              </div>
+              <div>
+                <p class="font-medium">Bob Johnson</p>
+                <p class="text-xs text-base-content/50">Developer</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

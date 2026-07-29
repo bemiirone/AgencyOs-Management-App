@@ -1,0 +1,48 @@
+export const API_CONFIG = {
+  baseUrl: '/api',
+  AUTH: {
+    LOGIN: '/api/auth/login',
+    REGISTER: '/api/auth/register',
+    PROFILE: '/api/auth/profile',
+    REFRESH: '/api/auth/refresh',
+  },
+  PROJECTS: {
+    LIST: '/api/projects',
+    DETAIL: (id: string) => `/api/projects/${id}`,
+    CREATE: '/api/projects',
+    UPDATE: (id: string) => `/api/projects/${id}`,
+    DELETE: (id: string) => `/api/projects/${id}`,
+  },
+  TASKS: {
+    LIST: '/api/tasks',
+    BY_PROJECT: (projectId: string) => `/api/tasks/project/${projectId}`,
+    DETAIL: (id: string) => `/api/tasks/${id}`,
+    CREATE: '/api/tasks',
+    UPDATE: (id: string) => `/api/tasks/${id}`,
+    UPDATE_STATUS: (id: string) => `/api/tasks/${id}/status`,
+    DELETE: (id: string) => `/api/tasks/${id}`,
+  },
+  TIME_ENTRIES: {
+    LIST: '/api/time-entries',
+    RUNNING: '/api/time-entries/running',
+    DETAIL: (id: string) => `/api/time-entries/${id}`,
+    CREATE: '/api/time-entries',
+    STOP: (id: string) => `/api/time-entries/${id}/stop`,
+    UPDATE: (id: string) => `/api/time-entries/${id}`,
+    DELETE: (id: string) => `/api/time-entries/${id}`,
+  },
+  INVOICES: {
+    LIST: '/api/invoices',
+    DETAIL: (id: string) => `/api/invoices/${id}`,
+    CREATE: '/api/invoices',
+    UPDATE: (id: string) => `/api/invoices/${id}`,
+    SEND: (id: string) => `/api/invoices/${id}/send`,
+    PAY: (id: string) => `/api/invoices/${id}/pay`,
+    DELETE: (id: string) => `/api/invoices/${id}`,
+  },
+  USERS: {
+    LIST: '/api/users',
+    DETAIL: (id: string) => `/api/users/${id}`,
+    UPDATE: (id: string) => `/api/users/${id}`,
+  },
+};
