@@ -26,7 +26,7 @@ export class TaskService {
       query.status = status;
     }
 
-    return this.taskModel.find(query).sort({ order: 1, createdAt: 1 }).exec();
+    return this.taskModel.find(query).sort({ createdAt: -1 }).exec();
   }
 
   async findByProject(projectId: string, tenantId: string, status?: TaskStatus) {
@@ -36,7 +36,7 @@ export class TaskService {
       query.status = status;
     }
 
-    return this.taskModel.find(query).sort({ order: 1, createdAt: 1 }).exec();
+    return this.taskModel.find(query).sort({ createdAt: -1 }).exec();
   }
 
   async findOne(id: string, tenantId: string) {

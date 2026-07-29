@@ -2,7 +2,7 @@ export interface Project {
   _id: string;
   name: string;
   description?: string;
-  status: 'draft' | 'active' | 'on_hold' | 'completed' | 'archived';
+  status: 'draft' | 'active' | 'on hold' | 'completed' | 'archived';
   tenantId: string;
   ownerId: string;
   teamMemberIds?: string[];
