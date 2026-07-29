@@ -1,20 +1,21 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faArrowLeft, faCalendar, faUser, faDollarSign, faClock, faSpinner, faEdit, faTasks, faCheckCircle, faHourglassHalf } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faCalendar, faUser, faDollarSign, faClock, faSpinner, faEdit, faTasks, faCheckCircle, faHourglassHalf, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Project } from '../../../shared/models/project.model';
 import { ProjectStore } from '../../../stores/project.store';
 
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule, FontAwesomeModule],
+  imports: [CommonModule, RouterLink, FontAwesomeModule],
   templateUrl: './project-detail.component.html',
   styleUrls: ['./project-detail.component.scss'],
 })
 export class ProjectDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private projectStore = inject(ProjectStore);
 
   project = signal<Project | null>(null);
@@ -30,6 +31,7 @@ export class ProjectDetailComponent implements OnInit {
   faTasks = faTasks;
   faCheckCircle = faCheckCircle;
   faHourglassHalf = faHourglassHalf;
+  faTrash = faTrash;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -68,5 +70,19 @@ export class ProjectDetailComponent implements OnInit {
       archived: 'badge-neutral',
     };
     return classes[status] || 'badge-ghost';
+  }
+
+  deleteProject(): void {
+    const id = this.project()?._id;
+    if (!id) return;
+    
+    if (confirm('Are you sure you want to delete this project?')) {
+      this.projectStore.deleteProject(id).subscribe({
+        next: () => {
+          this.router.navigate(['/projects']);
+        },
+        error: (err) => console.error('Failed to delete project:', err),
+      });
+    }
   }
 }

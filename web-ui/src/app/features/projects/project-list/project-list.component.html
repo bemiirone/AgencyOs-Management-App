@@ -4,7 +4,7 @@
       <h1 class="text-3xl font-bold text-base-content">Projects</h1>
       <p class="text-base-content/60 mt-1">Manage and track all your projects</p>
     </div>
-    <button class="btn btn-primary">
+    <button [routerLink]="['/projects/create']" class="btn btn-primary">
       <fa-icon [icon]="faPlus" class="mr-2"></fa-icon>
       New Project
     </button>
@@ -63,10 +63,10 @@
                       <a [routerLink]="['/projects', project._id]" class="btn btn-ghost btn-xs">
                         <fa-icon [icon]="faEye"></fa-icon>
                       </a>
-                      <button class="btn btn-ghost btn-xs">
+                      <a [routerLink]="['/projects', project._id, 'edit']" class="btn btn-ghost btn-xs">
                         <fa-icon [icon]="faEdit"></fa-icon>
-                      </button>
-                      <button class="btn btn-ghost btn-xs text-error">
+                      </a>
+                      <button class="btn btn-ghost btn-xs text-error" (click)="deleteProject(project._id)">
                         <fa-icon [icon]="faTrash"></fa-icon>
                       </button>
                     </div>

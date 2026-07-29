@@ -1,4 +1,4 @@
-import { Component, signal, OnInit } from '@angular/core';
+import { Component, signal, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -15,6 +15,8 @@ import { ProjectStore } from '../../../stores/project.store';
   styleUrls: ['./project-list.component.scss'],
 })
 export class ProjectListComponent implements OnInit {
+  private projectStore = inject(ProjectStore);
+  
   projects = signal<Project[]>([]);
   loading = signal(false);
   searchQuery = signal('');
@@ -25,8 +27,6 @@ export class ProjectListComponent implements OnInit {
   faTrash = faTrash;
   faSearch = faSearch;
   faSpinner = faSpinner;
-
-  constructor(private projectStore: ProjectStore) {}
 
   ngOnInit(): void {
     this.loadProjects();
@@ -76,5 +76,16 @@ export class ProjectListComponent implements OnInit {
 
   getStatusClass(status: string): string {
     return this.getStatusColor(status);
+  }
+
+  deleteProject(id: string): void {
+    if (confirm('Are you sure you want to delete this project?')) {
+      this.projectStore.deleteProject(id).subscribe({
+        next: () => {
+          this.projects.update((projects) => projects.filter((p) => p._id !== id));
+        },
+        error: (err) => console.error('Failed to delete project:', err),
+      });
+    }
   }
 }

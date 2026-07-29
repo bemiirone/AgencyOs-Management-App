@@ -16,10 +16,16 @@
         <h1 class="text-3xl font-bold text-base-content">{{ project()?.name }}</h1>
         <p class="text-base-content/60 mt-1">Client ID: {{ project()?.clientId }}</p>
       </div>
-      <button class="btn btn-primary">
-        <fa-icon [icon]="faEdit" class="mr-2"></fa-icon>
-        Edit Project
-      </button>
+      <div class="flex gap-2">
+        <a [routerLink]="['/projects', project()?._id, 'edit']" class="btn btn-primary">
+          <fa-icon [icon]="faEdit" class="mr-2"></fa-icon>
+          Edit Project
+        </a>
+        <button class="btn btn-error" (click)="deleteProject()">
+          <fa-icon [icon]="faTrash" class="mr-2"></fa-icon>
+          Delete
+        </button>
+      </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
