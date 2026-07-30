@@ -13,12 +13,21 @@
           <fa-icon [icon]="faUser" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
           <input
             type="text"
-            [(ngModel)]="name"
-            name="name"
+            [formControlName]="'name'"
             placeholder="Your name"
             class="input input-bordered w-full pl-10"
+            [class.input-error]="profileForm.get('name')?.invalid && profileForm.get('name')?.touched"
           />
         </div>
+        @if (profileForm.get('name')?.invalid && profileForm.get('name')?.touched) {
+          <label class="label">
+            @if (profileForm.get('name')?.hasError('required')) {
+              <span class="label-text-alt text-error">Name is required</span>
+            } @else if (profileForm.get('name')?.hasError('minlength')) {
+              <span class="label-text-alt text-error">Name must be at least 2 characters</span>
+            }
+          </label>
+        }
       </div>
 
       <div class="form-control mb-4">
@@ -29,11 +38,9 @@
           <fa-icon [icon]="faEnvelope" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
           <input
             type="email"
-            [(ngModel)]="email"
-            name="email"
+            [formControlName]="'email'"
             placeholder="you@example.com"
             class="input input-bordered w-full pl-10"
-            disabled
           />
         </div>
         <label class="label">
@@ -99,20 +106,25 @@
         <div class="relative">
           <fa-icon [icon]="faLock" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
           <input
-            [type]="showCurrentPassword() ? 'text' : 'password'"
-            [(ngModel)]="currentPassword"
-            name="currentPassword"
+            [type]="showPasswords().current ? 'text' : 'password'"
+            [formControlName]="'currentPassword'"
             placeholder="Enter current password"
             class="input input-bordered w-full pl-10 pr-10"
+            [class.input-error]="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched"
           />
           <button
             type="button"
             class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content/70"
-            (click)="toggleCurrentPasswordVisibility()"
+            (click)="togglePasswordVisibility('current')"
           >
-            <fa-icon [icon]="showCurrentPassword() ? faEyeSlash : faEye"></fa-icon>
+            <fa-icon [icon]="showPasswords().current ? faEyeSlash : faEye"></fa-icon>
           </button>
         </div>
+        @if (passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched) {
+          <label class="label">
+            <span class="label-text-alt text-error">Current password is required</span>
+          </label>
+        }
       </div>
 
       <div class="form-control mb-4">
@@ -122,20 +134,29 @@
         <div class="relative">
           <fa-icon [icon]="faLock" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
           <input
-            [type]="showNewPassword() ? 'text' : 'password'"
-            [(ngModel)]="newPassword"
-            name="newPassword"
+            [type]="showPasswords().new ? 'text' : 'password'"
+            [formControlName]="'newPassword'"
             placeholder="Enter new password"
             class="input input-bordered w-full pl-10 pr-10"
+            [class.input-error]="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched"
           />
           <button
             type="button"
             class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content/70"
-            (click)="toggleNewPasswordVisibility()"
+            (click)="togglePasswordVisibility('new')"
           >
-            <fa-icon [icon]="showNewPassword() ? faEyeSlash : faEye"></fa-icon>
+            <fa-icon [icon]="showPasswords().new ? faEyeSlash : faEye"></fa-icon>
           </button>
         </div>
+        @if (passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched) {
+          <label class="label">
+            @if (passwordForm.get('newPassword')?.hasError('required')) {
+              <span class="label-text-alt text-error">New password is required</span>
+            } @else if (passwordForm.get('newPassword')?.hasError('minlength')) {
+              <span class="label-text-alt text-error">Password must be at least 8 characters</span>
+            }
+          </label>
+        }
       </div>
 
       <div class="form-control mb-6">
@@ -145,23 +166,28 @@
         <div class="relative">
           <fa-icon [icon]="faLock" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
           <input
-            [type]="showConfirmPassword() ? 'text' : 'password'"
-            [(ngModel)]="confirmPassword"
-            name="confirmPassword"
+            [type]="showPasswords().confirm ? 'text' : 'password'"
+            [formControlName]="'confirmPassword'"
             placeholder="Confirm new password"
             class="input input-bordered w-full pl-10 pr-10"
+            [class.input-error]="passwordForm.hasError('passwordsMismatch') && passwordForm.get('confirmPassword')?.touched"
           />
           <button
             type="button"
             class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content/70"
-            (click)="toggleConfirmPasswordVisibility()"
+            (click)="togglePasswordVisibility('confirm')"
           >
-            <fa-icon [icon]="showConfirmPassword() ? faEyeSlash : faEye"></fa-icon>
+            <fa-icon [icon]="showPasswords().confirm ? faEyeSlash : faEye"></fa-icon>
           </button>
         </div>
-        @if (newPassword() && confirmPassword() && !passwordsMatch()) {
+        @if (passwordForm.hasError('passwordsMismatch') && passwordForm.get('confirmPassword')?.touched) {
           <label class="label">
             <span class="label-text-alt text-error">Passwords do not match</span>
+          </label>
+        }
+        @if (passwordForm.get('confirmPassword')?.hasError('required') && passwordForm.get('confirmPassword')?.touched) {
+          <label class="label">
+            <span class="label-text-alt text-error">Confirmation is required</span>
           </label>
         }
       </div>
@@ -180,84 +206,8 @@
   </div>
 </div>
 
-@if (showJoinDialog()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-    <div class="card w-full max-w-md shadow-2xl bg-base-100">
-      <div class="card-body">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="card-title text-lg">Join Workspace</h3>
-          <button class="btn btn-ghost btn-sm btn-circle" (click)="toggleJoinDialog()">
-            <fa-icon [icon]="faTimes"></fa-icon>
-          </button>
-        </div>
-
-        <div class="form-control mb-4">
-          <label class="label">
-            <span class="label-text font-medium">Search Workspace</span>
-          </label>
-          <div class="relative">
-            <fa-icon [icon]="faSearch" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
-            <input
-              type="text"
-              [value]="searchQuery()"
-              (input)="onSearchInput($any($event).target.value)"
-              placeholder="Search by name..."
-              class="input input-bordered w-full pl-10"
-              [class.input-success]="selectedWorkspace()"
-            />
-            @if (searching()) {
-              <span class="loading loading-spinner loading-sm absolute right-3 top-1/2 -translate-y-1/2"></span>
-            }
-          </div>
-          @if (searchResults().length > 0) {
-            <div class="mt-2 max-h-40 overflow-y-auto border border-base-200 rounded-lg">
-              @for (result of searchResults(); track result.tenantId) {
-                <button
-                  class="w-full text-left px-3 py-2 hover:bg-base-200 border-b border-base-200 last:border-b-0"
-                  (click)="selectWorkspace(result)"
-                >
-                  <p class="font-medium text-sm">{{ result.tenantName }}</p>
-                  <p class="text-xs text-base-content/50">{{ result.slug }}</p>
-                </button>
-              }
-            </div>
-          }
-          @if (selectedWorkspace()) {
-            <label class="label">
-              <span class="label-text-alt text-success flex items-center gap-1">
-                <fa-icon [icon]="faSearch" class="text-xs"></fa-icon>
-                Selected: {{ selectedWorkspace()?.tenantName }}
-              </span>
-            </label>
-          }
-        </div>
-
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-medium">Invite Code</span>
-          </label>
-          <input
-            type="text"
-            [(ngModel)]="inviteCode"
-            name="inviteCode"
-            placeholder="Enter invite code"
-            class="input input-bordered"
-          />
-          <label class="label">
-            <span class="label-text-alt text-base-content/50">Contact your workspace admin for the invite code</span>
-          </label>
-        </div>
-
-        <div class="card-actions justify-end mt-4">
-          <button class="btn btn-ghost" (click)="toggleJoinDialog()">Cancel</button>
-          <button class="btn btn-primary" (click)="joinWorkspace()" [disabled]="joining() || !selectedWorkspace() || !inviteCode()">
-            @if (joining()) {
-              <span class="loading loading-spinner loading-sm"></span>
-            }
-            Join
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-}
+<app-join-workspace-modal
+  [visible]="showJoinDialog()"
+  (close)="toggleJoinDialog()"
+  (joined)="onWorkspaceJoined()"
+></app-join-workspace-modal>

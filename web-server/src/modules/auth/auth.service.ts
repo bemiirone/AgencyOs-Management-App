@@ -97,7 +97,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    if (!user.isActive) {
+    if (!user.isActive && user.isActive !== undefined) {
       throw new UnauthorizedException('Account is deactivated');
     }
 
@@ -232,10 +232,22 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
-    const memberships = await this.tenantMemberModel.find({ userId, isActive: true });
-    if (memberships.length === 0) {
-      throw new BadRequestException('No active workspace found. Please contact support.');
+    const tenant = await this.tenantModel.findById(dto.tenantId);
+    if (!tenant) {
+      throw new BadRequestException('Workspace not found');
     }
+
+    const existingMembership = await this.tenantMemberModel.findOne({ userId, tenantId: dto.tenantId, isActive: true });
+    if (existingMembership) {
+      throw new ConflictException('Already a member of this workspace');
+    }
+
+    await this.tenantMemberModel.create({
+      userId,
+      tenantId: dto.tenantId,
+      role: UserRole.MEMBER,
+      isActive: true,
+    });
 
     return this.getWorkspaces(userId);
   }

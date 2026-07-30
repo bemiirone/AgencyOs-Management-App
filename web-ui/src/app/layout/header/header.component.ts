@@ -1,4 +1,4 @@
-import { Component, inject, signal, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -36,8 +36,8 @@ export class HeaderComponent implements OnInit {
   unreadCount = signal(0);
   showNotifications = signal(false);
   showWorkspaceDropdown = signal(false);
-  workspaces = signal<Workspace[]>([]);
-  hasMultipleWorkspaces = signal(false);
+  workspaces = this.authService.getWorkspacesSignal();
+  hasMultipleWorkspaces = computed(() => this.workspaces().length > 1);
 
   ngOnInit(): void {
     const user = this.authService.getUser();
@@ -57,14 +57,7 @@ export class HeaderComponent implements OnInit {
   }
 
   async loadWorkspaces() {
-    try {
-      const workspaces = await this.authService.getWorkspaces();
-      this.workspaces.set(workspaces);
-      this.hasMultipleWorkspaces.set(workspaces.length > 1);
-    } catch {
-      this.workspaces.set([]);
-      this.hasMultipleWorkspaces.set(false);
-    }
+    await this.authService.getWorkspaces();
   }
 
   toggleNotifications(): void {

@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { MongooseModule, getModelToken } from '@nestjs/mongoose';
+import { getModelToken } from '@nestjs/mongoose';
 import { AppModule } from '../app/app.module';
 import { User } from '../modules/auth/schemas/user.schema';
 import { TenantMember } from '../modules/tenant/schemas/tenant-member.schema';

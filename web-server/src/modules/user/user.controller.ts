@@ -16,7 +16,6 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Get all users in current tenant' })
   async findAll(@TenantId() tenantId: string) {
     return this.userService.findAll(tenantId);

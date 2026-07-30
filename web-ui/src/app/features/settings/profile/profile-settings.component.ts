@@ -1,27 +1,23 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faUser, faEnvelope, faLock, faEye, faEyeSlash, faSave, faBuilding, faPlus, faTimes, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faEnvelope, faLock, faEye, faEyeSlash, faSave, faBuilding, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { AuthService, Workspace } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
-
-interface SearchResult {
-  tenantId: string;
-  tenantName: string;
-  slug: string;
-}
+import { JoinWorkspaceModalComponent } from '../../../shared/components/join-workspace-modal/join-workspace-modal.component';
 
 @Component({
   selector: 'app-profile-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, FontAwesomeModule],
+  imports: [CommonModule, ReactiveFormsModule, FontAwesomeModule, JoinWorkspaceModalComponent],
   templateUrl: './profile-settings.component.html',
   styleUrl: './profile-settings.component.css',
 })
 export class ProfileSettingsComponent implements OnInit {
   private authService = inject(AuthService);
   private toast = inject(ToastService);
+  private fb = inject(FormBuilder);
 
   faUser = faUser;
   faEnvelope = faEnvelope;
@@ -31,36 +27,29 @@ export class ProfileSettingsComponent implements OnInit {
   faSave = faSave;
   faBuilding = faBuilding;
   faPlus = faPlus;
-  faTimes = faTimes;
-  faSearch = faSearch;
 
-  name = signal('');
-  email = signal('');
-  currentPassword = signal('');
-  newPassword = signal('');
-  confirmPassword = signal('');
-  showCurrentPassword = signal(false);
-  showNewPassword = signal(false);
-  showConfirmPassword = signal(false);
+  profileForm: FormGroup = this.fb.group({
+    name: ['', [Validators.required, Validators.minLength(2)]],
+    email: [{ value: '', disabled: true }],
+  });
+
+  passwordForm: FormGroup = this.fb.group({
+    currentPassword: ['', Validators.required],
+    newPassword: ['', [Validators.required, Validators.minLength(8)]],
+    confirmPassword: ['', Validators.required],
+  }, { validators: this.passwordsMatchValidator });
+
+  showPasswords = signal({ current: false, new: false, confirm: false });
   saving = signal(false);
   changingPassword = signal(false);
 
   workspaces = signal<Workspace[]>([]);
   showJoinDialog = signal(false);
-  inviteCode = signal('');
-  joining = signal(false);
-
-  searchQuery = signal('');
-  searchResults = signal<SearchResult[]>([]);
-  searching = signal(false);
-  selectedWorkspace = signal<SearchResult | null>(null);
-  searchDebounceTimer: any = null;
 
   ngOnInit() {
     const user = this.authService.getUser();
     if (user) {
-      this.name.set(user.name);
-      this.email.set(user.email);
+      this.profileForm.patchValue({ name: user.name, email: user.email });
     }
     this.loadWorkspaces();
   }
@@ -76,80 +65,28 @@ export class ProfileSettingsComponent implements OnInit {
 
   toggleJoinDialog() {
     this.showJoinDialog.update((v) => !v);
-    this.inviteCode.set('');
-    this.searchQuery.set('');
-    this.searchResults.set([]);
-    this.selectedWorkspace.set(null);
   }
 
-  onSearchInput(query: string) {
-    this.searchQuery.set(query);
-    this.selectedWorkspace.set(null);
-
-    if (this.searchDebounceTimer) {
-      clearTimeout(this.searchDebounceTimer);
-    }
-
-    if (!query || query.trim().length < 2) {
-      this.searchResults.set([]);
-      return;
-    }
-
-    this.searchDebounceTimer = setTimeout(async () => {
-      this.searching.set(true);
-      try {
-        const results = await this.authService.searchWorkspaces(query);
-        this.searchResults.set(results);
-      } catch {
-        this.searchResults.set([]);
-      } finally {
-        this.searching.set(false);
-      }
-    }, 300);
+  onWorkspaceJoined() {
+    this.loadWorkspaces();
   }
 
-  selectWorkspace(workspace: SearchResult) {
-    this.selectedWorkspace.set(workspace);
-    this.searchResults.set([]);
-    this.searchQuery.set(workspace.tenantName);
+  togglePasswordVisibility(field: 'current' | 'new' | 'confirm') {
+    this.showPasswords.update((s) => ({ ...s, [field]: !s[field] }));
   }
 
-  async joinWorkspace() {
-    if (!this.inviteCode()) {
-      this.toast.error('Please enter an invite code');
-      return;
-    }
-
-    this.joining.set(true);
-    try {
-      await this.authService.joinWorkspace(this.inviteCode());
-      this.toast.success('Joined workspace successfully');
-      this.toggleJoinDialog();
-      await this.loadWorkspaces();
-    } catch (err: any) {
-      this.toast.error(err.error?.message || 'Failed to join workspace');
-    } finally {
-      this.joining.set(false);
-    }
-  }
-
-  toggleCurrentPasswordVisibility() {
-    this.showCurrentPassword.update((v) => !v);
-  }
-
-  toggleNewPasswordVisibility() {
-    this.showNewPassword.update((v) => !v);
-  }
-
-  toggleConfirmPasswordVisibility() {
-    this.showConfirmPassword.update((v) => !v);
-  }
-
-  passwordsMatch(): boolean {
-    return this.newPassword() === this.confirmPassword() && this.newPassword().length > 0;
+  private passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
+    const newPass = group.get('newPassword')?.value;
+    const confirmPass = group.get('confirmPassword')?.value;
+    return newPass && confirmPass && newPass !== confirmPass ? { passwordsMismatch: true } : null;
   }
 
   async onUpdateProfile() {
+    if (this.profileForm.invalid) {
+      this.profileForm.markAllAsTouched();
+      return;
+    }
+
     this.saving.set(true);
     try {
       await this.authService.refreshProfile();
@@ -162,27 +99,15 @@ export class ProfileSettingsComponent implements OnInit {
   }
 
   async onChangePassword() {
-    if (!this.currentPassword() || !this.newPassword() || !this.confirmPassword()) {
-      this.toast.error('All password fields are required');
-      return;
-    }
-
-    if (!this.passwordsMatch()) {
-      this.toast.error('New passwords do not match');
-      return;
-    }
-
-    if (this.newPassword().length < 8) {
-      this.toast.error('Password must be at least 8 characters');
+    if (this.passwordForm.invalid) {
+      this.passwordForm.markAllAsTouched();
       return;
     }
 
     this.changingPassword.set(true);
     try {
       this.toast.success('Password changed successfully');
-      this.currentPassword.set('');
-      this.newPassword.set('');
-      this.confirmPassword.set('');
+      this.passwordForm.reset();
     } catch {
       this.toast.error('Failed to change password');
     } finally {

@@ -135,9 +135,9 @@ export class AuthService {
     this.workspaces.set(workspaces);
   }
 
-  async joinWorkspace(inviteCode: string): Promise<Workspace[]> {
+  async joinWorkspace(tenantId: string, inviteCode: string): Promise<Workspace[]> {
     const workspaces = await firstValueFrom(
-      this.http.post<Workspace[]>(`${API_CONFIG.baseUrl}${API_CONFIG.AUTH.JOIN_WORKSPACE}`, { inviteCode })
+      this.http.post<Workspace[]>(`${API_CONFIG.baseUrl}${API_CONFIG.AUTH.JOIN_WORKSPACE}`, { tenantId, inviteCode })
     );
 
     this.workspaces.set(workspaces);
