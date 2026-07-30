@@ -81,6 +81,13 @@
           "command": "npx ts-node --project web-server/tsconfig.seed.json -r tsconfig-paths/register web-server/src/seed/seed.ts",
           "cwd": "{workspaceRoot}"
         }
+      },
+      "migrate": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx ts-node --project web-server/tsconfig.seed.json -r tsconfig-paths/register web-server/src/migrations/migrate-tenant-members.ts",
+          "cwd": "{workspaceRoot}"
+        }
       }
     }
   },
