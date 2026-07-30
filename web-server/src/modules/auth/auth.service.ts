@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
@@ -9,8 +9,32 @@ import { Tenant } from '../tenant/schemas/tenant.schema';
 import { TenantMember } from '../tenant/schemas/tenant-member.schema';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { SwitchWorkspaceDto } from './dto/switch-workspace.dto';
+import { JoinWorkspaceDto } from './dto/join-workspace.dto';
 import { UserRole } from './enums/user-role.enum';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
+
+export interface WorkspaceInfo {
+  tenantId: string;
+  tenantName: string;
+  role: UserRole;
+  isLastUsed: boolean;
+}
+
+export interface LoginResponse {
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    role: UserRole;
+    tenantId: string;
+    tenantName: string;
+  };
+  accessToken: string;
+  refreshToken: string;
+  requiresWorkspaceSelection?: boolean;
+  workspaces?: WorkspaceInfo[];
+}
 
 @Injectable()
 export class AuthService {
@@ -66,7 +90,7 @@ export class AuthService {
     };
   }
 
-  async login(loginDto: LoginDto) {
+  async login(loginDto: LoginDto): Promise<LoginResponse> {
     const user = await this.userModel.findOne({ email: loginDto.email });
 
     if (!user) {
@@ -83,33 +107,140 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const membership = await this.tenantMemberModel.findOne({
+    const memberships = await this.tenantMemberModel.find({
       userId: user._id,
       isActive: true,
     }).populate('tenantId');
 
-    if (!membership) {
+    if (memberships.length === 0) {
       throw new UnauthorizedException('No active workspace found');
     }
 
+    if (memberships.length === 1) {
+      const membership = memberships[0];
+      const tenantDoc = membership.tenantId as any;
+      const tenantId = tenantDoc._id.toString();
+      const tenantName = tenantDoc.name || '';
+      const role = membership.role;
+
+      const tokens = this.generateTokens(user._id.toString(), user.email, tenantId, role);
+
+      return {
+        user: {
+          id: user._id.toString(),
+          email: user.email,
+          name: user.name,
+          role,
+          tenantId,
+          tenantName,
+        },
+        ...tokens,
+      };
+    }
+
+    const workspaces: WorkspaceInfo[] = memberships.map((m) => {
+      const tenantDoc = m.tenantId as any;
+      return {
+        tenantId: tenantDoc._id.toString(),
+        tenantName: tenantDoc.name || '',
+        role: m.role,
+        isLastUsed: false,
+      };
+    });
+
+    return {
+      user: {
+        id: user._id.toString(),
+        email: user.email,
+        name: user.name,
+        role: memberships[0].role,
+        tenantId: (memberships[0].tenantId as any)._id.toString(),
+        tenantName: (memberships[0].tenantId as any).name || '',
+      },
+      ...this.generateTokens(user._id.toString(), user.email, (memberships[0].tenantId as any)._id.toString(), memberships[0].role),
+      requiresWorkspaceSelection: true,
+      workspaces,
+    };
+  }
+
+  async getWorkspaces(userId: string): Promise<WorkspaceInfo[]> {
+    const memberships = await this.tenantMemberModel.find({
+      userId,
+      isActive: true,
+    }).populate('tenantId');
+
+    return memberships.map((m) => {
+      const tenantDoc = m.tenantId as any;
+      return {
+        tenantId: tenantDoc._id.toString(),
+        tenantName: tenantDoc.name || '',
+        role: m.role,
+        isLastUsed: false,
+      };
+    });
+  }
+
+  async switchWorkspace(userId: string, dto: SwitchWorkspaceDto): Promise<LoginResponse> {
+    const membership = await this.tenantMemberModel.findOne({
+      userId,
+      tenantId: dto.tenantId,
+      isActive: true,
+    }).populate('tenantId');
+
+    if (!membership) {
+      throw new UnauthorizedException('No access to this workspace');
+    }
+
+    const user = await this.userModel.findById(userId);
     const tenantDoc = membership.tenantId as any;
     const tenantId = tenantDoc._id.toString();
     const tenantName = tenantDoc.name || '';
     const role = membership.role;
 
-    const tokens = this.generateTokens(user._id.toString(), user.email, tenantId, role);
+    const tokens = this.generateTokens(userId, user!.email, tenantId, role);
 
     return {
       user: {
-        id: user._id,
-        email: user.email,
-        name: user.name,
+        id: userId,
+        email: user!.email,
+        name: user!.name,
         role,
         tenantId,
         tenantName,
       },
       ...tokens,
     };
+  }
+
+  async joinWorkspace(userId: string, dto: JoinWorkspaceDto): Promise<WorkspaceInfo[]> {
+    const inviteCode = this.configService.get<string>('INVITE_CODE');
+
+    if (!inviteCode || dto.inviteCode !== inviteCode) {
+      throw new BadRequestException('Invalid invite code');
+    }
+
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const memberships = await this.tenantMemberModel.find({ userId, isActive: true });
+    if (memberships.length === 0) {
+      throw new BadRequestException('No active workspace found. Please contact support.');
+    }
+
+    const firstTenantId = memberships[0].tenantId;
+
+    const existingInTenant = await this.tenantMemberModel.findOne({
+      userId,
+      tenantId: firstTenantId,
+    });
+
+    if (existingInTenant) {
+      return this.getWorkspaces(userId);
+    }
+
+    return this.getWorkspaces(userId);
   }
 
   private generateTokens(userId: string, email: string, tenantId: string, role: UserRole) {
