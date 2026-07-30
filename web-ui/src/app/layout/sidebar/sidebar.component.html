@@ -1,6 +1,12 @@
 <div class="bg-base-100 min-h-full w-64 p-4 border-r border-base-200">
   <div class="mb-6 px-2">
     <h2 class="text-2xl font-bold text-primary">AgencyOS</h2>
+    @if (tenantName()) {
+      <div class="flex items-center gap-2 mt-2">
+        <fa-icon [icon]="faBuilding" class="text-xs text-base-content/50"></fa-icon>
+        <span class="text-sm text-base-content/60">{{ tenantName() }}</span>
+      </div>
+    }
   </div>
 
   <ul class="menu w-full">
@@ -15,6 +21,20 @@
           {{ item.label }}
         </a>
       </li>
+    }
+    @if (userRole() === 'admin') {
+      <li class="menu-title mt-4"><span>Admin</span></li>
+      @for (item of adminNavItems; track item.route) {
+        <li>
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="active"
+          >
+            <fa-icon [icon]="item.icon" class="w-5"></fa-icon>
+            {{ item.label }}
+          </a>
+        </li>
+      }
     }
   </ul>
 

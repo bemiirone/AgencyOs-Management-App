@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -11,7 +11,9 @@ import {
   faUsers,
   faCog,
   faBars,
+  faBuilding,
 } from '@fortawesome/free-solid-svg-icons';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -20,7 +22,9 @@ import {
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
+  private authService = inject(AuthService);
+
   faHome = faHome;
   faProjectDiagram = faProjectDiagram;
   faTasks = faTasks;
@@ -29,6 +33,15 @@ export class SidebarComponent {
   faUsers = faUsers;
   faCog = faCog;
   faBars = faBars;
+  faBuilding = faBuilding;
+
+  tenantName = signal('');
+  userRole = signal('');
+
+  ngOnInit(): void {
+    this.tenantName.set(this.authService.getTenantName());
+    this.userRole.set(this.authService.getUserRole());
+  }
 
   navItems = [
     { label: 'Dashboard', icon: faHome, route: '/dashboard' },
@@ -36,7 +49,11 @@ export class SidebarComponent {
     { label: 'Tasks', icon: faTasks, route: '/tasks' },
     { label: 'Time Tracking', icon: faClock, route: '/time' },
     { label: 'Invoices', icon: faFileInvoiceDollar, route: '/invoices' },
-    { label: 'Team', icon: faUsers, route: '/team' },
+    { label: 'Team', icon: faUsers, route: '/admin/users' },
     { label: 'Settings', icon: faCog, route: '/settings' },
+  ];
+
+  adminNavItems = [
+    { label: 'User Admin', icon: faUsers, route: '/admin/users' },
   ];
 }

@@ -3,6 +3,8 @@ export interface User {
   email: string;
   name: string;
   role: 'admin' | 'manager' | 'member' | 'client';
+  tenantId: string;
+  tenantName: string;
   avatar?: string;
   createdAt: Date;
   updatedAt: Date;

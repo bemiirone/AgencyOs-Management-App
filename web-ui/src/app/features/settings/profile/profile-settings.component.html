@@ -1,0 +1,147 @@
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+  <h1 class="text-2xl font-bold mb-6">Profile Settings</h1>
+
+  <div class="card bg-base-100 shadow-xl mb-6">
+    <div class="card-body">
+      <h2 class="card-title mb-4">Personal Information</h2>
+
+      <div class="form-control mb-4">
+        <label class="label">
+          <span class="label-text font-medium">Name</span>
+        </label>
+        <div class="relative">
+          <fa-icon [icon]="faUser" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
+          <input
+            type="text"
+            [(ngModel)]="name"
+            name="name"
+            placeholder="Your name"
+            class="input input-bordered w-full pl-10"
+          />
+        </div>
+      </div>
+
+      <div class="form-control mb-4">
+        <label class="label">
+          <span class="label-text font-medium">Email</span>
+        </label>
+        <div class="relative">
+          <fa-icon [icon]="faEnvelope" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
+          <input
+            type="email"
+            [(ngModel)]="email"
+            name="email"
+            placeholder="you@example.com"
+            class="input input-bordered w-full pl-10"
+            disabled
+          />
+        </div>
+        <label class="label">
+          <span class="label-text-alt text-base-content/50">Email cannot be changed</span>
+        </label>
+      </div>
+
+      <div class="card-actions justify-end">
+        <button class="btn btn-primary" (click)="onUpdateProfile()" [disabled]="saving()">
+          @if (saving()) {
+            <span class="loading loading-spinner loading-sm"></span>
+          } @else {
+            <fa-icon [icon]="faSave" class="mr-2"></fa-icon>
+          }
+          Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title mb-4">Change Password</h2>
+
+      <div class="form-control mb-4">
+        <label class="label">
+          <span class="label-text font-medium">Current Password</span>
+        </label>
+        <div class="relative">
+          <fa-icon [icon]="faLock" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
+          <input
+            [type]="showCurrentPassword() ? 'text' : 'password'"
+            [(ngModel)]="currentPassword"
+            name="currentPassword"
+            placeholder="Enter current password"
+            class="input input-bordered w-full pl-10 pr-10"
+          />
+          <button
+            type="button"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content/70"
+            (click)="toggleCurrentPasswordVisibility()"
+          >
+            <fa-icon [icon]="showCurrentPassword() ? faEyeSlash : faEye"></fa-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-control mb-4">
+        <label class="label">
+          <span class="label-text font-medium">New Password</span>
+        </label>
+        <div class="relative">
+          <fa-icon [icon]="faLock" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
+          <input
+            [type]="showNewPassword() ? 'text' : 'password'"
+            [(ngModel)]="newPassword"
+            name="newPassword"
+            placeholder="Enter new password"
+            class="input input-bordered w-full pl-10 pr-10"
+          />
+          <button
+            type="button"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content/70"
+            (click)="toggleNewPasswordVisibility()"
+          >
+            <fa-icon [icon]="showNewPassword() ? faEyeSlash : faEye"></fa-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-control mb-6">
+        <label class="label">
+          <span class="label-text font-medium">Confirm New Password</span>
+        </label>
+        <div class="relative">
+          <fa-icon [icon]="faLock" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
+          <input
+            [type]="showConfirmPassword() ? 'text' : 'password'"
+            [(ngModel)]="confirmPassword"
+            name="confirmPassword"
+            placeholder="Confirm new password"
+            class="input input-bordered w-full pl-10 pr-10"
+          />
+          <button
+            type="button"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content/70"
+            (click)="toggleConfirmPasswordVisibility()"
+          >
+            <fa-icon [icon]="showConfirmPassword() ? faEyeSlash : faEye"></fa-icon>
+          </button>
+        </div>
+        @if (newPassword() && confirmPassword() && !passwordsMatch()) {
+          <label class="label">
+            <span class="label-text-alt text-error">Passwords do not match</span>
+          </label>
+        }
+      </div>
+
+      <div class="card-actions justify-end">
+        <button class="btn btn-primary" (click)="onChangePassword()" [disabled]="changingPassword()">
+          @if (changingPassword()) {
+            <span class="loading loading-spinner loading-sm"></span>
+          } @else {
+            <fa-icon [icon]="faLock" class="mr-2"></fa-icon>
+          }
+          Change Password
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
