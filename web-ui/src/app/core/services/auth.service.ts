@@ -144,6 +144,18 @@ export class AuthService {
     return workspaces;
   }
 
+  async searchWorkspaces(query: string): Promise<{ tenantId: string; tenantName: string; slug: string }[]> {
+    if (!query || query.trim().length < 2) {
+      return [];
+    }
+
+    return firstValueFrom(
+      this.http.get<{ tenantId: string; tenantName: string; slug: string }[]>(
+        `${API_CONFIG.baseUrl}${API_CONFIG.AUTH.SEARCH_WORKSPACES(query)}`
+      )
+    );
+  }
+
   isAuthenticated(): boolean {
     return !!this.storageService.getToken() && !!this.currentUser();
   }

@@ -2,9 +2,15 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faUser, faEnvelope, faLock, faEye, faEyeSlash, faSave, faBuilding, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faEnvelope, faLock, faEye, faEyeSlash, faSave, faBuilding, faPlus, faTimes, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { AuthService, Workspace } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
+
+interface SearchResult {
+  tenantId: string;
+  tenantName: string;
+  slug: string;
+}
 
 @Component({
   selector: 'app-profile-settings',
@@ -26,6 +32,7 @@ export class ProfileSettingsComponent implements OnInit {
   faBuilding = faBuilding;
   faPlus = faPlus;
   faTimes = faTimes;
+  faSearch = faSearch;
 
   name = signal('');
   email = signal('');
@@ -42,6 +49,12 @@ export class ProfileSettingsComponent implements OnInit {
   showJoinDialog = signal(false);
   inviteCode = signal('');
   joining = signal(false);
+
+  searchQuery = signal('');
+  searchResults = signal<SearchResult[]>([]);
+  searching = signal(false);
+  selectedWorkspace = signal<SearchResult | null>(null);
+  searchDebounceTimer: any = null;
 
   ngOnInit() {
     const user = this.authService.getUser();
@@ -64,6 +77,41 @@ export class ProfileSettingsComponent implements OnInit {
   toggleJoinDialog() {
     this.showJoinDialog.update((v) => !v);
     this.inviteCode.set('');
+    this.searchQuery.set('');
+    this.searchResults.set([]);
+    this.selectedWorkspace.set(null);
+  }
+
+  onSearchInput(query: string) {
+    this.searchQuery.set(query);
+    this.selectedWorkspace.set(null);
+
+    if (this.searchDebounceTimer) {
+      clearTimeout(this.searchDebounceTimer);
+    }
+
+    if (!query || query.trim().length < 2) {
+      this.searchResults.set([]);
+      return;
+    }
+
+    this.searchDebounceTimer = setTimeout(async () => {
+      this.searching.set(true);
+      try {
+        const results = await this.authService.searchWorkspaces(query);
+        this.searchResults.set(results);
+      } catch {
+        this.searchResults.set([]);
+      } finally {
+        this.searching.set(false);
+      }
+    }, 300);
+  }
+
+  selectWorkspace(workspace: SearchResult) {
+    this.selectedWorkspace.set(workspace);
+    this.searchResults.set([]);
+    this.searchQuery.set(workspace.tenantName);
   }
 
   async joinWorkspace() {

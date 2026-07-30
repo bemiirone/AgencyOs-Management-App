@@ -182,13 +182,54 @@
 
 @if (showJoinDialog()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-    <div class="card w-full max-w-sm shadow-2xl bg-base-100">
+    <div class="card w-full max-w-md shadow-2xl bg-base-100">
       <div class="card-body">
         <div class="flex justify-between items-center mb-4">
           <h3 class="card-title text-lg">Join Workspace</h3>
           <button class="btn btn-ghost btn-sm btn-circle" (click)="toggleJoinDialog()">
             <fa-icon [icon]="faTimes"></fa-icon>
           </button>
+        </div>
+
+        <div class="form-control mb-4">
+          <label class="label">
+            <span class="label-text font-medium">Search Workspace</span>
+          </label>
+          <div class="relative">
+            <fa-icon [icon]="faSearch" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
+            <input
+              type="text"
+              [value]="searchQuery()"
+              (input)="onSearchInput($any($event).target.value)"
+              placeholder="Search by name..."
+              class="input input-bordered w-full pl-10"
+              [class.input-success]="selectedWorkspace()"
+            />
+            @if (searching()) {
+              <span class="loading loading-spinner loading-sm absolute right-3 top-1/2 -translate-y-1/2"></span>
+            }
+          </div>
+          @if (searchResults().length > 0) {
+            <div class="mt-2 max-h-40 overflow-y-auto border border-base-200 rounded-lg">
+              @for (result of searchResults(); track result.tenantId) {
+                <button
+                  class="w-full text-left px-3 py-2 hover:bg-base-200 border-b border-base-200 last:border-b-0"
+                  (click)="selectWorkspace(result)"
+                >
+                  <p class="font-medium text-sm">{{ result.tenantName }}</p>
+                  <p class="text-xs text-base-content/50">{{ result.slug }}</p>
+                </button>
+              }
+            </div>
+          }
+          @if (selectedWorkspace()) {
+            <label class="label">
+              <span class="label-text-alt text-success flex items-center gap-1">
+                <fa-icon [icon]="faSearch" class="text-xs"></fa-icon>
+                Selected: {{ selectedWorkspace()?.tenantName }}
+              </span>
+            </label>
+          }
         </div>
 
         <div class="form-control">
@@ -202,11 +243,14 @@
             placeholder="Enter invite code"
             class="input input-bordered"
           />
+          <label class="label">
+            <span class="label-text-alt text-base-content/50">Contact your workspace admin for the invite code</span>
+          </label>
         </div>
 
         <div class="card-actions justify-end mt-4">
           <button class="btn btn-ghost" (click)="toggleJoinDialog()">Cancel</button>
-          <button class="btn btn-primary" (click)="joinWorkspace()" [disabled]="joining()">
+          <button class="btn btn-primary" (click)="joinWorkspace()" [disabled]="joining() || !selectedWorkspace() || !inviteCode()">
             @if (joining()) {
               <span class="loading loading-spinner loading-sm"></span>
             }

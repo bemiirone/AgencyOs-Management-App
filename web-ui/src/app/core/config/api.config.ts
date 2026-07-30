@@ -8,6 +8,7 @@ export const API_CONFIG = {
     WORKSPACES: '/api/auth/workspaces',
     SWITCH_WORKSPACE: '/api/auth/switch-workspace',
     JOIN_WORKSPACE: '/api/auth/join-workspace',
+    SEARCH_WORKSPACES: (q: string) => `/api/auth/search-workspaces?q=${encodeURIComponent(q)}`,
   },
   PROJECTS: {
     LIST: '/api/projects',

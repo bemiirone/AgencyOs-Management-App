@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, Get, Req } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, Get, Req, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -54,5 +54,11 @@ export class AuthController {
   @ApiOperation({ summary: 'Join a workspace using an invite code' })
   async joinWorkspace(@Req() req: RequestWithUser, @Body() dto: JoinWorkspaceDto) {
     return this.authService.joinWorkspace(req.user.userId, dto);
+  }
+
+  @Get('search-workspaces')
+  @ApiOperation({ summary: 'Search workspaces by name or slug' })
+  async searchWorkspaces(@Query('q') q: string) {
+    return this.authService.searchWorkspaces(q);
   }
 }

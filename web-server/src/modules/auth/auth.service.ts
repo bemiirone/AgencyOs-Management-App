@@ -148,16 +148,24 @@ export class AuthService {
       };
     });
 
+    const roleHierarchy = [UserRole.ADMIN, UserRole.MANAGER, UserRole.MEMBER, UserRole.CLIENT];
+    const highestRole = memberships.reduce((highest, m) => {
+      return roleHierarchy.indexOf(m.role) < roleHierarchy.indexOf(highest) ? m.role : highest;
+    }, memberships[0].role);
+
+    const primaryMembership = memberships.find((m) => m.role === highestRole)!;
+    const primaryTenant = primaryMembership.tenantId as any;
+
     return {
       user: {
         id: user._id.toString(),
         email: user.email,
         name: user.name,
-        role: memberships[0].role,
-        tenantId: (memberships[0].tenantId as any)._id.toString(),
-        tenantName: (memberships[0].tenantId as any).name || '',
+        role: highestRole,
+        tenantId: primaryTenant._id.toString(),
+        tenantName: primaryTenant.name || '',
       },
-      ...this.generateTokens(user._id.toString(), user.email, (memberships[0].tenantId as any)._id.toString(), memberships[0].role),
+      ...this.generateTokens(user._id.toString(), user.email, primaryTenant._id.toString(), highestRole),
       requiresWorkspaceSelection: true,
       workspaces,
     };
@@ -229,18 +237,26 @@ export class AuthService {
       throw new BadRequestException('No active workspace found. Please contact support.');
     }
 
-    const firstTenantId = memberships[0].tenantId;
+    return this.getWorkspaces(userId);
+  }
 
-    const existingInTenant = await this.tenantMemberModel.findOne({
-      userId,
-      tenantId: firstTenantId,
-    });
-
-    if (existingInTenant) {
-      return this.getWorkspaces(userId);
+  async searchWorkspaces(query: string) {
+    if (!query || query.trim().length < 2) {
+      return [];
     }
 
-    return this.getWorkspaces(userId);
+    const tenants = await this.tenantModel.find({
+      $or: [
+        { name: { $regex: query, $options: 'i' } },
+        { slug: { $regex: query, $options: 'i' } },
+      ],
+    }).limit(10);
+
+    return tenants.map((t) => ({
+      tenantId: t._id.toString(),
+      tenantName: t.name,
+      slug: t.slug,
+    }));
   }
 
   private generateTokens(userId: string, email: string, tenantId: string, role: UserRole) {
