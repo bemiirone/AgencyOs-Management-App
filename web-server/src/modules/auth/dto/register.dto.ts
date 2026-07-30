@@ -17,4 +17,9 @@ export class RegisterDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @ApiProperty({ example: 'Acme Agency' })
+  @IsString()
+  @IsNotEmpty()
+  agencyName: string;
 }

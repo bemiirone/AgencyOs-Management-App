@@ -8,6 +8,7 @@ import { ProjectModule } from '../modules/project/project.module';
 import { TimeModule } from '../modules/time/time.module';
 import { BillingModule } from '../modules/billing/billing.module';
 import { NotificationModule } from '../modules/notification/notification.module';
+import { UserModule } from '../modules/user/user.module';
 import databaseConfig from '../config/database.config';
 import jwtConfig from '../config/jwt.config';
 import redisConfig from '../config/redis.config';
@@ -44,6 +45,7 @@ import sendgridConfig from '../config/sendgrid.config';
     TimeModule,
     BillingModule,
     NotificationModule,
+    UserModule,
   ],
 })
 export class AppModule {}

@@ -7,10 +7,16 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { User, UserSchema } from './schemas/user.schema';
+import { Tenant, TenantSchema } from '../tenant/schemas/tenant.schema';
+import { TenantMember, TenantMemberSchema } from '../tenant/schemas/tenant-member.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: Tenant.name, schema: TenantSchema },
+      { name: TenantMember.name, schema: TenantMemberSchema },
+    ]),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

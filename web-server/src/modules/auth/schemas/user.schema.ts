@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-import { UserRole } from '../enums/user-role.enum';
+import { Document, Types } from 'mongoose';
 import { BaseDocument } from '../../../common/schemas/base.schema';
 
 @Schema({ timestamps: true })
@@ -14,11 +13,12 @@ export class User extends BaseDocument {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true, enum: UserRole, default: UserRole.MEMBER, type: String })
-  role: UserRole;
+  @Prop({ default: true })
+  isActive: boolean;
 
-  @Prop({ required: true })
-  tenantId: string;
+  _id: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
