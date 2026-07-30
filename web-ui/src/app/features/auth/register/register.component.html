@@ -13,7 +13,7 @@
         </div>
       }
 
-      <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
         <div class="form-control mb-4">
           <label class="label">
             <span class="label-text font-medium">Full Name</span>
@@ -22,18 +22,19 @@
             <fa-icon [icon]="faUser" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
             <input
               type="text"
-              [(ngModel)]="name"
-              name="name"
+              formControlName="name"
               placeholder="John Doe"
               class="input input-bordered w-full pl-10"
-              required
-              minlength="2"
-              #nameModel="ngModel"
+              [class.input-error]="registerForm.get('name')?.invalid && registerForm.get('name')?.touched"
             />
           </div>
-          @if (nameModel.invalid && nameModel.touched) {
+          @if (registerForm.get('name')?.invalid && registerForm.get('name')?.touched) {
             <label class="label">
-              <span class="label-text-alt text-error">Name is required</span>
+              @if (registerForm.get('name')?.hasError('required')) {
+                <span class="label-text-alt text-error">Name is required</span>
+              } @else if (registerForm.get('name')?.hasError('minlength')) {
+                <span class="label-text-alt text-error">Name must be at least 2 characters</span>
+              }
             </label>
           }
         </div>
@@ -46,18 +47,19 @@
             <fa-icon [icon]="faBuilding" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
             <input
               type="text"
-              [(ngModel)]="agencyName"
-              name="agencyName"
+              formControlName="agencyName"
               placeholder="Acme Agency"
               class="input input-bordered w-full pl-10"
-              required
-              minlength="2"
-              #agencyModel="ngModel"
+              [class.input-error]="registerForm.get('agencyName')?.invalid && registerForm.get('agencyName')?.touched"
             />
           </div>
-          @if (agencyModel.invalid && agencyModel.touched) {
+          @if (registerForm.get('agencyName')?.invalid && registerForm.get('agencyName')?.touched) {
             <label class="label">
-              <span class="label-text-alt text-error">Agency name is required</span>
+              @if (registerForm.get('agencyName')?.hasError('required')) {
+                <span class="label-text-alt text-error">Agency name is required</span>
+              } @else if (registerForm.get('agencyName')?.hasError('minlength')) {
+                <span class="label-text-alt text-error">Agency name must be at least 2 characters</span>
+              }
             </label>
           }
         </div>
@@ -70,18 +72,19 @@
             <fa-icon [icon]="faEnvelope" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
             <input
               type="email"
-              [(ngModel)]="email"
-              name="email"
+              formControlName="email"
               placeholder="you@example.com"
               class="input input-bordered w-full pl-10"
-              required
-              email
-              #emailModel="ngModel"
+              [class.input-error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
             />
           </div>
-          @if (emailModel.invalid && emailModel.touched) {
+          @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
             <label class="label">
-              <span class="label-text-alt text-error">Please enter a valid email</span>
+              @if (registerForm.get('email')?.hasError('required')) {
+                <span class="label-text-alt text-error">Email is required</span>
+              } @else if (registerForm.get('email')?.hasError('email')) {
+                <span class="label-text-alt text-error">Please enter a valid email</span>
+              }
             </label>
           }
         </div>
@@ -94,13 +97,10 @@
             <fa-icon [icon]="faLock" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
             <input
               [type]="showPassword() ? 'text' : 'password'"
-              [(ngModel)]="password"
-              name="password"
+              formControlName="password"
               placeholder="Create a password"
               class="input input-bordered w-full pl-10 pr-10"
-              required
-              minlength="6"
-              #passwordModel="ngModel"
+              [class.input-error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
             />
             <button
               type="button"
@@ -110,9 +110,13 @@
               <fa-icon [icon]="showPassword() ? faEyeSlash : faEye"></fa-icon>
             </button>
           </div>
-          @if (passwordModel.invalid && passwordModel.touched) {
+          @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
             <label class="label">
-              <span class="label-text-alt text-error">Password must be at least 6 characters</span>
+              @if (registerForm.get('password')?.hasError('required')) {
+                <span class="label-text-alt text-error">Password is required</span>
+              } @else if (registerForm.get('password')?.hasError('minlength')) {
+                <span class="label-text-alt text-error">Password must be at least 8 characters</span>
+              }
             </label>
           }
         </div>
@@ -125,12 +129,10 @@
             <fa-icon [icon]="faLock" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
             <input
               [type]="showConfirmPassword() ? 'text' : 'password'"
-              [(ngModel)]="confirmPassword"
-              name="confirmPassword"
+              formControlName="confirmPassword"
               placeholder="Confirm your password"
               class="input input-bordered w-full pl-10 pr-10"
-              required
-              #confirmModel="ngModel"
+              [class.input-error]="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched"
             />
             <button
               type="button"
@@ -140,7 +142,7 @@
               <fa-icon [icon]="showConfirmPassword() ? faEyeSlash : faEye"></fa-icon>
             </button>
           </div>
-          @if (confirmModel.touched && !passwordsMatch()) {
+          @if (registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.touched) {
             <label class="label">
               <span class="label-text-alt text-error">Passwords do not match</span>
             </label>
@@ -150,7 +152,7 @@
         <button
           type="submit"
           class="btn btn-primary w-full"
-          [disabled]="registerForm.invalid || loading() || !passwordsMatch()"
+          [disabled]="registerForm.invalid || loading()"
         >
           @if (loading()) {
             <fa-icon [icon]="faSpinner" class="animate-spin mr-2"></fa-icon>

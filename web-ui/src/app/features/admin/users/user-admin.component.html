@@ -13,47 +13,88 @@
     <div class="card bg-base-100 shadow-xl mb-6">
       <div class="card-body">
         <h2 class="card-title mb-4">Create New User</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="form-control">
-            <label class="label"><span class="label-text">Name</span></label>
-            <input
-              type="text"
-              [(ngModel)]="newUser.name"
-              placeholder="John Doe"
-              class="input input-bordered"
-            />
+        <form [formGroup]="createUserForm" (ngSubmit)="createUser()">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-control">
+              <label class="label"><span class="label-text">Name</span></label>
+              <input
+                type="text"
+                formControlName="name"
+                placeholder="John Doe"
+                class="input input-bordered"
+                [class.input-error]="createUserForm.get('name')?.invalid && createUserForm.get('name')?.touched"
+              />
+              @if (createUserForm.get('name')?.invalid && createUserForm.get('name')?.touched) {
+                <label class="label">
+                  @if (createUserForm.get('name')?.hasError('required')) {
+                    <span class="label-text-alt text-error">Name is required</span>
+                  } @else if (createUserForm.get('name')?.hasError('minlength')) {
+                    <span class="label-text-alt text-error">Name must be at least 2 characters</span>
+                  }
+                </label>
+              }
+            </div>
+            <div class="form-control">
+              <label class="label"><span class="label-text">Email</span></label>
+              <input
+                type="email"
+                formControlName="email"
+                placeholder="john@example.com"
+                class="input input-bordered"
+                [class.input-error]="createUserForm.get('email')?.invalid && createUserForm.get('email')?.touched"
+              />
+              @if (createUserForm.get('email')?.invalid && createUserForm.get('email')?.touched) {
+                <label class="label">
+                  @if (createUserForm.get('email')?.hasError('required')) {
+                    <span class="label-text-alt text-error">Email is required</span>
+                  } @else if (createUserForm.get('email')?.hasError('email')) {
+                    <span class="label-text-alt text-error">Please enter a valid email</span>
+                  }
+                </label>
+              }
+            </div>
+            <div class="form-control">
+              <label class="label"><span class="label-text">Password</span></label>
+              <div class="relative">
+                <input
+                  [type]="showPassword() ? 'text' : 'password'"
+                  formControlName="password"
+                  placeholder="Minimum 8 characters"
+                  class="input input-bordered w-full pr-10"
+                  [class.input-error]="createUserForm.get('password')?.invalid && createUserForm.get('password')?.touched"
+                />
+                <button
+                  type="button"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content/70"
+                  (click)="togglePasswordVisibility()"
+                >
+                  <fa-icon [icon]="showPassword() ? faEyeSlash : faEye"></fa-icon>
+                </button>
+              </div>
+              @if (createUserForm.get('password')?.invalid && createUserForm.get('password')?.touched) {
+                <label class="label">
+                  @if (createUserForm.get('password')?.hasError('required')) {
+                    <span class="label-text-alt text-error">Password is required</span>
+                  } @else if (createUserForm.get('password')?.hasError('minlength')) {
+                    <span class="label-text-alt text-error">Password must be at least 8 characters</span>
+                  }
+                </label>
+              }
+            </div>
+            <div class="form-control">
+              <label class="label"><span class="label-text">Role</span></label>
+              <select formControlName="role" class="select select-bordered">
+                <option value="member">Member</option>
+                <option value="manager">Manager</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
           </div>
-          <div class="form-control">
-            <label class="label"><span class="label-text">Email</span></label>
-            <input
-              type="email"
-              [(ngModel)]="newUser.email"
-              placeholder="john@example.com"
-              class="input input-bordered"
-            />
+          <div class="card-actions justify-end mt-4">
+            <button type="button" class="btn btn-ghost" (click)="toggleCreateForm()">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="createUserForm.invalid">Create User</button>
           </div>
-          <div class="form-control">
-            <label class="label"><span class="label-text">Password</span></label>
-            <input
-              type="password"
-              [(ngModel)]="newUser.password"
-              placeholder="Minimum 6 characters"
-              class="input input-bordered"
-            />
-          </div>
-          <div class="form-control">
-            <label class="label"><span class="label-text">Role</span></label>
-            <select [(ngModel)]="newUser.role" class="select select-bordered">
-              <option value="member">Member</option>
-              <option value="manager">Manager</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-        </div>
-        <div class="card-actions justify-end mt-4">
-          <button class="btn btn-ghost" (click)="toggleCreateForm()">Cancel</button>
-          <button class="btn btn-primary" (click)="createUser()">Create User</button>
-        </div>
+        </form>
       </div>
     </div>
   }

@@ -1,21 +1,31 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faUser, faEnvelope, faLock, faSpinner, faEye, faEyeSlash, faBuilding } from '@fortawesome/free-solid-svg-icons';
 import { AuthService } from '../../../core/services/auth.service';
 
+function passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
+  const password = group.get('password')?.value;
+  const confirmPassword = group.get('confirmPassword')?.value;
+  if (password && confirmPassword && password !== confirmPassword) {
+    return { passwordMismatch: true };
+  }
+  return null;
+}
+
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, FontAwesomeModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, FontAwesomeModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
 })
 export class RegisterComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private fb = inject(FormBuilder);
 
   faUser = faUser;
   faEnvelope = faEnvelope;
@@ -25,15 +35,18 @@ export class RegisterComponent {
   faEyeSlash = faEyeSlash;
   faBuilding = faBuilding;
 
-  name = signal('');
-  email = signal('');
-  agencyName = signal('');
-  password = signal('');
-  confirmPassword = signal('');
   error = signal('');
   loading = signal(false);
   showPassword = signal(false);
   showConfirmPassword = signal(false);
+
+  registerForm: FormGroup = this.fb.group({
+    name: ['', [Validators.required, Validators.minLength(2)]],
+    agencyName: ['', [Validators.required, Validators.minLength(2)]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
+    confirmPassword: ['', [Validators.required]],
+  }, { validators: passwordMatchValidator });
 
   togglePasswordVisibility(): void {
     this.showPassword.update((v) => !v);
@@ -43,27 +56,19 @@ export class RegisterComponent {
     this.showConfirmPassword.update((v) => !v);
   }
 
-  passwordsMatch(): boolean {
-    return this.password() === this.confirmPassword() && this.password().length > 0;
-  }
-
   async onSubmit(): Promise<void> {
     this.error.set('');
 
-    if (!this.passwordsMatch()) {
-      this.error.set('Passwords do not match');
+    if (this.registerForm.invalid) {
+      this.registerForm.markAllAsTouched();
       return;
     }
 
     this.loading.set(true);
 
     try {
-      await this.authService.register({
-        name: this.name(),
-        email: this.email(),
-        agencyName: this.agencyName(),
-        password: this.password(),
-      });
+      const { confirmPassword, ...data } = this.registerForm.value;
+      await this.authService.register(data);
       await this.router.navigate(['/dashboard']);
     } catch (err: any) {
       this.error.set(err.error?.message || 'Registration failed. Please try again.');

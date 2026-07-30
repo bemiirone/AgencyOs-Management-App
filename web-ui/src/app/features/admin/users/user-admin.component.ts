@@ -1,27 +1,39 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { UserStore, UserWithRole, CreateUserDto } from '../../../stores/user.store';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UserStore, UserWithRole } from '../../../stores/user.store';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-user-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, FontAwesomeModule],
   templateUrl: './user-admin.component.html',
   styleUrl: './user-admin.component.css',
 })
 export class UserAdminComponent implements OnInit {
   private store = inject(UserStore);
   private toast = inject(ToastService);
+  private fb = inject(FormBuilder);
+
+  faEye = faEye;
+  faEyeSlash = faEyeSlash;
 
   users = this.store.users;
   isLoading = this.store.isLoading;
   showCreateForm = false;
   editingUserId: string | null = null;
   editingRole: string | null = null;
+  showPassword = signal(false);
 
-  newUser: CreateUserDto = { name: '', email: '', password: '', role: 'member' };
+  createUserForm: FormGroup = this.fb.group({
+    name: ['', [Validators.required, Validators.minLength(2)]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
+    role: ['member', Validators.required],
+  });
 
   ngOnInit() {
     this.store.loadUsers().subscribe();
@@ -61,18 +73,21 @@ export class UserAdminComponent implements OnInit {
 
   toggleCreateForm() {
     this.showCreateForm = !this.showCreateForm;
-    if (!this.showCreateForm) {
-      this.newUser = { name: '', email: '', password: '', role: 'member' };
-    }
+    this.showPassword.set(false);
+    this.createUserForm.reset({ role: 'member' });
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword.update((v) => !v);
   }
 
   createUser() {
-    if (!this.newUser.name || !this.newUser.email || !this.newUser.password) {
-      this.toast.error('All fields are required');
+    if (this.createUserForm.invalid) {
+      this.createUserForm.markAllAsTouched();
       return;
     }
 
-    this.store.createUser(this.newUser).subscribe({
+    this.store.createUser(this.createUserForm.value).subscribe({
       next: () => {
         this.toggleCreateForm();
       },
