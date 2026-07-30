@@ -1,0 +1,46 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+  <div class="card w-full max-w-md shadow-2xl bg-base-100">
+    <div class="card-body">
+      <div class="text-center mb-4">
+        <h2 class="text-2xl font-bold">Select Workspace</h2>
+        <p class="text-base-content/60 mt-1">Choose which workspace to enter</p>
+      </div>
+
+      <div class="space-y-2">
+        @for (workspace of workspaces; track workspace.tenantId) {
+          <button
+            class="w-full flex items-center gap-3 p-4 rounded-lg border-2 transition-all hover:border-primary cursor-pointer"
+            [class.border-primary]="workspace.isLastUsed"
+            [class.bg-primary/5]="workspace.isLastUsed"
+            [class.border-base-200]="!workspace.isLastUsed"
+            [disabled]="loading"
+            (click)="selectWorkspace(workspace)"
+          >
+            <fa-icon [icon]="faBuilding" class="text-base-content/40"></fa-icon>
+            <div class="flex-1 text-left">
+              <p class="font-medium">{{ workspace.tenantName }}</p>
+              <p class="text-xs text-base-content/50">{{ workspace.role | titlecase }}</p>
+            </div>
+            @if (workspace.isLastUsed) {
+              <span class="badge badge-primary badge-sm">
+                <fa-icon [icon]="faCheck" class="mr-1 text-xs"></fa-icon>
+                Last used
+              </span>
+            }
+          </button>
+        } @empty {
+          <div class="text-center py-8 text-base-content/40">
+            <fa-icon [icon]="faSpinner" class="animate-spin text-2xl"></fa-icon>
+            <p class="mt-2">Loading workspaces...</p>
+          </div>
+        }
+      </div>
+
+      <div class="card-actions justify-center mt-4">
+        <button class="btn btn-ghost btn-sm" (click)="skipSelection()">
+          Continue with default
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
