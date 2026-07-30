@@ -1,6 +1,11 @@
 <div class="p-6">
   <div class="mb-8">
-    <h1 class="text-3xl font-bold text-base-content">Welcome back, {{ userName() }}!</h1>
+    <div class="flex items-center gap-3">
+      <h1 class="text-3xl font-bold text-base-content">Welcome back, {{ userName() }}!</h1>
+      @if (tenantName()) {
+        <span class="badge badge-primary badge-outline">{{ tenantName() }}</span>
+      }
+    </div>
     <p class="text-base-content/60 mt-1">Here's what's happening with your projects today.</p>
   </div>
 

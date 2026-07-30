@@ -40,6 +40,30 @@
 
         <div class="form-control mb-4">
           <label class="label">
+            <span class="label-text font-medium">Agency Name</span>
+          </label>
+          <div class="relative">
+            <fa-icon [icon]="faBuilding" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
+            <input
+              type="text"
+              [(ngModel)]="agencyName"
+              name="agencyName"
+              placeholder="Acme Agency"
+              class="input input-bordered w-full pl-10"
+              required
+              minlength="2"
+              #agencyModel="ngModel"
+            />
+          </div>
+          @if (agencyModel.invalid && agencyModel.touched) {
+            <label class="label">
+              <span class="label-text-alt text-error">Agency name is required</span>
+            </label>
+          }
+        </div>
+
+        <div class="form-control mb-4">
+          <label class="label">
             <span class="label-text font-medium">Email</span>
           </label>
           <div class="relative">

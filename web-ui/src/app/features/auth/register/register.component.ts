@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faUser, faEnvelope, faLock, faSpinner, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faEnvelope, faLock, faSpinner, faEye, faEyeSlash, faBuilding } from '@fortawesome/free-solid-svg-icons';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -23,9 +23,11 @@ export class RegisterComponent {
   faSpinner = faSpinner;
   faEye = faEye;
   faEyeSlash = faEyeSlash;
+  faBuilding = faBuilding;
 
   name = signal('');
   email = signal('');
+  agencyName = signal('');
   password = signal('');
   confirmPassword = signal('');
   error = signal('');
@@ -59,6 +61,7 @@ export class RegisterComponent {
       await this.authService.register({
         name: this.name(),
         email: this.email(),
+        agencyName: this.agencyName(),
         password: this.password(),
       });
       await this.router.navigate(['/dashboard']);

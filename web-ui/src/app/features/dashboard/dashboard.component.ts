@@ -56,6 +56,7 @@ export class DashboardComponent implements OnInit {
   faFileAlt = faFileAlt;
 
   userName = signal('');
+  tenantName = signal('');
   stats = signal({
     totalProjects: 0,
     activeTasks: 0,
@@ -69,6 +70,7 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     const user = this.authService.getUser();
     this.userName.set(user?.name ?? 'User');
+    this.tenantName.set(user?.tenantName ?? '');
 
     this.loadDashboard();
   }
