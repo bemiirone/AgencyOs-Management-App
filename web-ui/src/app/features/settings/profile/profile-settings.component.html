@@ -54,6 +54,40 @@
     </div>
   </div>
 
+  <div class="card bg-base-100 shadow-xl mb-6">
+    <div class="card-body">
+      <h2 class="card-title mb-4">Workspaces</h2>
+
+      @if (workspaces().length > 0) {
+        <div class="space-y-2">
+          @for (ws of workspaces(); track ws.tenantId) {
+            <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+              <div class="flex items-center gap-3">
+                <fa-icon [icon]="faBuilding" class="text-base-content/40"></fa-icon>
+                <div>
+                  <p class="font-medium text-sm">{{ ws.tenantName }}</p>
+                  <p class="text-xs text-base-content/50">{{ ws.role | titlecase }}</p>
+                </div>
+              </div>
+              @if (ws.isLastUsed) {
+                <span class="badge badge-primary badge-sm">Current</span>
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="text-base-content/50 text-sm">No workspaces found</p>
+      }
+
+      <div class="card-actions justify-end mt-4">
+        <button class="btn btn-outline btn-sm" (click)="toggleJoinDialog()">
+          <fa-icon [icon]="faPlus" class="mr-2"></fa-icon>
+          Join Workspace
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div class="card bg-base-100 shadow-xl">
     <div class="card-body">
       <h2 class="card-title mb-4">Change Password</h2>
@@ -145,3 +179,41 @@
     </div>
   </div>
 </div>
+
+@if (showJoinDialog()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div class="card w-full max-w-sm shadow-2xl bg-base-100">
+      <div class="card-body">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="card-title text-lg">Join Workspace</h3>
+          <button class="btn btn-ghost btn-sm btn-circle" (click)="toggleJoinDialog()">
+            <fa-icon [icon]="faTimes"></fa-icon>
+          </button>
+        </div>
+
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-medium">Invite Code</span>
+          </label>
+          <input
+            type="text"
+            [(ngModel)]="inviteCode"
+            name="inviteCode"
+            placeholder="Enter invite code"
+            class="input input-bordered"
+          />
+        </div>
+
+        <div class="card-actions justify-end mt-4">
+          <button class="btn btn-ghost" (click)="toggleJoinDialog()">Cancel</button>
+          <button class="btn btn-primary" (click)="joinWorkspace()" [disabled]="joining()">
+            @if (joining()) {
+              <span class="loading loading-spinner loading-sm"></span>
+            }
+            Join
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

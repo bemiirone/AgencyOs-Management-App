@@ -10,6 +10,39 @@
   </div>
 
   <div class="flex-none gap-2">
+    @if (hasMultipleWorkspaces()) {
+      <div class="dropdown dropdown-end">
+        <button class="btn btn-ghost btn-sm gap-1" (click)="toggleWorkspaceDropdown()">
+          <fa-icon [icon]="faBuilding" class="text-sm"></fa-icon>
+          <span class="text-sm max-w-32 truncate">{{ tenantName() }}</span>
+          <fa-icon [icon]="faChevronDown" class="text-xs"></fa-icon>
+        </button>
+        @if (showWorkspaceDropdown()) {
+          <div tabindex="0" class="dropdown-content mt-3 z-[1] p-2 shadow menu menu-sm bg-base-100 rounded-box w-64">
+            <div class="px-3 py-2 border-b border-base-200">
+              <h3 class="font-semibold text-sm">Switch Workspace</h3>
+            </div>
+            @for (workspace of workspaces(); track workspace.tenantId) {
+              <div
+                class="px-3 py-2 hover:bg-base-200 cursor-pointer flex items-center gap-2"
+                (click)="switchWorkspace(workspace)"
+              >
+                @if (workspace.isLastUsed) {
+                  <fa-icon [icon]="faCheck" class="text-primary text-xs"></fa-icon>
+                } @else {
+                  <span class="w-3"></span>
+                }
+                <div class="flex-1">
+                  <p class="text-sm font-medium">{{ workspace.tenantName }}</p>
+                  <p class="text-xs text-base-content/50">{{ workspace.role | titlecase }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
     <div class="dropdown dropdown-end">
       <button class="btn btn-ghost btn-circle" (click)="toggleNotifications()">
         <div class="indicator">
