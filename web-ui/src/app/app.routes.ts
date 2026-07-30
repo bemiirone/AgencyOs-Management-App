@@ -97,14 +97,18 @@ export const routes: Routes = [
           import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
       {
-        path: 'team',
+        path: 'admin/users',
         loadComponent: () =>
-          import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+          import('./features/admin/users/user-admin.component').then(
+            (m) => m.UserAdminComponent
+          ),
       },
       {
         path: 'settings',
         loadComponent: () =>
-          import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+          import('./features/settings/profile/profile-settings.component').then(
+            (m) => m.ProfileSettingsComponent
+          ),
       },
     ],
   },

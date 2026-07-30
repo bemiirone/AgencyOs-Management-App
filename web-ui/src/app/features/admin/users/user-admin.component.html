@@ -1,0 +1,148 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">User Management</h1>
+    <button class="btn btn-primary" (click)="toggleCreateForm()">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+      </svg>
+      Add User
+    </button>
+  </div>
+
+  @if (showCreateForm) {
+    <div class="card bg-base-100 shadow-xl mb-6">
+      <div class="card-body">
+        <h2 class="card-title mb-4">Create New User</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="form-control">
+            <label class="label"><span class="label-text">Name</span></label>
+            <input
+              type="text"
+              [(ngModel)]="newUser.name"
+              placeholder="John Doe"
+              class="input input-bordered"
+            />
+          </div>
+          <div class="form-control">
+            <label class="label"><span class="label-text">Email</span></label>
+            <input
+              type="email"
+              [(ngModel)]="newUser.email"
+              placeholder="john@example.com"
+              class="input input-bordered"
+            />
+          </div>
+          <div class="form-control">
+            <label class="label"><span class="label-text">Password</span></label>
+            <input
+              type="password"
+              [(ngModel)]="newUser.password"
+              placeholder="Minimum 6 characters"
+              class="input input-bordered"
+            />
+          </div>
+          <div class="form-control">
+            <label class="label"><span class="label-text">Role</span></label>
+            <select [(ngModel)]="newUser.role" class="select select-bordered">
+              <option value="member">Member</option>
+              <option value="manager">Manager</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-actions justify-end mt-4">
+          <button class="btn btn-ghost" (click)="toggleCreateForm()">Cancel</button>
+          <button class="btn btn-primary" (click)="createUser()">Create User</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body p-0">
+      @if (isLoading()) {
+        <div class="flex justify-center py-8">
+          <span class="loading loading-spinner loading-lg"></span>
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="table table-zebra">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of users(); track trackByUserId($index, user)) {
+                <tr [class.opacity-50]="!user.isActive">
+                  <td>
+                    <div class="font-bold">{{ user.name }}</div>
+                  </td>
+                  <td>{{ user.email }}</td>
+                  <td>
+                    @if (editingUserId === user.id) {
+                      <div class="flex items-center gap-2">
+                        <select
+                          [(ngModel)]="editingRole"
+                          class="select select-bordered select-sm"
+                        >
+                          <option value="member">Member</option>
+                          <option value="manager">Manager</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                        <button class="btn btn-xs btn-success" (click)="saveRole(user.id)">Save</button>
+                        <button class="btn btn-xs btn-ghost" (click)="cancelEditRole()">Cancel</button>
+                      </div>
+                    } @else {
+                      <span class="badge {{ getRoleBadgeClass(user.role) }} badge-lg">
+                        {{ user.role | titlecase }}
+                      </span>
+                      <button
+                        class="btn btn-xs btn-ghost ml-2"
+                        (click)="startEditRole(user.id, user.role)"
+                      >
+                        Edit
+                      </button>
+                    }
+                  </td>
+                  <td>
+                    @if (user.isActive) {
+                      <span class="badge badge-success">Active</span>
+                    } @else {
+                      <span class="badge badge-error">Inactive</span>
+                    }
+                  </td>
+                  <td>
+                    @if (user.isActive) {
+                      <button
+                        class="btn btn-sm btn-error btn-outline"
+                        (click)="deactivateUser(user)"
+                      >
+                        Deactivate
+                      </button>
+                    } @else {
+                      <button
+                        class="btn btn-sm btn-success btn-outline"
+                        (click)="reactivateUser(user)"
+                      >
+                        Reactivate
+                      </button>
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="text-center py-8">No users found</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+</div>

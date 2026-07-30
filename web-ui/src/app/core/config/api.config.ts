@@ -47,7 +47,11 @@ export const API_CONFIG = {
   USERS: {
     LIST: '/api/users',
     DETAIL: (id: string) => `/api/users/${id}`,
+    CREATE: '/api/users',
     UPDATE: (id: string) => `/api/users/${id}`,
+    UPDATE_ROLE: (id: string) => `/api/users/${id}/role`,
+    DELETE: (id: string) => `/api/users/${id}`,
+    REACTIVATE: (id: string) => `/api/users/${id}/reactivate`,
   },
   NOTIFICATIONS: {
     LIST: '/api/notifications',

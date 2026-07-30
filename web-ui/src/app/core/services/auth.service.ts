@@ -15,6 +15,7 @@ interface RegisterRequest {
   email: string;
   password: string;
   name: string;
+  agencyName: string;
 }
 
 interface AuthResponse {
@@ -97,5 +98,13 @@ export class AuthService {
 
   getUserId(): string | null {
     return this.currentUser()?.id ?? null;
+  }
+
+  getTenantId(): string | null {
+    return this.currentUser()?.tenantId ?? null;
+  }
+
+  getTenantName(): string {
+    return this.currentUser()?.tenantName ?? '';
   }
 }
