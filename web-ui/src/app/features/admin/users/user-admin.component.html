@@ -1,15 +1,17 @@
 <div class="container mx-auto px-4 py-8">
   <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold">User Management</h1>
-    <button class="btn btn-primary" (click)="toggleCreateForm()">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-      </svg>
-      Add User
-    </button>
+    <h1 class="text-2xl font-bold">Team</h1>
+    @if (isAdmin()) {
+      <button class="btn btn-primary" (click)="toggleCreateForm()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+        </svg>
+        Add User
+      </button>
+    }
   </div>
 
-  @if (showCreateForm) {
+  @if (isAdmin() && showCreateForm) {
     <div class="card bg-base-100 shadow-xl mb-6">
       <div class="card-body">
         <h2 class="card-title mb-4">Create New User</h2>
@@ -114,7 +116,9 @@
                 <th>Email</th>
                 <th>Role</th>
                 <th>Status</th>
-                <th>Actions</th>
+                @if (isAdmin()) {
+                  <th>Actions</th>
+                }
               </tr>
             </thead>
             <tbody>
@@ -125,7 +129,7 @@
                   </td>
                   <td>{{ user.email }}</td>
                   <td>
-                    @if (editingUserId === user.id) {
+                    @if (isAdmin() && editingUserId === user.id) {
                       <div class="flex items-center gap-2">
                         <select
                           [(ngModel)]="editingRole"
@@ -142,12 +146,14 @@
                       <span class="badge {{ getRoleBadgeClass(user.role) }} badge-lg">
                         {{ user.role | titlecase }}
                       </span>
-                      <button
-                        class="btn btn-xs btn-ghost ml-2"
-                        (click)="startEditRole(user.id, user.role)"
-                      >
-                        Edit
-                      </button>
+                      @if (isAdmin()) {
+                        <button
+                          class="btn btn-xs btn-ghost ml-2"
+                          (click)="startEditRole(user.id, user.role)"
+                        >
+                          Edit
+                        </button>
+                      }
                     }
                   </td>
                   <td>
@@ -157,27 +163,29 @@
                       <span class="badge badge-error">Inactive</span>
                     }
                   </td>
-                  <td>
-                    @if (user.isActive) {
-                      <button
-                        class="btn btn-sm btn-error btn-outline"
-                        (click)="deactivateUser(user)"
-                      >
-                        Deactivate
-                      </button>
-                    } @else {
-                      <button
-                        class="btn btn-sm btn-success btn-outline"
-                        (click)="reactivateUser(user)"
-                      >
-                        Reactivate
-                      </button>
-                    }
-                  </td>
+                  @if (isAdmin()) {
+                    <td>
+                      @if (user.isActive) {
+                        <button
+                          class="btn btn-sm btn-error btn-outline"
+                          (click)="deactivateUser(user)"
+                        >
+                          Deactivate
+                        </button>
+                      } @else {
+                        <button
+                          class="btn btn-sm btn-success btn-outline"
+                          (click)="reactivateUser(user)"
+                        >
+                          Reactivate
+                        </button>
+                      }
+                    </td>
+                  }
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="5" class="text-center py-8">No users found</td>
+                  <td [attr.colspan]="isAdmin() ? 5 : 4" class="text-center py-8">No users found</td>
                 </tr>
               }
             </tbody>

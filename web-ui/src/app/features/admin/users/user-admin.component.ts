@@ -1,10 +1,11 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserStore, UserWithRole } from '../../../stores/user.store';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { ToastService } from '../../../core/services/toast.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-user-admin',
@@ -16,6 +17,7 @@ import { ToastService } from '../../../core/services/toast.service';
 export class UserAdminComponent implements OnInit {
   private store = inject(UserStore);
   private toast = inject(ToastService);
+  private authService = inject(AuthService);
   private fb = inject(FormBuilder);
 
   faEye = faEye;
@@ -27,6 +29,8 @@ export class UserAdminComponent implements OnInit {
   editingUserId: string | null = null;
   editingRole: string | null = null;
   showPassword = signal(false);
+
+  isAdmin = computed(() => this.authService.getUserRole() === 'admin');
 
   createUserForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],

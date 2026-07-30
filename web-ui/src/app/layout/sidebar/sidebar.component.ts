@@ -53,7 +53,5 @@ export class SidebarComponent implements OnInit {
     { label: 'Settings', icon: faCog, route: '/settings' },
   ];
 
-  adminNavItems = [
-    { label: 'User Admin', icon: faUsers, route: '/admin/users' },
-  ];
+  adminNavItems = [];
 }

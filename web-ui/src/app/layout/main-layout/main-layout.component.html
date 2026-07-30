@@ -16,6 +16,10 @@
 
   <app-toast></app-toast>
 
+  @if (showWorkspaceSelect) {
+    <app-workspace-select-modal></app-workspace-select-modal>
+  }
+
   <div class="drawer-side">
     <label for="main-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
     <app-sidebar></app-sidebar>

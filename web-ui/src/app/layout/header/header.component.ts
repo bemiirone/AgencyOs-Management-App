@@ -2,8 +2,8 @@ import { Component, inject, signal, Output, EventEmitter, OnInit } from '@angula
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faBars, faBell, faUser, faSignOutAlt, faChevronDown, faCheck } from '@fortawesome/free-solid-svg-icons';
-import { AuthService } from '../../core/services/auth.service';
+import { faBars, faBell, faUser, faSignOutAlt, faChevronDown, faCheck, faBuilding } from '@fortawesome/free-solid-svg-icons';
+import { AuthService, Workspace } from '../../core/services/auth.service';
 import { NotificationStore } from '../../stores/notification.store';
 import { Notification } from '../../shared/models/notification.model';
 
@@ -27,17 +27,23 @@ export class HeaderComponent implements OnInit {
   faSignOutAlt = faSignOutAlt;
   faChevronDown = faChevronDown;
   faCheck = faCheck;
+  faBuilding = faBuilding;
 
   userName = signal('');
   userRole = signal('');
+  tenantName = signal('');
   notifications = signal<Notification[]>([]);
   unreadCount = signal(0);
   showNotifications = signal(false);
+  showWorkspaceDropdown = signal(false);
+  workspaces = signal<Workspace[]>([]);
+  hasMultipleWorkspaces = signal(false);
 
   ngOnInit(): void {
     const user = this.authService.getUser();
     this.userName.set(user?.name ?? 'User');
     this.userRole.set(user?.role ?? 'Member');
+    this.tenantName.set(this.authService.getTenantName());
 
     this.notificationStore.loadNotifications().subscribe({
       next: (notifications) => {
@@ -46,10 +52,29 @@ export class HeaderComponent implements OnInit {
       },
       error: () => {},
     });
+
+    this.loadWorkspaces();
+  }
+
+  async loadWorkspaces() {
+    try {
+      const workspaces = await this.authService.getWorkspaces();
+      this.workspaces.set(workspaces);
+      this.hasMultipleWorkspaces.set(workspaces.length > 1);
+    } catch {
+      this.workspaces.set([]);
+      this.hasMultipleWorkspaces.set(false);
+    }
   }
 
   toggleNotifications(): void {
     this.showNotifications.update((v) => !v);
+    this.showWorkspaceDropdown.set(false);
+  }
+
+  toggleWorkspaceDropdown(): void {
+    this.showWorkspaceDropdown.update((v) => !v);
+    this.showNotifications.set(false);
   }
 
   markAsRead(id: string): void {
@@ -73,6 +98,13 @@ export class HeaderComponent implements OnInit {
     if (diffMinutes < 60) return `${diffMinutes}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
     return `${diffDays}d ago`;
+  }
+
+  async switchWorkspace(workspace: Workspace) {
+    this.showWorkspaceDropdown.set(false);
+    await this.authService.switchWorkspace(workspace.tenantId);
+    this.tenantName.set(workspace.tenantName);
+    window.location.reload();
   }
 
   onToggleDrawer(): void {

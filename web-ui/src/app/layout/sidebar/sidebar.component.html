@@ -22,20 +22,6 @@
         </a>
       </li>
     }
-    @if (userRole() === 'admin') {
-      <li class="menu-title mt-4"><span>Admin</span></li>
-      @for (item of adminNavItems; track item.route) {
-        <li>
-          <a
-            [routerLink]="item.route"
-            routerLinkActive="active"
-          >
-            <fa-icon [icon]="item.icon" class="w-5"></fa-icon>
-            {{ item.label }}
-          </a>
-        </li>
-      }
-    }
   </ul>
 
   <div class="mt-auto pt-6 px-2">

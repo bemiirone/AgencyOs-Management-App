@@ -2,8 +2,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faUser, faEnvelope, faLock, faEye, faEyeSlash, faSave } from '@fortawesome/free-solid-svg-icons';
-import { AuthService } from '../../../core/services/auth.service';
+import { faUser, faEnvelope, faLock, faEye, faEyeSlash, faSave, faBuilding, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { AuthService, Workspace } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
@@ -23,6 +23,9 @@ export class ProfileSettingsComponent implements OnInit {
   faEye = faEye;
   faEyeSlash = faEyeSlash;
   faSave = faSave;
+  faBuilding = faBuilding;
+  faPlus = faPlus;
+  faTimes = faTimes;
 
   name = signal('');
   email = signal('');
@@ -35,11 +38,50 @@ export class ProfileSettingsComponent implements OnInit {
   saving = signal(false);
   changingPassword = signal(false);
 
+  workspaces = signal<Workspace[]>([]);
+  showJoinDialog = signal(false);
+  inviteCode = signal('');
+  joining = signal(false);
+
   ngOnInit() {
     const user = this.authService.getUser();
     if (user) {
       this.name.set(user.name);
       this.email.set(user.email);
+    }
+    this.loadWorkspaces();
+  }
+
+  async loadWorkspaces() {
+    try {
+      const ws = await this.authService.getWorkspaces();
+      this.workspaces.set(ws);
+    } catch {
+      this.workspaces.set([]);
+    }
+  }
+
+  toggleJoinDialog() {
+    this.showJoinDialog.update((v) => !v);
+    this.inviteCode.set('');
+  }
+
+  async joinWorkspace() {
+    if (!this.inviteCode()) {
+      this.toast.error('Please enter an invite code');
+      return;
+    }
+
+    this.joining.set(true);
+    try {
+      await this.authService.joinWorkspace(this.inviteCode());
+      this.toast.success('Joined workspace successfully');
+      this.toggleJoinDialog();
+      await this.loadWorkspaces();
+    } catch (err: any) {
+      this.toast.error(err.error?.message || 'Failed to join workspace');
+    } finally {
+      this.joining.set(false);
     }
   }
 
