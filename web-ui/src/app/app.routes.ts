@@ -94,7 +94,9 @@ export const routes: Routes = [
       {
         path: 'invoices',
         loadComponent: () =>
-          import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+          import('./features/invoices/invoices.component').then(
+            (m) => m.InvoicesComponent
+          ),
       },
       {
         path: 'admin/users',
