@@ -22,6 +22,15 @@ interface AuthResponse {
   accessToken: string;
   refreshToken: string;
   user: User;
+  requiresWorkspaceSelection?: boolean;
+  workspaces?: Workspace[];
+}
+
+export interface Workspace {
+  tenantId: string;
+  tenantName: string;
+  role: string;
+  isLastUsed: boolean;
 }
 
 @Injectable({
@@ -33,6 +42,8 @@ export class AuthService {
   private storageService = inject(StorageService);
 
   private currentUser = signal<User | null>(null);
+  private workspaces = signal<Workspace[]>([]);
+  private showWorkspaceSelect = signal(false);
 
   constructor() {
     const storedUser = this.storageService.getUser();
@@ -50,6 +61,10 @@ export class AuthService {
     this.storageService.setRefreshToken(response.refreshToken);
     this.storageService.setUser(response.user);
     this.currentUser.set(response.user);
+
+    if (response.workspaces) {
+      this.workspaces.set(response.workspaces);
+    }
 
     return response;
   }
@@ -70,6 +85,8 @@ export class AuthService {
   async logout(): Promise<void> {
     this.storageService.clear();
     this.currentUser.set(null);
+    this.workspaces.set([]);
+    this.showWorkspaceSelect.set(false);
     await this.router.navigate(['/login']);
   }
 
@@ -82,6 +99,49 @@ export class AuthService {
     this.currentUser.set(user);
 
     return user;
+  }
+
+  async getWorkspaces(): Promise<Workspace[]> {
+    const workspaces = await firstValueFrom(
+      this.http.get<Workspace[]>(`${API_CONFIG.baseUrl}${API_CONFIG.AUTH.WORKSPACES}`)
+    );
+
+    const lastWorkspace = this.storageService.getLastWorkspace();
+    const updated = workspaces.map((w) => ({
+      ...w,
+      isLastUsed: w.tenantId === lastWorkspace,
+    }));
+
+    this.workspaces.set(updated);
+    return updated;
+  }
+
+  async switchWorkspace(tenantId: string): Promise<void> {
+    const response = await firstValueFrom(
+      this.http.post<AuthResponse>(`${API_CONFIG.baseUrl}${API_CONFIG.AUTH.SWITCH_WORKSPACE}`, { tenantId })
+    );
+
+    this.storageService.setToken(response.accessToken);
+    this.storageService.setRefreshToken(response.refreshToken);
+    this.storageService.setUser(response.user);
+    this.storageService.setLastWorkspace(tenantId);
+    this.currentUser.set(response.user);
+    this.showWorkspaceSelect.set(false);
+
+    const workspaces = this.workspaces().map((w) => ({
+      ...w,
+      isLastUsed: w.tenantId === tenantId,
+    }));
+    this.workspaces.set(workspaces);
+  }
+
+  async joinWorkspace(inviteCode: string): Promise<Workspace[]> {
+    const workspaces = await firstValueFrom(
+      this.http.post<Workspace[]>(`${API_CONFIG.baseUrl}${API_CONFIG.AUTH.JOIN_WORKSPACE}`, { inviteCode })
+    );
+
+    this.workspaces.set(workspaces);
+    return workspaces;
   }
 
   isAuthenticated(): boolean {
@@ -106,5 +166,21 @@ export class AuthService {
 
   getTenantName(): string {
     return this.currentUser()?.tenantName ?? '';
+  }
+
+  getWorkspacesSignal() {
+    return this.workspaces;
+  }
+
+  hasMultipleWorkspaces(): boolean {
+    return this.workspaces().length > 1;
+  }
+
+  getShowWorkspaceSelect() {
+    return this.showWorkspaceSelect;
+  }
+
+  setShowWorkspaceSelect(value: boolean) {
+    this.showWorkspaceSelect.set(value);
   }
 }

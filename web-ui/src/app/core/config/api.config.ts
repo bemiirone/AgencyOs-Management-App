@@ -5,6 +5,9 @@ export const API_CONFIG = {
     REGISTER: '/api/auth/register',
     PROFILE: '/api/auth/profile',
     REFRESH: '/api/auth/refresh',
+    WORKSPACES: '/api/auth/workspaces',
+    SWITCH_WORKSPACE: '/api/auth/switch-workspace',
+    JOIN_WORKSPACE: '/api/auth/join-workspace',
   },
   PROJECTS: {
     LIST: '/api/projects',

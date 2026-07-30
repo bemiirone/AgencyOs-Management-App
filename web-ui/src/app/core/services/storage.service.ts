@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 const TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 const USER_KEY = 'current_user';
+const LAST_WORKSPACE_KEY = 'last_workspace';
 
 @Injectable({
   providedIn: 'root',
@@ -33,9 +34,18 @@ export class StorageService {
     localStorage.setItem(USER_KEY, JSON.stringify(user));
   }
 
+  getLastWorkspace(): string | null {
+    return localStorage.getItem(LAST_WORKSPACE_KEY);
+  }
+
+  setLastWorkspace(tenantId: string): void {
+    localStorage.setItem(LAST_WORKSPACE_KEY, tenantId);
+  }
+
   clear(): void {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(LAST_WORKSPACE_KEY);
   }
 }
