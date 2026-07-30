@@ -13,17 +13,26 @@ async function bootstrap() {
 
   console.log('Starting migration: Creating TenantMember records from existing Users...');
 
-  const users = await userModel.find({ tenantId: { $exists: true } });
+  const users = await userModel.find({}).lean();
 
-  console.log(`Found ${users.length} users with tenantId to migrate`);
+  console.log(`Found ${users.length} total users`);
 
   let created = 0;
   let skipped = 0;
+  let noTenant = 0;
 
-  for (const user of users) {
+  for (const user of users as any[]) {
+    const tenantId = user.tenantId;
+
+    if (!tenantId) {
+      console.log(`Skipping user ${user.email} - no tenantId found`);
+      noTenant++;
+      continue;
+    }
+
     const existing = await tenantMemberModel.findOne({
       userId: user._id,
-      tenantId: user.tenantId,
+      tenantId,
     });
 
     if (existing) {
@@ -34,18 +43,19 @@ async function bootstrap() {
 
     await tenantMemberModel.create({
       userId: user._id,
-      tenantId: user.tenantId,
+      tenantId,
       role: user.role || UserRole.MEMBER,
       isActive: true,
     });
 
-    console.log(`Created TenantMember for user ${user.email}`);
+    console.log(`Created TenantMember for user ${user.email} with role: ${user.role || UserRole.MEMBER}`);
     created++;
   }
 
   console.log(`\nMigration complete!`);
   console.log(`Created: ${created}`);
-  console.log(`Skipped: ${skipped}`);
+  console.log(`Skipped (already migrated): ${skipped}`);
+  console.log(`Skipped (no tenantId): ${noTenant}`);
 
   await app.close();
 }
