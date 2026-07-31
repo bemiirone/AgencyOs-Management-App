@@ -1,0 +1,15 @@
+@if (visible()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div class="card w-full max-w-md shadow-2xl bg-base-100">
+      <div class="card-body">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="card-title text-lg">{{ title() }}</h3>
+          <button type="button" class="btn btn-ghost btn-sm btn-circle" (click)="onDismiss()">
+            <fa-icon [icon]="faTimes"></fa-icon>
+          </button>
+        </div>
+        <ng-content></ng-content>
+      </div>
+    </div>
+  </div>
+}
