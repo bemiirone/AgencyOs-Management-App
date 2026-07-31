@@ -6,6 +6,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowLeft, faSpinner, faSave } from '@fortawesome/free-solid-svg-icons';
 import { ProjectStore } from '../../../stores/project.store';
 import { Project } from '../../../shared/models/project.model';
+import { UpdateProjectPayload, ProjectStatus } from '../project.models';
 
 @Component({
   selector: 'app-project-edit',
@@ -31,7 +32,7 @@ export class ProjectEditComponent implements OnInit {
   form = {
     name: '',
     description: '',
-    status: 'draft',
+    status: 'draft' as ProjectStatus,
     clientId: '',
     startDate: '',
     endDate: '',
@@ -71,7 +72,7 @@ export class ProjectEditComponent implements OnInit {
     this.saving.set(true);
     this.error.set('');
 
-    const projectData: any = {
+    const projectData: UpdateProjectPayload = {
       name: this.form.name,
       description: this.form.description,
       status: this.form.status,

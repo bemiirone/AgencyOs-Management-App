@@ -10,6 +10,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { TaskStore } from '../../../stores/task.store';
 import { ProjectStore } from '../../../stores/project.store';
+import { Project } from '../../../shared/models/project.model';
+import { CreateTaskPayload, TaskStatus, TaskPriority } from '../task.models';
 
 @Component({
   selector: 'app-task-create',
@@ -23,7 +25,7 @@ export class TaskCreateComponent implements OnInit {
   private projectStore = inject(ProjectStore);
   private router = inject(Router);
 
-  projects = signal<any[]>([]);
+  projects = signal<Project[]>([]);
   loading = signal(false);
   error = signal('');
 
@@ -35,8 +37,8 @@ export class TaskCreateComponent implements OnInit {
     title: '',
     description: '',
     projectId: '',
-    status: 'todo' as const,
-    priority: 'medium' as const,
+    status: 'todo' as TaskStatus,
+    priority: 'medium' as TaskPriority,
     dueDate: '',
   };
 
@@ -56,7 +58,7 @@ export class TaskCreateComponent implements OnInit {
     this.loading.set(true);
     this.error.set('');
 
-    const taskData: any = {
+    const taskData: CreateTaskPayload = {
       title: this.form.title,
       description: this.form.description,
       projectId: this.form.projectId,

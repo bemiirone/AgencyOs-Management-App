@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { User } from '../../shared/models/user.model';
 
 const TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
@@ -25,12 +26,12 @@ export class StorageService {
     localStorage.setItem(REFRESH_TOKEN_KEY, token);
   }
 
-  getUser(): any | null {
+  getUser(): User | null {
     const user = localStorage.getItem(USER_KEY);
-    return user ? JSON.parse(user) : null;
+    return user ? JSON.parse(user) as User : null;
   }
 
-  setUser(user: any): void {
+  setUser(user: User): void {
     localStorage.setItem(USER_KEY, JSON.stringify(user));
   }
 

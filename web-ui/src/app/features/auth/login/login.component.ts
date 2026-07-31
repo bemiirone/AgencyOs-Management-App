@@ -43,8 +43,9 @@ export class LoginComponent {
         password: this.password(),
       });
       await this.router.navigate(['/dashboard']);
-    } catch (err: any) {
-      this.error.set(err.error?.message || 'Login failed. Please check your credentials.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Login failed. Please check your credentials.';
+      this.error.set(message);
     } finally {
       this.loading.set(false);
     }

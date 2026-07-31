@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faCheckCircle, faExclamationCircle, faInfoCircle, faExclamationTriangle, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { IconDefinition, faCheckCircle, faExclamationCircle, faInfoCircle, faExclamationTriangle, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
@@ -40,7 +40,7 @@ export class ToastComponent {
   faExclamationTriangle = faExclamationTriangle;
   faTimes = faTimes;
 
-  getIcon(type: string): any {
+  getIcon(type: string): IconDefinition {
     switch (type) {
       case 'success': return this.faCheckCircle;
       case 'error': return this.faExclamationCircle;

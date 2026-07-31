@@ -70,8 +70,9 @@ export class RegisterComponent {
       const { confirmPassword, ...data } = this.registerForm.value;
       await this.authService.register(data);
       await this.router.navigate(['/dashboard']);
-    } catch (err: any) {
-      this.error.set(err.error?.message || 'Registration failed. Please try again.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Registration failed. Please try again.';
+      this.error.set(message);
     } finally {
       this.loading.set(false);
     }

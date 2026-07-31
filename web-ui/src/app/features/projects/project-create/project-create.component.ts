@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowLeft, faSpinner, faSave } from '@fortawesome/free-solid-svg-icons';
 import { ProjectStore } from '../../../stores/project.store';
+import { CreateProjectPayload, ProjectStatus } from '../project.models';
 
 @Component({
   selector: 'app-project-create',
@@ -26,7 +27,7 @@ export class ProjectCreateComponent {
   form = {
     name: '',
     description: '',
-    status: 'draft',
+    status: 'draft' as ProjectStatus,
     clientId: '',
     startDate: '',
     endDate: '',
@@ -37,7 +38,7 @@ export class ProjectCreateComponent {
     this.saving.set(true);
     this.error.set('');
 
-    const projectData: any = {
+    const projectData: CreateProjectPayload = {
       name: this.form.name,
       description: this.form.description,
       status: this.form.status,

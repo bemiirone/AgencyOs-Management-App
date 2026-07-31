@@ -5,6 +5,21 @@ import { User } from '../shared/models/user.model';
 import { API_CONFIG } from '../core/config/api.config';
 import { StorageService } from '../core/services/storage.service';
 
+export interface WorkspaceInfo {
+  tenantId: string;
+  tenantName: string;
+  role: string;
+  isLastUsed: boolean;
+}
+
+export interface AuthResponse {
+  user: User;
+  accessToken: string;
+  refreshToken: string;
+  requiresWorkspaceSelection?: boolean;
+  workspaces?: WorkspaceInfo[];
+}
+
 export interface AuthState {
   user: User | null;
   token: string | null;
@@ -35,8 +50,8 @@ export class AuthStore {
   login(email: string, password: string) {
     this._state.update((s) => ({ ...s, isLoading: true, error: null }));
 
-    return this.http.post<any>(API_CONFIG.AUTH.LOGIN, { email, password }).pipe(
-      tap((response: any) => {
+    return this.http.post<AuthResponse>(API_CONFIG.AUTH.LOGIN, { email, password }).pipe(
+      tap((response: AuthResponse) => {
         this.storage.setToken(response.accessToken);
         this.storage.setUser(response.user);
         this._state.set({
@@ -61,8 +76,8 @@ export class AuthStore {
   register(name: string, email: string, password: string) {
     this._state.update((s) => ({ ...s, isLoading: true, error: null }));
 
-    return this.http.post<any>(API_CONFIG.AUTH.REGISTER, { name, email, password }).pipe(
-      tap((response: any) => {
+    return this.http.post<AuthResponse>(API_CONFIG.AUTH.REGISTER, { name, email, password }).pipe(
+      tap((response: AuthResponse) => {
         this.storage.setToken(response.accessToken);
         this.storage.setUser(response.user);
         this._state.set({

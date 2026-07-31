@@ -16,6 +16,7 @@ import {
   faListUl,
 } from '@fortawesome/free-solid-svg-icons';
 import { Task } from '../../../shared/models/task.model';
+import { Project } from '../../../shared/models/project.model';
 import { TaskStore } from '../../../stores/task.store';
 import { ProjectStore } from '../../../stores/project.store';
 import { TimeEntryStore } from '../../../stores/time-entry.store';
@@ -38,7 +39,7 @@ export class TaskDetailComponent implements OnInit {
   task = signal<Task | null>(null);
   subtasks = signal<Task[]>([]);
   timeEntries = signal<TimeEntry[]>([]);
-  projects = signal<any[]>([]);
+  projects = signal<Project[]>([]);
   loading = signal(false);
   editing = signal(false);
 

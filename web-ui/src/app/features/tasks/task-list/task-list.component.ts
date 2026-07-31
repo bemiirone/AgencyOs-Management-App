@@ -13,6 +13,7 @@ import {
   faFilter,
 } from '@fortawesome/free-solid-svg-icons';
 import { Task } from '../../../shared/models/task.model';
+import { Project } from '../../../shared/models/project.model';
 import { TaskStore } from '../../../stores/task.store';
 import { ProjectStore } from '../../../stores/project.store';
 
@@ -28,7 +29,7 @@ export class TaskListComponent implements OnInit {
   private projectStore = inject(ProjectStore);
 
   tasks = signal<Task[]>([]);
-  projects = signal<any[]>([]);
+  projects = signal<Project[]>([]);
   loading = signal(false);
   searchQuery = signal('');
   statusFilter = signal<string>('');

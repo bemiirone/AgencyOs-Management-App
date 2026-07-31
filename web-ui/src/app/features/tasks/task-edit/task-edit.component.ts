@@ -9,8 +9,10 @@ import {
   faSave,
 } from '@fortawesome/free-solid-svg-icons';
 import { Task } from '../../../shared/models/task.model';
+import { Project } from '../../../shared/models/project.model';
 import { TaskStore } from '../../../stores/task.store';
 import { ProjectStore } from '../../../stores/project.store';
+import { UpdateTaskPayload, TaskStatus, TaskPriority } from '../task.models';
 
 @Component({
   selector: 'app-task-edit',
@@ -25,7 +27,7 @@ export class TaskEditComponent implements OnInit {
   private projectStore = inject(ProjectStore);
   private router = inject(Router);
 
-  projects = signal<any[]>([]);
+  projects = signal<Project[]>([]);
   loading = signal(true);
   saving = signal(false);
   error = signal('');
@@ -40,8 +42,8 @@ export class TaskEditComponent implements OnInit {
     title: '',
     description: '',
     projectId: '',
-    status: 'todo' as Task['status'],
-    priority: 'medium' as Task['priority'],
+    status: 'todo' as TaskStatus,
+    priority: 'medium' as TaskPriority,
     dueDate: '',
   };
 
@@ -87,7 +89,7 @@ export class TaskEditComponent implements OnInit {
     this.saving.set(true);
     this.error.set('');
 
-    const taskData: any = {
+    const taskData: UpdateTaskPayload = {
       title: this.form.title,
       description: this.form.description,
       projectId: this.form.projectId,

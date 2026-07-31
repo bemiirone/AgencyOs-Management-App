@@ -18,6 +18,13 @@ interface GroupedEntries {
   totalSeconds: number;
 }
 
+interface CreateTimeEntryPayload {
+  projectId: string;
+  taskId?: string;
+  description: string;
+  isBillable: boolean;
+}
+
 @Component({
   selector: 'app-time-tracking',
   standalone: true,
@@ -47,7 +54,7 @@ export class TimeTrackingComponent implements OnInit, OnDestroy {
   runningTimerInfo = signal({ projectName: '', startedAgo: '' });
 
   elapsedSeconds = signal(0);
-  private timerInterval: any = null;
+  private timerInterval: ReturnType<typeof setInterval> | null = null;
 
   faPlay = faPlay;
   faStop = faStop;
@@ -123,7 +130,7 @@ export class TimeTrackingComponent implements OnInit, OnDestroy {
     const projectId = this.selectedProjectId();
     if (!projectId) return;
 
-    const data: any = {
+    const data: CreateTimeEntryPayload = {
       projectId,
       description: this.timerDescription(),
       isBillable: this.isBillable(),
