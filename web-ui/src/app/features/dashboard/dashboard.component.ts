@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { HttpClient } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
 import {
   faProjectDiagram,
   faTasks,
@@ -15,38 +16,14 @@ import {
   faFileAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import { AuthService } from '../../core/services/auth.service';
-import { ProjectStore } from '../../stores/project.store';
 import { API_CONFIG } from '../../core/config/api.config';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
-
-interface Activity {
-  icon: any;
-  color: string;
-  message: string;
-  time: string;
-}
-
-interface TeamMember {
-  initials: string;
-  name: string;
-  role: string;
-  color: string;
-}
-
-interface StatItem {
-  icon: typeof faProjectDiagram;
-  key: keyof DashboardStats;
-  title: string;
-  description: string;
-  color: string;
-}
-
-interface DashboardStats {
-  totalProjects: number;
-  activeTasks: number;
-  totalHours: number;
-  pendingInvoices: number;
-}
+import { Activity, TeamMember, DashboardStats, StatItem } from './dashboard.models';
+import { ToastService } from '../../core/services/toast.service';
+import { Project } from '../../shared/models/project.model';
+import { Task } from '../../shared/models/task.model';
+import { TimeEntry } from '../../shared/models/time-entry.model';
+import { Invoice } from '../../shared/models/invoice.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -58,7 +35,7 @@ interface DashboardStats {
 export class DashboardComponent implements OnInit {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
-  private projectStore = inject(ProjectStore);
+  private toast = inject(ToastService);
 
   faProjectDiagram = faProjectDiagram;
   faTasks = faTasks;
@@ -94,110 +71,72 @@ export class DashboardComponent implements OnInit {
     const user = this.authService.getUser();
     this.userName.set(user?.name ?? 'User');
     this.tenantName.set(user?.tenantName ?? '');
-
     this.loadDashboard();
   }
 
   private loadDashboard(): void {
     this.loading.set(true);
 
-    const projects$ = this.http.get<any[]>(API_CONFIG.PROJECTS.LIST);
-    const tasks$ = this.http.get<any[]>(API_CONFIG.TASKS.LIST);
-    const timeEntries$ = this.http.get<any[]>(API_CONFIG.TIME_ENTRIES.LIST);
-    const invoices$ = this.http.get<any[]>(API_CONFIG.INVOICES.LIST);
-
-    let projectsLoaded = false;
-    let tasksLoaded = false;
-    let recentProjects: any[] = [];
-    let recentTasks: any[] = [];
-
-    const mergeActivities = () => {
-      const projectActs: Activity[] = recentProjects.map((p) => ({
-        icon: faPlus,
-        color: 'bg-primary',
-        message: `Project "${p.name}" created`,
-        time: this.timeAgo(p.createdAt),
-      }));
-
-      const taskActs: Activity[] = recentTasks.map((t) => ({
-        icon: faTasks,
-        color: 'bg-secondary',
-        message: `Task "${t.title}" created`,
-        time: this.timeAgo(t.createdAt),
-      }));
-
-      const allActs = [...projectActs, ...taskActs]
-        .sort((a, b) => {
-          const parseTime = (timeStr: string) => {
-            if (timeStr === 'Just now') return 0;
-            const num = parseInt(timeStr);
-            if (timeStr.includes('h')) return num * 60;
-            if (timeStr.includes('d')) return num * 24 * 60;
-            return 999999;
-          };
-          return parseTime(a.time) - parseTime(b.time);
-        })
-        .reverse()
-        .slice(0, 6);
-
-      this.activities.set(allActs);
-    };
-
-    projects$.subscribe({
-      next: (projects) => {
+    forkJoin({
+      projects: this.http.get<Project[]>(API_CONFIG.PROJECTS.LIST),
+      tasks: this.http.get<Task[]>(API_CONFIG.TASKS.LIST),
+      timeEntries: this.http.get<TimeEntry[]>(API_CONFIG.TIME_ENTRIES.LIST),
+      invoices: this.http.get<Invoice[]>(API_CONFIG.INVOICES.LIST),
+    }).subscribe({
+      next: ({ projects, tasks, timeEntries, invoices }) => {
         const totalProjects = projects.length;
-        this.stats.update((s) => ({ ...s, totalProjects }));
-
-        recentProjects = projects.slice(0, 3);
-        projectsLoaded = true;
-        if (projectsLoaded && tasksLoaded) {
-          mergeActivities();
-        }
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
-
-    tasks$.subscribe({
-      next: (tasks) => {
         const activeTasks = tasks.filter(
           (t) => t.status === 'in_progress' || t.status === 'todo'
         ).length;
-        this.stats.update((s) => ({ ...s, activeTasks }));
-
-        recentTasks = tasks.slice(0, 3);
-        tasksLoaded = true;
-        if (projectsLoaded && tasksLoaded) {
-          mergeActivities();
-        }
-      },
-      error: () => {
-        tasksLoaded = true;
-        if (projectsLoaded) {
-          mergeActivities();
-        }
-      },
-    });
-
-    timeEntries$.subscribe({
-      next: (entries) => {
-        const totalMinutes = entries.reduce(
+        const totalMinutes = timeEntries.reduce(
           (sum, e) => sum + (e.duration || 0),
           0
         );
-        this.stats.update((s) => ({ ...s, totalHours: Math.round((totalMinutes / 60) * 10) / 10 }));
-      },
-      error: () => {},
-    });
-
-    invoices$.subscribe({
-      next: (invoices) => {
+        const totalHours = Math.round((totalMinutes / 60) * 10) / 10;
         const pendingInvoices = invoices.filter(
           (i) => i.status === 'draft' || i.status === 'sent'
         ).length;
-        this.stats.update((s) => ({ ...s, pendingInvoices }));
+
+        this.stats.set({ totalProjects, activeTasks, totalHours, pendingInvoices });
+
+        const recentProjects = projects.slice(0, 3);
+        const recentTasks = tasks.slice(0, 3);
+
+        const projectActs: Activity[] = recentProjects.map((p) => ({
+          icon: faPlus,
+          color: 'bg-primary',
+          message: `Project "${p.name}" created`,
+          time: this.timeAgo(p.createdAt),
+        }));
+
+        const taskActs: Activity[] = recentTasks.map((t) => ({
+          icon: faTasks,
+          color: 'bg-secondary',
+          message: `Task "${t.title}" created`,
+          time: this.timeAgo(t.createdAt),
+        }));
+
+        const allActs = [...projectActs, ...taskActs]
+          .sort((a, b) => {
+            const parseTime = (timeStr: string) => {
+              if (timeStr === 'Just now') return 0;
+              const num = parseInt(timeStr);
+              if (timeStr.includes('h')) return num * 60;
+              if (timeStr.includes('d')) return num * 24 * 60;
+              return 999999;
+            };
+            return parseTime(a.time) - parseTime(b.time);
+          })
+          .reverse()
+          .slice(0, 6);
+
+        this.activities.set(allActs);
+        this.loading.set(false);
       },
-      error: () => {},
+      error: () => {
+        this.toast.error('Failed to load dashboard data');
+        this.loading.set(false);
+      },
     });
 
     const user = this.authService.getUser();
@@ -208,9 +147,9 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  private timeAgo(date: string): string {
+  private timeAgo(date: string | Date): string {
+    const then = date instanceof Date ? date : new Date(date);
     const now = new Date();
-    const then = new Date(date);
     const diffMs = now.getTime() - then.getTime();
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
