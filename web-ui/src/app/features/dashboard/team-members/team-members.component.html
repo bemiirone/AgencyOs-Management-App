@@ -1,0 +1,26 @@
+<div class="card bg-base-100 shadow">
+  <div class="card-body">
+    <h2 class="card-title">Team Members</h2>
+    <div class="mt-4">
+      @if (members().length > 0) {
+        <div class="space-y-3">
+          @for (member of members(); track $index) {
+            <div class="flex items-center gap-3 p-3 bg-base-200 rounded-lg">
+              <div class="avatar placeholder">
+                <div class="{{ member.color }} text-primary-content w-10 rounded-full">
+                  <span class="text-sm">{{ member.initials }}</span>
+                </div>
+              </div>
+              <div>
+                <p class="font-medium">{{ member.name }}</p>
+                <p class="text-xs text-base-content/50">{{ member.role }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="text-base-content/50 text-center py-4">No team members</p>
+      }
+    </div>
+  </div>
+</div>

@@ -1,0 +1,20 @@
+<div class="card bg-base-100 shadow">
+  <div class="card-body">
+    <h2 class="card-title">Recent Activity</h2>
+    <div class="mt-4">
+      @if (activities().length > 0) {
+        <ul class="space-y-3">
+          @for (activity of activities(); track $index) {
+            <li class="flex items-center gap-3 p-3 bg-base-200 rounded-lg">
+              <div class="w-2 h-2 {{ activity.color }} rounded-full"></div>
+              <span class="text-sm">{{ activity.message }}</span>
+              <span class="text-xs text-base-content/50 ml-auto">{{ activity.time }}</span>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="text-base-content/50 text-center py-4">No recent activity</p>
+      }
+    </div>
+  </div>
+</div>

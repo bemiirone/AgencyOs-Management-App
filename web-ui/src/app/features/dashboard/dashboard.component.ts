@@ -18,8 +18,11 @@ import {
 import { AuthService } from '../../core/services/auth.service';
 import { API_CONFIG } from '../../core/config/api.config';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
+import { RecentActivityComponent } from './recent-activity/recent-activity.component';
+import { TeamMembersComponent } from './team-members/team-members.component';
 import { Activity, TeamMember, DashboardStats, StatItem } from './dashboard.models';
 import { ToastService } from '../../core/services/toast.service';
+import { UserStore } from '../../stores/user.store';
 import { Project } from '../../shared/models/project.model';
 import { Task } from '../../shared/models/task.model';
 import { TimeEntry } from '../../shared/models/time-entry.model';
@@ -28,7 +31,7 @@ import { Invoice } from '../../shared/models/invoice.model';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FontAwesomeModule, StatCardComponent],
+  imports: [CommonModule, FontAwesomeModule, StatCardComponent, RecentActivityComponent, TeamMembersComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,6 +40,7 @@ export class DashboardComponent implements OnInit {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
   private toast = inject(ToastService);
+  private userStore = inject(UserStore);
 
   faProjectDiagram = faProjectDiagram;
   faTasks = faTasks;
@@ -67,6 +71,8 @@ export class DashboardComponent implements OnInit {
     { icon: faClock, key: 'totalHours', title: 'Total Hours', description: 'Tracked this month', color: 'text-accent' },
     { icon: faFileInvoiceDollar, key: 'pendingInvoices', title: 'Pending Invoices', description: 'Awaiting payment', color: 'text-info' },
   ];
+
+  private readonly avatarColors = ['bg-primary', 'bg-secondary', 'bg-accent', 'bg-info', 'bg-success', 'bg-warning'];
 
   ngOnInit(): void {
     const user = this.authService.getUser();
@@ -140,12 +146,20 @@ export class DashboardComponent implements OnInit {
       },
     });
 
-    const user = this.authService.getUser();
-    if (user) {
-      this.teamMembers.set([
-        { initials: this.getInitials(user.name), name: user.name, role: user.role, color: 'bg-primary' },
-      ]);
-    }
+    this.userStore.loadUsers().subscribe({
+      next: (users) => {
+        const members: TeamMember[] = users
+          .filter((u) => u.isActive)
+          .map((u, i) => ({
+            initials: this.getInitials(u.name),
+            name: u.name,
+            role: u.role,
+            color: this.avatarColors[i % this.avatarColors.length],
+          }));
+        this.teamMembers.set(members);
+      },
+      error: (err) => console.error('Failed to load team members:', err),
+    });
   }
 
   private timeAgo(date: string | Date): string {

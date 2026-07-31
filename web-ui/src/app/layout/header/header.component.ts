@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, Output, EventEmitter, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, computed, output, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -16,7 +16,7 @@ import { Notification } from '../../shared/models/notification.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderComponent implements OnInit {
-  @Output() toggleDrawer = new EventEmitter<void>();
+  toggleDrawer = output<void>();
 
   private authService = inject(AuthService);
   private notificationStore = inject(NotificationStore);
