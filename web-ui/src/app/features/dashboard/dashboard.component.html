@@ -15,41 +15,15 @@
     </div>
   } @else {
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <div class="stat bg-base-100 shadow rounded-box">
-        <div class="stat-figure text-primary">
-          <fa-icon [icon]="faProjectDiagram" size="2x"></fa-icon>
-        </div>
-        <div class="stat-title">Total Projects</div>
-        <div class="stat-value text-primary">{{ stats().totalProjects }}</div>
-        <div class="stat-desc">Active and completed</div>
-      </div>
-
-      <div class="stat bg-base-100 shadow rounded-box">
-        <div class="stat-figure text-secondary">
-          <fa-icon [icon]="faTasks" size="2x"></fa-icon>
-        </div>
-        <div class="stat-title">Active Tasks</div>
-        <div class="stat-value text-secondary">{{ stats().activeTasks }}</div>
-        <div class="stat-desc">In progress</div>
-      </div>
-
-      <div class="stat bg-base-100 shadow rounded-box">
-        <div class="stat-figure text-accent">
-          <fa-icon [icon]="faClock" size="2x"></fa-icon>
-        </div>
-        <div class="stat-title">Total Hours</div>
-        <div class="stat-value text-accent">{{ stats().totalHours }}</div>
-        <div class="stat-desc">Tracked this month</div>
-      </div>
-
-      <div class="stat bg-base-100 shadow rounded-box">
-        <div class="stat-figure text-info">
-          <fa-icon [icon]="faFileInvoiceDollar" size="2x"></fa-icon>
-        </div>
-        <div class="stat-title">Pending Invoices</div>
-        <div class="stat-value text-info">{{ stats().pendingInvoices }}</div>
-        <div class="stat-desc">Awaiting payment</div>
-      </div>
+      @for (item of statItems; track item.key) {
+        <app-stat-card
+          [icon]="item.icon"
+          [value]="stats()[item.key]"
+          [title]="item.title"
+          [description]="item.description"
+          [colorClass]="item.color"
+        />
+      }
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">

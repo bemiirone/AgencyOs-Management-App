@@ -17,6 +17,7 @@ import {
 import { AuthService } from '../../core/services/auth.service';
 import { ProjectStore } from '../../stores/project.store';
 import { API_CONFIG } from '../../core/config/api.config';
+import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
 
 interface Activity {
   icon: any;
@@ -32,10 +33,25 @@ interface TeamMember {
   color: string;
 }
 
+interface StatItem {
+  icon: typeof faProjectDiagram;
+  key: keyof DashboardStats;
+  title: string;
+  description: string;
+  color: string;
+}
+
+interface DashboardStats {
+  totalProjects: number;
+  activeTasks: number;
+  totalHours: number;
+  pendingInvoices: number;
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FontAwesomeModule],
+  imports: [CommonModule, FontAwesomeModule, StatCardComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
@@ -57,7 +73,7 @@ export class DashboardComponent implements OnInit {
 
   userName = signal('');
   tenantName = signal('');
-  stats = signal({
+  stats = signal<DashboardStats>({
     totalProjects: 0,
     activeTasks: 0,
     totalHours: 0,
@@ -66,6 +82,13 @@ export class DashboardComponent implements OnInit {
   activities = signal<Activity[]>([]);
   teamMembers = signal<TeamMember[]>([]);
   loading = signal(false);
+
+  statItems: StatItem[] = [
+    { icon: faProjectDiagram, key: 'totalProjects', title: 'Total Projects', description: 'Active and completed', color: 'text-primary' },
+    { icon: faTasks, key: 'activeTasks', title: 'Active Tasks', description: 'In progress', color: 'text-secondary' },
+    { icon: faClock, key: 'totalHours', title: 'Total Hours', description: 'Tracked this month', color: 'text-accent' },
+    { icon: faFileInvoiceDollar, key: 'pendingInvoices', title: 'Pending Invoices', description: 'Awaiting payment', color: 'text-info' },
+  ];
 
   ngOnInit(): void {
     const user = this.authService.getUser();

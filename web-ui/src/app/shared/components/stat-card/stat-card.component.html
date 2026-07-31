@@ -1,0 +1,8 @@
+<div class="stat bg-base-100 shadow rounded-box">
+  <div class="stat-figure" [class]="colorClass()">
+    <fa-icon [icon]="icon()" size="2x"></fa-icon>
+  </div>
+  <div class="stat-title">{{ title() }}</div>
+  <div class="stat-value" [class]="colorClass()">{{ value() }}</div>
+  <div class="stat-desc">{{ description() }}</div>
+</div>
