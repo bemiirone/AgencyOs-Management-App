@@ -60,8 +60,8 @@ export class ProjectListComponent implements OnInit {
   }
 
   formatCurrency(amount: number | undefined): string {
-    if (!amount) return '$0';
-    return `$${amount.toLocaleString()}`;
+    if (!amount) return '£0';
+    return `£${amount.toLocaleString()}`;
   }
 
   getStatusColor(status: string): string {
