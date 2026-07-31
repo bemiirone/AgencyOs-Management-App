@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -13,6 +13,9 @@ import { ProjectStore } from '../../../stores/project.store';
   templateUrl: './project-create.component.html',
 })
 export class ProjectCreateComponent {
+  private projectStore = inject(ProjectStore);
+  private router = inject(Router);
+
   saving = signal(false);
   error = signal('');
 
@@ -29,11 +32,6 @@ export class ProjectCreateComponent {
     endDate: '',
     budget: 0,
   };
-
-  constructor(
-    private projectStore: ProjectStore,
-    private router: Router,
-  ) {}
 
   onSubmit(): void {
     this.saving.set(true);

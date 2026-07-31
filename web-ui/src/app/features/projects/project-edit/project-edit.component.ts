@@ -1,4 +1,4 @@
-import { Component, signal, OnInit } from '@angular/core';
+import { Component, signal, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -14,6 +14,10 @@ import { Project } from '../../../shared/models/project.model';
   templateUrl: './project-edit.component.html',
 })
 export class ProjectEditComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private projectStore = inject(ProjectStore);
+  private router = inject(Router);
+
   loading = signal(true);
   saving = signal(false);
   error = signal('');
@@ -33,12 +37,6 @@ export class ProjectEditComponent implements OnInit {
     endDate: '',
     budget: 0,
   };
-
-  constructor(
-    private route: ActivatedRoute,
-    private projectStore: ProjectStore,
-    private router: Router,
-  ) {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
