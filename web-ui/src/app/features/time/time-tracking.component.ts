@@ -64,7 +64,7 @@ export class TimeTrackingComponent implements OnInit, OnDestroy {
       next: (projects) => {
         this.projects.set(projects);
       },
-      error: () => {},
+      error: (err) => console.error('Failed to load projects:', err),
     });
 
     this.timeEntryStore.cleanupAllOrphanedTimers().subscribe({
@@ -98,7 +98,7 @@ export class TimeTrackingComponent implements OnInit, OnDestroy {
           this.showRunningBanner.set(true);
         }
       },
-      error: () => {},
+      error: (err) => console.error('Failed to get running entry:', err),
     });
   }
 
@@ -111,7 +111,7 @@ export class TimeTrackingComponent implements OnInit, OnDestroy {
     if (projectId) {
       this.taskStore.loadTasksByProject(projectId).subscribe({
         next: (tasks) => this.tasks.set(tasks),
-        error: () => {},
+        error: (err) => console.error('Failed to load tasks:', err),
       });
     } else {
       this.tasks.set([]);

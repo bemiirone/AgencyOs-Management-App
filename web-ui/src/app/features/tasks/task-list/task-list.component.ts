@@ -46,7 +46,7 @@ export class TaskListComponent implements OnInit {
     this.loadTasks();
     this.projectStore.loadProjects().subscribe({
       next: (projects) => this.projects.set(projects),
-      error: () => {},
+      error: (err) => console.error('Failed to load projects:', err),
     });
   }
 
@@ -142,7 +142,7 @@ export class TaskListComponent implements OnInit {
         next: () => {
           this.tasks.update((tasks) => tasks.filter((t) => t._id !== id));
         },
-        error: () => {},
+        error: (err) => console.error('Failed to delete task:', err),
       });
     }
   }

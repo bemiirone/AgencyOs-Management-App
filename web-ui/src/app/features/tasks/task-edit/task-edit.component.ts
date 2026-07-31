@@ -56,7 +56,7 @@ export class TaskEditComponent implements OnInit {
 
     this.projectStore.loadProjects().subscribe({
       next: (projects) => this.projects.set(projects),
-      error: () => {},
+      error: (err) => console.error('Failed to load projects:', err),
     });
 
     this.taskStore.loadTask(id).subscribe({

@@ -50,7 +50,7 @@ export class HeaderComponent implements OnInit {
         this.notifications.set(notifications);
         this.unreadCount.set(this.notificationStore.unreadCount());
       },
-      error: () => {},
+      error: (err) => console.error('Failed to load notifications:', err),
     });
 
     this.loadWorkspaces();
@@ -75,7 +75,7 @@ export class HeaderComponent implements OnInit {
       next: () => {
         this.unreadCount.set(this.notificationStore.unreadCount());
       },
-      error: () => {},
+      error: (err) => console.error('Failed to mark notification as read:', err),
     });
   }
 

@@ -68,7 +68,7 @@ export class TaskDetailComponent implements OnInit {
     }
     this.projectStore.loadProjects().subscribe({
       next: (projects) => this.projects.set(projects),
-      error: () => {},
+      error: (err) => console.error('Failed to load projects:', err),
     });
   }
 
@@ -129,7 +129,7 @@ export class TaskDetailComponent implements OnInit {
         this.task.set(task);
         this.editing.set(false);
       },
-      error: () => {},
+      error: (err) => console.error('Failed to update task:', err),
     });
   }
 
