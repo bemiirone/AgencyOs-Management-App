@@ -24,8 +24,11 @@
             </div>
             @for (workspace of workspaces(); track workspace.tenantId) {
               <div
+                tabindex="0"
+                role="button"
                 class="px-3 py-2 hover:bg-base-200 cursor-pointer flex items-center gap-2"
                 (click)="switchWorkspace(workspace)"
+                (keydown.enter)="switchWorkspace(workspace)"
               >
                 @if (workspace.isLastUsed) {
                   <fa-icon [icon]="faCheck" class="text-primary text-xs"></fa-icon>
@@ -59,8 +62,9 @@
           </div>
           @if (notifications().length > 0) {
             @for (notification of notifications().slice(0, 10); track notification._id) {
-              <div class="px-3 py-2 hover:bg-base-200 cursor-pointer border-b border-base-200 last:border-b-0"
-                   (click)="markAsRead(notification._id)">
+              <div tabindex="0" role="button" class="px-3 py-2 hover:bg-base-200 cursor-pointer border-b border-base-200 last:border-b-0"
+                   (click)="markAsRead(notification._id)"
+                   (keydown.enter)="markAsRead(notification._id)">
                 <p class="font-medium text-sm">{{ notification.title }}</p>
                 <p class="text-xs text-base-content/60 mt-1">{{ notification.message }}</p>
                 <p class="text-xs text-base-content/40 mt-1">{{ timeAgo(notification.createdAt) }}</p>
@@ -91,10 +95,10 @@
           </a>
         </li>
         <li><a routerLink="/settings"><fa-icon [icon]="faUser" class="w-4"></fa-icon> Profile</a></li>
-        <li><a (click)="toggleNotifications()"><fa-icon [icon]="faBell" class="w-4"></fa-icon> Notifications</a></li>
+        <li><a tabindex="0" role="button" (click)="toggleNotifications()" (keydown.enter)="toggleNotifications()"><fa-icon [icon]="faBell" class="w-4"></fa-icon> Notifications</a></li>
         <div class="divider my-1"></div>
         <li>
-          <a class="text-error" (click)="onLogout()">
+          <a class="text-error" tabindex="0" role="button" (click)="onLogout()" (keydown.enter)="onLogout()">
             <fa-icon [icon]="faSignOutAlt" class="w-4"></fa-icon>
             Logout
           </a>
