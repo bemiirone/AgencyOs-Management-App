@@ -15,12 +15,13 @@
 
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
         <div class="form-control mb-4">
-          <label class="label">
+          <label for="register-name" class="label">
             <span class="label-text font-medium">Full Name</span>
           </label>
           <div class="relative">
             <fa-icon [icon]="faUser" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
             <input
+              id="register-name"
               type="text"
               formControlName="name"
               placeholder="John Doe"
@@ -29,23 +30,24 @@
             />
           </div>
           @if (registerForm.get('name')?.invalid && registerForm.get('name')?.touched) {
-            <label class="label">
+            <div class="label">
               @if (registerForm.get('name')?.hasError('required')) {
                 <span class="label-text-alt text-error">Name is required</span>
               } @else if (registerForm.get('name')?.hasError('minlength')) {
                 <span class="label-text-alt text-error">Name must be at least 2 characters</span>
               }
-            </label>
+            </div>
           }
         </div>
 
         <div class="form-control mb-4">
-          <label class="label">
+          <label for="register-agency" class="label">
             <span class="label-text font-medium">Agency Name</span>
           </label>
           <div class="relative">
             <fa-icon [icon]="faBuilding" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
             <input
+              id="register-agency"
               type="text"
               formControlName="agencyName"
               placeholder="Acme Agency"
@@ -54,23 +56,24 @@
             />
           </div>
           @if (registerForm.get('agencyName')?.invalid && registerForm.get('agencyName')?.touched) {
-            <label class="label">
+            <div class="label">
               @if (registerForm.get('agencyName')?.hasError('required')) {
                 <span class="label-text-alt text-error">Agency name is required</span>
               } @else if (registerForm.get('agencyName')?.hasError('minlength')) {
                 <span class="label-text-alt text-error">Agency name must be at least 2 characters</span>
               }
-            </label>
+            </div>
           }
         </div>
 
         <div class="form-control mb-4">
-          <label class="label">
+          <label for="register-email" class="label">
             <span class="label-text font-medium">Email</span>
           </label>
           <div class="relative">
             <fa-icon [icon]="faEnvelope" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
             <input
+              id="register-email"
               type="email"
               formControlName="email"
               placeholder="you@example.com"
@@ -79,23 +82,24 @@
             />
           </div>
           @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
-            <label class="label">
+            <div class="label">
               @if (registerForm.get('email')?.hasError('required')) {
                 <span class="label-text-alt text-error">Email is required</span>
               } @else if (registerForm.get('email')?.hasError('email')) {
                 <span class="label-text-alt text-error">Please enter a valid email</span>
               }
-            </label>
+            </div>
           }
         </div>
 
         <div class="form-control mb-4">
-          <label class="label">
+          <label for="register-password" class="label">
             <span class="label-text font-medium">Password</span>
           </label>
           <div class="relative">
             <fa-icon [icon]="faLock" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
             <input
+              id="register-password"
               [type]="showPassword() ? 'text' : 'password'"
               formControlName="password"
               placeholder="Create a password"
@@ -111,23 +115,24 @@
             </button>
           </div>
           @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
-            <label class="label">
+            <div class="label">
               @if (registerForm.get('password')?.hasError('required')) {
                 <span class="label-text-alt text-error">Password is required</span>
               } @else if (registerForm.get('password')?.hasError('minlength')) {
                 <span class="label-text-alt text-error">Password must be at least 8 characters</span>
               }
-            </label>
+            </div>
           }
         </div>
 
         <div class="form-control mb-6">
-          <label class="label">
+          <label for="register-confirm" class="label">
             <span class="label-text font-medium">Confirm Password</span>
           </label>
           <div class="relative">
             <fa-icon [icon]="faLock" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
             <input
+              id="register-confirm"
               [type]="showConfirmPassword() ? 'text' : 'password'"
               formControlName="confirmPassword"
               placeholder="Confirm your password"
@@ -143,9 +148,9 @@
             </button>
           </div>
           @if (registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.touched) {
-            <label class="label">
+            <div class="label">
               <span class="label-text-alt text-error">Passwords do not match</span>
-            </label>
+            </div>
           }
         </div>
 

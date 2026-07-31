@@ -18,10 +18,11 @@
 
       <form (ngSubmit)="onSubmit()" #projectForm="ngForm">
         <div class="form-control mb-4">
-          <label class="label">
+          <label for="project-name" class="label">
             <span class="label-text font-medium">Name</span>
           </label>
           <input
+            id="project-name"
             type="text"
             [(ngModel)]="form.name"
             name="name"
@@ -31,17 +32,18 @@
             #nameModel="ngModel"
           />
           @if (nameModel.invalid && nameModel.touched) {
-            <label class="label">
+            <div class="label">
               <span class="label-text-alt text-error">Name is required</span>
-            </label>
+            </div>
           }
         </div>
 
         <div class="form-control mb-4">
-          <label class="label">
+          <label for="project-desc" class="label">
             <span class="label-text font-medium">Description</span>
           </label>
           <textarea
+            id="project-desc"
             [(ngModel)]="form.description"
             name="description"
             placeholder="Enter project description"
@@ -51,10 +53,10 @@
         </div>
 
         <div class="form-control mb-4">
-          <label class="label">
+          <label for="project-status" class="label">
             <span class="label-text font-medium">Status</span>
           </label>
-          <select [(ngModel)]="form.status" name="status" class="select select-bordered w-full">
+          <select id="project-status" [(ngModel)]="form.status" name="status" class="select select-bordered w-full">
             <option value="draft">Draft</option>
             <option value="active">Active</option>
             <option value="on_hold">On Hold</option>
@@ -64,10 +66,11 @@
         </div>
 
         <div class="form-control mb-4">
-          <label class="label">
+          <label for="project-client" class="label">
             <span class="label-text font-medium">Client ID</span>
           </label>
           <input
+            id="project-client"
             type="text"
             [(ngModel)]="form.clientId"
             name="clientId"
@@ -78,10 +81,11 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div class="form-control">
-            <label class="label">
+            <label for="project-start" class="label">
               <span class="label-text font-medium">Start Date</span>
             </label>
             <input
+              id="project-start"
               type="date"
               [(ngModel)]="form.startDate"
               name="startDate"
@@ -90,10 +94,11 @@
           </div>
 
           <div class="form-control">
-            <label class="label">
+            <label for="project-end" class="label">
               <span class="label-text font-medium">End Date</span>
             </label>
             <input
+              id="project-end"
               type="date"
               [(ngModel)]="form.endDate"
               name="endDate"
@@ -103,10 +108,11 @@
         </div>
 
         <div class="form-control mb-6">
-          <label class="label">
+          <label for="project-budget" class="label">
             <span class="label-text font-medium">Budget</span>
           </label>
           <input
+            id="project-budget"
             type="number"
             [(ngModel)]="form.budget"
             name="budget"

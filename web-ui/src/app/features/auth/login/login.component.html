@@ -15,12 +15,13 @@
 
       <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
         <div class="form-control mb-4">
-          <label class="label">
+          <label for="login-email" class="label">
             <span class="label-text font-medium">Email</span>
           </label>
           <div class="relative">
             <fa-icon [icon]="faEnvelope" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
             <input
+              id="login-email"
               type="email"
               [(ngModel)]="email"
               name="email"
@@ -32,19 +33,20 @@
             />
           </div>
           @if (emailModel.invalid && emailModel.touched) {
-            <label class="label">
+            <div class="label">
               <span class="label-text-alt text-error">Please enter a valid email</span>
-            </label>
+            </div>
           }
         </div>
 
         <div class="form-control mb-6">
-          <label class="label">
+          <label for="login-password" class="label">
             <span class="label-text font-medium">Password</span>
           </label>
           <div class="relative">
             <fa-icon [icon]="faLock" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
             <input
+              id="login-password"
               [type]="showPassword() ? 'text' : 'password'"
               [(ngModel)]="password"
               name="password"
@@ -63,9 +65,9 @@
             </button>
           </div>
           @if (passwordModel.invalid && passwordModel.touched) {
-            <label class="label">
+            <div class="label">
               <span class="label-text-alt text-error">Password must be at least 6 characters</span>
-            </label>
+            </div>
           }
         </div>
 

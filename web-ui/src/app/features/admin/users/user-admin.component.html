@@ -18,8 +18,9 @@
         <form [formGroup]="createUserForm" (ngSubmit)="createUser()">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="form-control">
-              <label class="label"><span class="label-text">Name</span></label>
+              <label for="create-name" class="label"><span class="label-text">Name</span></label>
               <input
+                id="create-name"
                 type="text"
                 formControlName="name"
                 placeholder="John Doe"
@@ -27,18 +28,19 @@
                 [class.input-error]="createUserForm.get('name')?.invalid && createUserForm.get('name')?.touched"
               />
               @if (createUserForm.get('name')?.invalid && createUserForm.get('name')?.touched) {
-                <label class="label">
+                <div class="label">
                   @if (createUserForm.get('name')?.hasError('required')) {
                     <span class="label-text-alt text-error">Name is required</span>
                   } @else if (createUserForm.get('name')?.hasError('minlength')) {
                     <span class="label-text-alt text-error">Name must be at least 2 characters</span>
                   }
-                </label>
+                </div>
               }
             </div>
             <div class="form-control">
-              <label class="label"><span class="label-text">Email</span></label>
+              <label for="create-email" class="label"><span class="label-text">Email</span></label>
               <input
+                id="create-email"
                 type="email"
                 formControlName="email"
                 placeholder="john@example.com"
@@ -46,19 +48,20 @@
                 [class.input-error]="createUserForm.get('email')?.invalid && createUserForm.get('email')?.touched"
               />
               @if (createUserForm.get('email')?.invalid && createUserForm.get('email')?.touched) {
-                <label class="label">
+                <div class="label">
                   @if (createUserForm.get('email')?.hasError('required')) {
                     <span class="label-text-alt text-error">Email is required</span>
                   } @else if (createUserForm.get('email')?.hasError('email')) {
                     <span class="label-text-alt text-error">Please enter a valid email</span>
                   }
-                </label>
+                </div>
               }
             </div>
             <div class="form-control">
-              <label class="label"><span class="label-text">Password</span></label>
+              <label for="create-password" class="label"><span class="label-text">Password</span></label>
               <div class="relative">
                 <input
+                  id="create-password"
                   [type]="showPassword() ? 'text' : 'password'"
                   formControlName="password"
                   placeholder="Minimum 8 characters"
@@ -74,18 +77,18 @@
                 </button>
               </div>
               @if (createUserForm.get('password')?.invalid && createUserForm.get('password')?.touched) {
-                <label class="label">
+                <div class="label">
                   @if (createUserForm.get('password')?.hasError('required')) {
                     <span class="label-text-alt text-error">Password is required</span>
                   } @else if (createUserForm.get('password')?.hasError('minlength')) {
                     <span class="label-text-alt text-error">Password must be at least 8 characters</span>
                   }
-                </label>
+                </div>
               }
             </div>
             <div class="form-control">
-              <label class="label"><span class="label-text">Role</span></label>
-              <select formControlName="role" class="select select-bordered">
+              <label for="create-role" class="label"><span class="label-text">Role</span></label>
+              <select id="create-role" formControlName="role" class="select select-bordered">
                 <option value="member">Member</option>
                 <option value="manager">Manager</option>
                 <option value="admin">Admin</option>
