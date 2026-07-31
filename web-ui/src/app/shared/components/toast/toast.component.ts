@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { IconDefinition, faCheckCircle, faExclamationCircle, faInfoCircle, faExclamationTriangle, faTimes } from '@fortawesome/free-solid-svg-icons';
@@ -8,6 +8,7 @@ import { ToastService } from '../../../core/services/toast.service';
   selector: 'app-toast',
   standalone: true,
   imports: [CommonModule, FontAwesomeModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="fixed top-4 right-4 z-50 flex flex-col gap-2 w-80">
       @for (toast of toastService.toasts(); track toast.id) {

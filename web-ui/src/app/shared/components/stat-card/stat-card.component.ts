@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
@@ -9,6 +9,7 @@ import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
   imports: [CommonModule, FontAwesomeModule],
   templateUrl: './stat-card.component.html',
   styleUrl: './stat-card.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StatCardComponent {
   icon = input.required<IconDefinition>();

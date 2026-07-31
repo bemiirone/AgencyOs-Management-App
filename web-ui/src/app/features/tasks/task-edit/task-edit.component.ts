@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -20,6 +20,7 @@ import { UpdateTaskPayload, TaskStatus, TaskPriority } from '../task.models';
   imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule],
   templateUrl: './task-edit.component.html',
   styleUrl: './task-edit.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskEditComponent implements OnInit {
   private route = inject(ActivatedRoute);

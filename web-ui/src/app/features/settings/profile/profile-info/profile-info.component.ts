@@ -1,4 +1,4 @@
-import { Component, input, output, effect, inject } from '@angular/core';
+import { Component, input, output, effect, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -10,6 +10,7 @@ import { faUser, faEnvelope, faSave } from '@fortawesome/free-solid-svg-icons';
   imports: [CommonModule, ReactiveFormsModule, FontAwesomeModule],
   templateUrl: './profile-info.component.html',
   styleUrl: './profile-info.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileInfoComponent {
   private fb = inject(FormBuilder);

@@ -1,4 +1,4 @@
-import { Component, input, output, signal, inject, OnDestroy } from '@angular/core';
+import { Component, input, output, signal, inject, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -19,6 +19,7 @@ interface SearchResult {
   imports: [CommonModule, ReactiveFormsModule, FontAwesomeModule, ModalComponent],
   templateUrl: './join-workspace.component.html',
   styleUrl: './join-workspace.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JoinWorkspaceComponent implements OnDestroy {
   private authService = inject(AuthService);

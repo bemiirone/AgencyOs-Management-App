@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, signal, OnInit, OnDestroy, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -30,6 +30,7 @@ interface CreateTimeEntryPayload {
   standalone: true,
   imports: [CommonModule, FormsModule, FontAwesomeModule],
   templateUrl: './time-tracking.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimeTrackingComponent implements OnInit, OnDestroy {
   timeEntryStore = inject(TimeEntryStore);

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserStore, UserWithRole } from '../../../stores/user.store';
@@ -13,6 +13,7 @@ import { AuthService } from '../../../core/services/auth.service';
   imports: [CommonModule, ReactiveFormsModule, FormsModule, FontAwesomeModule],
   templateUrl: './user-admin.component.html',
   styleUrl: './user-admin.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserAdminComponent implements OnInit {
   private store = inject(UserStore);

@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,6 +12,7 @@ import { CreateProjectPayload, ProjectStatus } from '../project.models';
   standalone: true,
   imports: [CommonModule, FormsModule, FontAwesomeModule],
   templateUrl: './project-create.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectCreateComponent {
   private projectStore = inject(ProjectStore);

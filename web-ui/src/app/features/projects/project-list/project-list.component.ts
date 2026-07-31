@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, inject } from '@angular/core';
+import { Component, signal, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -12,6 +12,7 @@ import { ProjectStore } from '../../../stores/project.store';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule],
   templateUrl: './project-list.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./project-list.component.scss'],
 })
 export class ProjectListComponent implements OnInit {

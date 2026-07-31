@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, inject } from '@angular/core';
+import { Component, signal, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -23,6 +23,7 @@ import { ProjectStore } from '../../../stores/project.store';
   imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule],
   templateUrl: './task-list.component.html',
   styleUrl: './task-list.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskListComponent implements OnInit {
   private taskStore = inject(TaskStore);

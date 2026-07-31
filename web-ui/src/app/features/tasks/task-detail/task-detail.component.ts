@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -28,6 +28,7 @@ import { TimeEntry } from '../../../shared/models/time-entry.model';
   imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule],
   templateUrl: './task-detail.component.html',
   styleUrl: './task-detail.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);

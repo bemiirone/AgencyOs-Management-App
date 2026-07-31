@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCheck, faBuilding, faSpinner } from '@fortawesome/free-solid-svg-icons';
@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
   imports: [CommonModule, FontAwesomeModule],
   templateUrl: './workspace-select-modal.component.html',
   styleUrl: './workspace-select-modal.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkspaceSelectModalComponent implements OnInit {
   private authService = inject(AuthService);

@@ -1,4 +1,4 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faBuilding, faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -11,6 +11,7 @@ import { JoinWorkspaceComponent } from './join-workspace/join-workspace.componen
   imports: [CommonModule, FontAwesomeModule, JoinWorkspaceComponent],
   templateUrl: './workspace-list.component.html',
   styleUrl: './workspace-list.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkspaceListComponent {
   workspaces = input.required<Workspace[]>();

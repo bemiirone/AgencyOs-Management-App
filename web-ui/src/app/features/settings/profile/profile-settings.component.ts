@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService, Workspace } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -12,6 +12,7 @@ import { ChangePasswordComponent } from './change-password/change-password.compo
   imports: [CommonModule, ProfileInfoComponent, WorkspaceListComponent, ChangePasswordComponent],
   templateUrl: './profile-settings.component.html',
   styleUrl: './profile-settings.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileSettingsComponent implements OnInit {
   private authService = inject(AuthService);

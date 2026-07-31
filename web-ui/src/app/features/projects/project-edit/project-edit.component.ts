@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, inject } from '@angular/core';
+import { Component, signal, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -13,6 +13,7 @@ import { UpdateProjectPayload, ProjectStatus } from '../project.models';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule],
   templateUrl: './project-edit.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectEditComponent implements OnInit {
   private route = inject(ActivatedRoute);

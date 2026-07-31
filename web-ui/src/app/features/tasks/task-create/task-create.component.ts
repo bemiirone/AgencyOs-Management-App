@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -19,6 +19,7 @@ import { CreateTaskPayload, TaskStatus, TaskPriority } from '../task.models';
   imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule],
   templateUrl: './task-create.component.html',
   styleUrl: './task-create.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskCreateComponent implements OnInit {
   private taskStore = inject(TaskStore);

@@ -1,4 +1,4 @@
-import { Component, input, output, signal, effect, inject } from '@angular/core';
+import { Component, input, output, signal, effect, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -10,6 +10,7 @@ import { faLock, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
   imports: [CommonModule, ReactiveFormsModule, FontAwesomeModule],
   templateUrl: './change-password.component.html',
   styleUrl: './change-password.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChangePasswordComponent {
   private fb = inject(FormBuilder);

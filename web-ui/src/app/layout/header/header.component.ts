@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, Output, EventEmitter, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -13,6 +13,7 @@ import { Notification } from '../../shared/models/notification.model';
   imports: [CommonModule, RouterLink, FontAwesomeModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderComponent implements OnInit {
   @Output() toggleDrawer = new EventEmitter<void>();
