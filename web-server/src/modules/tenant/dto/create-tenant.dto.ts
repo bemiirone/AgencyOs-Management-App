@@ -5,10 +5,10 @@ export class CreateTenantDto {
   @ApiProperty({ example: 'My Agency' })
   @IsString()
   @IsNotEmpty()
-  name: string;
+  declare name: string;
 
   @ApiProperty({ example: 'my-agency' })
   @IsString()
   @IsNotEmpty()
-  slug: string;
+  declare slug: string;
 }

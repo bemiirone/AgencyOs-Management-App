@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { BaseDocument } from '../../../common/schemas/base.schema';
 
 export enum ProjectStatus {
@@ -13,31 +13,31 @@ export enum ProjectStatus {
 @Schema({ timestamps: true })
 export class Project extends BaseDocument {
   @Prop({ required: true })
-  name: string;
+  declare name: string;
 
   @Prop()
-  description: string;
+  declare description: string;
 
   @Prop({ required: true, enum: ProjectStatus, default: ProjectStatus.DRAFT })
-  status: ProjectStatus;
+  declare status: ProjectStatus;
 
   @Prop({ type: [String], default: [] })
-  teamMemberIds: string[];
+  declare teamMemberIds: string[];
 
   @Prop({ type: Types.ObjectId, ref: 'User' })
-  ownerId: string;
+  declare ownerId: string;
 
   @Prop()
-  clientId: string;
+  declare clientId: string;
 
   @Prop()
-  startDate: Date;
+  declare startDate: Date;
 
   @Prop()
-  endDate: Date;
+  declare endDate: Date;
 
   @Prop()
-  budget: number;
+  declare budget: number;
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);

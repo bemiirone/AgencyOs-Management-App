@@ -1,41 +1,41 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { BaseDocument } from '../../../common/schemas/base.schema';
 
 @Schema({ timestamps: true })
 export class TimeEntry extends BaseDocument {
   @Prop({ required: true })
-  userId: string;
+  declare userId: string;
 
   @Prop({ type: Types.ObjectId, ref: 'Task' })
-  taskId?: string;
+  declare taskId: string;
 
   @Prop({ type: Types.ObjectId, ref: 'Project', required: true })
-  projectId: string;
+  declare projectId: string;
 
   @Prop({ required: true, default: false })
-  isRunning: boolean;
+  declare isRunning: boolean;
 
   @Prop()
-  startTime: Date;
+  declare startTime: Date;
 
   @Prop()
-  endTime: Date;
+  declare endTime: Date;
 
   @Prop({ default: 0 })
-  duration: number;
+  declare duration: number;
 
   @Prop()
-  description: string;
+  declare description: string;
 
   @Prop({ default: false })
-  isBillable: boolean;
+  declare isBillable: boolean;
 
   @Prop({ default: false })
-  isApproved: boolean;
+  declare isApproved: boolean;
 
   @Prop()
-  approvedBy: string;
+  declare approvedBy: string;
 }
 
 export const TimeEntrySchema = SchemaFactory.createForClass(TimeEntry);

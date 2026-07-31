@@ -1,24 +1,24 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { BaseDocument } from '../../../common/schemas/base.schema';
 
 @Schema({ timestamps: true })
 export class User extends BaseDocument {
   @Prop({ required: true, unique: true })
-  email: string;
+  declare email: string;
 
   @Prop({ required: true })
-  password: string;
+  declare password: string;
 
   @Prop({ required: true })
-  name: string;
+  declare name: string;
 
   @Prop({ default: true })
-  isActive: boolean;
+  declare isActive: boolean;
 
-  _id: Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
+  declare _id: Types.ObjectId;
+  declare createdAt: Date;
+  declare updatedAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

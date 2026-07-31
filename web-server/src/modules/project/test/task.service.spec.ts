@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { TaskService } from '../task.service';
 
 const mockModel = {
   create: vi.fn(),
@@ -41,8 +42,7 @@ vi.mock('../schemas/task.schema', () => ({
 }));
 
 describe('TaskService', () => {
-  let TaskService: any;
-  let service: any;
+  let service: TaskService;
 
   const tenantId = 'test-tenant-id';
   const TaskStatus = {
@@ -66,11 +66,9 @@ describe('TaskService', () => {
     updatedAt: new Date(),
   };
 
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.clearAllMocks();
-    const module = await import('../task.service');
-    TaskService = module.TaskService;
-    service = new TaskService(mockModel);
+    service = new TaskService(mockModel as any);
   });
 
   describe('create', () => {
@@ -107,7 +105,7 @@ describe('TaskService', () => {
     it('should filter by status when provided', async () => {
       mockModel.find.mockReturnValue(createChainableMock([]));
 
-      await service.findAll(tenantId, TaskStatus.TODO);
+      await service.findAll(tenantId, TaskStatus.TODO as any);
 
       expect(mockModel.find).toHaveBeenCalledWith({
         tenantId,
@@ -208,7 +206,7 @@ describe('TaskService', () => {
       const result = await service.updateStatus(
         'task-1',
         tenantId,
-        TaskStatus.DONE,
+        TaskStatus.DONE as any,
       );
 
       expect(result.status).toBe(TaskStatus.DONE);

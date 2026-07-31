@@ -20,7 +20,7 @@ export class TaskService {
   }
 
   async findAll(tenantId: string, status?: TaskStatus) {
-    const query: any = { tenantId };
+    const query: Record<string, unknown> = { tenantId };
 
     if (status) {
       query.status = status;
@@ -30,7 +30,7 @@ export class TaskService {
   }
 
   async findByProject(projectId: string, tenantId: string, status?: TaskStatus) {
-    const query: any = { projectId, tenantId };
+    const query: Record<string, unknown> = { projectId, tenantId };
 
     if (status) {
       query.status = status;

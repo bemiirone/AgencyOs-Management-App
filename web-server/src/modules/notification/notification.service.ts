@@ -13,8 +13,8 @@ export class NotificationService {
     @InjectModel(Notification.name) private notificationModel: Model<Notification>,
     private configService: ConfigService,
   ) {
-    this.isMockMode = !this.configService.get<string>('sendgrid.apiKey') ||
-      this.configService.get<string>('sendgrid.apiKey')?.includes('placeholder');
+    const apiKey = this.configService.get<string>('sendgrid.apiKey');
+    this.isMockMode = !apiKey || apiKey.includes('placeholder');
   }
 
   async createNotification(
@@ -40,7 +40,7 @@ export class NotificationService {
   }
 
   async findAll(tenantId: string, userId?: string) {
-    const query: any = { tenantId };
+    const query: Record<string, unknown> = { tenantId };
 
     if (userId) {
       query.userId = userId;
@@ -83,7 +83,8 @@ export class NotificationService {
 
       return { success: true };
     } catch (error) {
-      this.logger.error(`Failed to send email to ${userId}: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Failed to send email to ${userId}: ${errorMessage}`);
       throw error;
     }
   }

@@ -21,7 +21,7 @@ export class ProjectService {
   }
 
   async findAll(tenantId: string, status?: ProjectStatus) {
-    const query: any = { tenantId };
+    const query: Record<string, unknown> = { tenantId };
 
     if (status) {
       query.status = status;

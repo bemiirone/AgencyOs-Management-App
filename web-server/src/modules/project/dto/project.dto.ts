@@ -6,82 +6,82 @@ export class CreateProjectDto {
   @ApiProperty({ example: 'Website Redesign' })
   @IsString()
   @IsNotEmpty()
-  name: string;
+  declare name: string;
 
   @ApiProperty({ example: 'Complete redesign of company website', required: false })
   @IsString()
   @IsOptional()
-  description?: string;
+  declare description?: string;
 
   @ApiProperty({ enum: ProjectStatus, default: ProjectStatus.DRAFT, required: false })
   @IsEnum(ProjectStatus)
   @IsOptional()
-  status?: ProjectStatus;
+  declare status?: ProjectStatus;
 
   @ApiProperty({ type: [String], required: false })
   @IsString({ each: true })
   @IsOptional()
-  teamMemberIds?: string[];
+  declare teamMemberIds?: string[];
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  clientId?: string;
+  declare clientId?: string;
 
   @ApiProperty({ required: false })
   @IsDateString()
   @IsOptional()
-  startDate?: string;
+  declare startDate?: string;
 
   @ApiProperty({ required: false })
   @IsDateString()
   @IsOptional()
-  endDate?: string;
+  declare endDate?: string;
 
   @ApiProperty({ required: false })
   @IsNumber()
   @IsOptional()
-  budget?: number;
+  declare budget?: number;
 }
 
 export class UpdateProjectDto {
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  name?: string;
+  declare name?: string;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  description?: string;
+  declare description?: string;
 
   @ApiProperty({ enum: ProjectStatus, required: false })
   @IsEnum(ProjectStatus)
   @IsOptional()
-  status?: ProjectStatus;
+  declare status?: ProjectStatus;
 
   @ApiProperty({ type: [String], required: false })
   @IsString({ each: true })
   @IsOptional()
-  teamMemberIds?: string[];
+  declare teamMemberIds?: string[];
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  clientId?: string;
+  declare clientId?: string;
 
   @ApiProperty({ required: false })
   @IsDateString()
   @IsOptional()
-  startDate?: string;
+  declare startDate?: string;
 
   @ApiProperty({ required: false })
   @IsDateString()
   @IsOptional()
-  endDate?: string;
+  declare endDate?: string;
 
   @ApiProperty({ required: false })
   @IsNumber()
   @IsOptional()
-  budget?: number;
+  declare budget?: number;
 }

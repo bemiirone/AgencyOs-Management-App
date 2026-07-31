@@ -4,12 +4,12 @@ import { Document, Types } from 'mongoose';
 @Schema({ timestamps: true })
 export class BaseDocument extends Document {
   @Prop({ index: true, type: String })
-  tenantId: string;
+  declare tenantId: string;
 
-  _id: Types.ObjectId;
+  declare _id: Types.ObjectId;
 
-  createdAt: Date;
-  updatedAt: Date;
+  declare createdAt: Date;
+  declare updatedAt: Date;
 }
 
 export const BaseSchema = SchemaFactory.createForClass(BaseDocument);

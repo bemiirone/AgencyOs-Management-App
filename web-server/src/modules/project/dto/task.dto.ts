@@ -6,92 +6,92 @@ export class CreateTaskDto {
   @ApiProperty({ example: 'Design homepage mockup' })
   @IsString()
   @IsNotEmpty()
-  title: string;
+  declare title: string;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  description?: string;
+  declare description?: string;
 
   @ApiProperty({ enum: TaskStatus, default: TaskStatus.TODO, required: false })
   @IsEnum(TaskStatus)
   @IsOptional()
-  status?: TaskStatus;
+  declare status?: TaskStatus;
 
   @ApiProperty({ enum: TaskPriority, default: TaskPriority.MEDIUM, required: false })
   @IsEnum(TaskPriority)
   @IsOptional()
-  priority?: TaskPriority;
+  declare priority?: TaskPriority;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  projectId: string;
+  declare projectId: string;
 
   @ApiProperty({ type: [String], required: false })
   @IsString({ each: true })
   @IsOptional()
-  assigneeIds?: string[];
+  declare assigneeIds?: string[];
 
   @ApiProperty({ required: false })
   @IsDateString()
   @IsOptional()
-  dueDate?: string;
+  declare dueDate?: string;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  parentTaskId?: string;
+  declare parentTaskId?: string;
 
   @ApiProperty({ required: false })
   @IsNumber()
   @IsOptional()
-  order?: number;
+  declare order?: number;
 }
 
 export class UpdateTaskDto {
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  title?: string;
+  declare title?: string;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  description?: string;
+  declare description?: string;
 
   @ApiProperty({ enum: TaskStatus, required: false })
   @IsEnum(TaskStatus)
   @IsOptional()
-  status?: TaskStatus;
+  declare status?: TaskStatus;
 
   @ApiProperty({ enum: TaskPriority, required: false })
   @IsEnum(TaskPriority)
   @IsOptional()
-  priority?: TaskPriority;
+  declare priority?: TaskPriority;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  projectId?: string;
+  declare projectId?: string;
 
   @ApiProperty({ type: [String], required: false })
   @IsString({ each: true })
   @IsOptional()
-  assigneeIds?: string[];
+  declare assigneeIds?: string[];
 
   @ApiProperty({ required: false })
   @IsDateString()
   @IsOptional()
-  dueDate?: string;
+  declare dueDate?: string;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  parentTaskId?: string;
+  declare parentTaskId?: string;
 
   @ApiProperty({ required: false })
   @IsNumber()
   @IsOptional()
-  order?: number;
+  declare order?: number;
 }

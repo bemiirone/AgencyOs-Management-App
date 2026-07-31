@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { BaseDocument } from '../../../common/schemas/base.schema';
 
 export enum InvoiceStatus {
@@ -13,43 +13,43 @@ export enum InvoiceStatus {
 @Schema({ timestamps: true })
 export class Invoice extends BaseDocument {
   @Prop({ required: true })
-  invoiceNumber: string;
+  declare invoiceNumber: string;
 
   @Prop({ required: true, enum: InvoiceStatus, default: InvoiceStatus.DRAFT })
-  status: InvoiceStatus;
+  declare status: InvoiceStatus;
 
   @Prop({ type: Types.ObjectId, ref: 'Project', required: true })
-  projectId: string;
+  declare projectId: string;
 
   @Prop({ required: true })
-  clientId: string;
+  declare clientId: string;
 
   @Prop({ required: true })
-  amount: number;
+  declare amount: number;
 
   @Prop()
-  tax: number;
+  declare tax: number;
 
   @Prop()
-  total: number;
+  declare total: number;
 
   @Prop()
-  dueDate: Date;
+  declare dueDate: Date;
 
   @Prop()
-  paidAt: Date;
+  declare paidAt: Date;
 
   @Prop()
-  stripePaymentIntentId: string;
+  declare stripePaymentIntentId: string;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'TimeEntry' }], default: [] })
-  timeEntryIds: string[];
+  declare timeEntryIds: string[];
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Task' }], default: [] })
-  taskIds: string[];
+  declare taskIds: string[];
 
   @Prop()
-  notes: string;
+  declare notes: string;
 }
 
 export const InvoiceSchema = SchemaFactory.createForClass(Invoice);

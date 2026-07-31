@@ -47,7 +47,7 @@ export class TimeEntryService {
   }
 
   async findAll(tenantId: string, userId?: string, projectId?: string, taskId?: string) {
-    const query: any = { tenantId };
+    const query: Record<string, unknown> = { tenantId };
 
     if (userId) {
       query.userId = userId;

@@ -155,7 +155,7 @@ export function generateTasks(
     priority: faker.helpers.arrayElement(priorities),
     projectId,
     assigneeIds: faker.helpers.arrayElements(assigneeIds, faker.number.int({ min: 1, max: 3 })),
-    dueDate: faker.date.future({ days: 30 }),
+    dueDate: faker.date.future({ years: 30 / 365 }),
     order: i,
   }));
 }
@@ -230,7 +230,7 @@ export function generateInvoices(
       status: faker.helpers.arrayElement(statuses),
       amount,
       tax,
-      dueDate: faker.date.future({ days: 60 }),
+      dueDate: faker.date.future({ years: 60 / 365 }),
       notes: faker.lorem.sentence(),
     };
   });

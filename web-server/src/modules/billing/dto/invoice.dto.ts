@@ -6,67 +6,67 @@ export class CreateInvoiceDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  projectId: string;
+  declare projectId: string;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  clientId: string;
+  declare clientId: string;
 
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
-  amount: number;
+  declare amount: number;
 
   @ApiProperty({ required: false })
   @IsNumber()
   @IsOptional()
-  tax?: number;
+  declare tax?: number;
 
   @ApiProperty({ required: false })
   @IsDateString()
   @IsOptional()
-  dueDate?: string;
+  declare dueDate?: string;
 
   @ApiProperty({ type: [String], required: false })
   @IsArray()
   @IsOptional()
-  timeEntryIds?: string[];
+  declare timeEntryIds?: string[];
 
   @ApiProperty({ type: [String], required: false })
   @IsArray()
   @IsOptional()
-  taskIds?: string[];
+  declare taskIds?: string[];
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  notes?: string;
+  declare notes?: string;
 }
 
 export class UpdateInvoiceDto {
   @ApiProperty({ enum: InvoiceStatus, required: false })
   @IsString()
   @IsOptional()
-  status?: InvoiceStatus;
+  declare status?: InvoiceStatus;
 
   @ApiProperty({ required: false })
   @IsNumber()
   @IsOptional()
-  amount?: number;
+  declare amount?: number;
 
   @ApiProperty({ required: false })
   @IsNumber()
   @IsOptional()
-  tax?: number;
+  declare tax?: number;
 
   @ApiProperty({ required: false })
   @IsDateString()
   @IsOptional()
-  dueDate?: string;
+  declare dueDate?: string;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  notes?: string;
+  declare notes?: string;
 }

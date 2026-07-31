@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
@@ -75,11 +75,11 @@ export class AuthService {
     });
 
     const tokens = this.generateTokens(user._id.toString(), user.email, tenant._id.toString(), UserRole.ADMIN);
-    const tenantDoc = await this.tenantModel.findOne({ _id: tenant._id });
+    const tenantDoc = await this.tenantModel.findById(tenant._id);
 
     return {
       user: {
-        id: user._id,
+        id: user._id.toString(),
         email: user.email,
         name: user.name,
         role: UserRole.ADMIN,
@@ -97,7 +97,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    if (!user.isActive && user.isActive !== undefined) {
+    if (user.isActive === false) {
       throw new UnauthorizedException('Account is deactivated');
     }
 
@@ -118,7 +118,7 @@ export class AuthService {
 
     if (memberships.length === 1) {
       const membership = memberships[0];
-      const tenantDoc = membership.tenantId as any;
+      const tenantDoc = membership.tenantId as unknown as Tenant;
       const tenantId = tenantDoc._id.toString();
       const tenantName = tenantDoc.name || '';
       const role = membership.role;
@@ -139,7 +139,7 @@ export class AuthService {
     }
 
     const workspaces: WorkspaceInfo[] = memberships.map((m) => {
-      const tenantDoc = m.tenantId as any;
+      const tenantDoc = m.tenantId as unknown as Tenant;
       return {
         tenantId: tenantDoc._id.toString(),
         tenantName: tenantDoc.name || '',
@@ -154,7 +154,7 @@ export class AuthService {
     }, memberships[0].role);
 
     const primaryMembership = memberships.find((m) => m.role === highestRole)!;
-    const primaryTenant = primaryMembership.tenantId as any;
+    const primaryTenant = primaryMembership.tenantId as unknown as Tenant;
 
     return {
       user: {
@@ -173,12 +173,12 @@ export class AuthService {
 
   async getWorkspaces(userId: string): Promise<WorkspaceInfo[]> {
     const memberships = await this.tenantMemberModel.find({
-      userId,
+      userId: new Types.ObjectId(userId),
       isActive: true,
     }).populate('tenantId');
 
     return memberships.map((m) => {
-      const tenantDoc = m.tenantId as any;
+      const tenantDoc = m.tenantId as unknown as Tenant;
       return {
         tenantId: tenantDoc._id.toString(),
         tenantName: tenantDoc.name || '',
@@ -190,8 +190,8 @@ export class AuthService {
 
   async switchWorkspace(userId: string, dto: SwitchWorkspaceDto): Promise<LoginResponse> {
     const membership = await this.tenantMemberModel.findOne({
-      userId,
-      tenantId: dto.tenantId,
+      userId: new Types.ObjectId(userId),
+      tenantId: new Types.ObjectId(dto.tenantId),
       isActive: true,
     }).populate('tenantId');
 
@@ -200,7 +200,7 @@ export class AuthService {
     }
 
     const user = await this.userModel.findById(userId);
-    const tenantDoc = membership.tenantId as any;
+    const tenantDoc = membership.tenantId as unknown as Tenant;
     const tenantId = tenantDoc._id.toString();
     const tenantName = tenantDoc.name || '';
     const role = membership.role;
@@ -237,14 +237,18 @@ export class AuthService {
       throw new BadRequestException('Workspace not found');
     }
 
-    const existingMembership = await this.tenantMemberModel.findOne({ userId, tenantId: dto.tenantId, isActive: true });
+    const existingMembership = await this.tenantMemberModel.findOne({
+      userId: new Types.ObjectId(userId),
+      tenantId: new Types.ObjectId(dto.tenantId),
+      isActive: true,
+    });
     if (existingMembership) {
       throw new ConflictException('Already a member of this workspace');
     }
 
     await this.tenantMemberModel.create({
-      userId,
-      tenantId: dto.tenantId,
+      userId: new Types.ObjectId(userId),
+      tenantId: new Types.ObjectId(dto.tenantId),
       role: UserRole.MEMBER,
       isActive: true,
     });
@@ -280,13 +284,13 @@ export class AuthService {
     };
 
     const accessToken = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>('jwt.secret'),
-      expiresIn: this.configService.get<string>('jwt.expiration'),
+      secret: this.configService.get<string>('jwt.secret') || 'default-secret',
+      expiresIn: (this.configService.get<string>('jwt.expiration') || '15m') as any,
     });
 
     const refreshToken = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>('jwt.secret'),
-      expiresIn: this.configService.get<string>('jwt.refreshExpiration'),
+      secret: this.configService.get<string>('jwt.secret') || 'default-secret',
+      expiresIn: (this.configService.get<string>('jwt.refreshExpiration') || '7d') as any,
     });
 
     return { accessToken, refreshToken };

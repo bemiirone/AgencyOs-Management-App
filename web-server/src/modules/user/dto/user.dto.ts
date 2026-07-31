@@ -6,44 +6,44 @@ export class CreateUserDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  name: string;
+  declare name: string;
 
   @ApiProperty()
   @IsEmail()
   @IsNotEmpty()
-  email: string;
+  declare email: string;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  password: string;
+  declare password: string;
 
   @ApiProperty({ enum: UserRole, default: UserRole.MEMBER })
   @IsEnum(UserRole)
   @IsOptional()
-  role?: UserRole;
+  declare role?: UserRole;
 }
 
 export class UpdateUserDto {
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  name?: string;
+  declare name?: string;
 
   @ApiProperty({ required: false })
   @IsEmail()
   @IsOptional()
-  email?: string;
+  declare email?: string;
 
   @ApiProperty({ enum: UserRole, required: false })
   @IsEnum(UserRole)
   @IsOptional()
-  role?: UserRole;
+  declare role?: UserRole;
 }
 
 export class UpdateRoleDto {
   @ApiProperty({ enum: UserRole })
   @IsEnum(UserRole)
   @IsNotEmpty()
-  role: UserRole;
+  declare role: UserRole;
 }

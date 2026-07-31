@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { BaseDocument } from '../../../common/schemas/base.schema';
 
 export enum TaskStatus {
@@ -19,31 +19,31 @@ export enum TaskPriority {
 @Schema({ timestamps: true })
 export class Task extends BaseDocument {
   @Prop({ required: true })
-  title: string;
+  declare title: string;
 
   @Prop()
-  description: string;
+  declare description: string;
 
   @Prop({ required: true, enum: TaskStatus, default: TaskStatus.TODO })
-  status: TaskStatus;
+  declare status: TaskStatus;
 
   @Prop({ required: true, enum: TaskPriority, default: TaskPriority.MEDIUM })
-  priority: TaskPriority;
+  declare priority: TaskPriority;
 
   @Prop({ type: Types.ObjectId, ref: 'Project', required: true })
-  projectId: string;
+  declare projectId: string;
 
   @Prop({ type: [String], default: [] })
-  assigneeIds: string[];
+  declare assigneeIds: string[];
 
   @Prop()
-  dueDate: Date;
+  declare dueDate: Date;
 
   @Prop({ type: Types.ObjectId, ref: 'Task' })
-  parentTaskId: string;
+  declare parentTaskId: string;
 
   @Prop({ default: 0 })
-  order: number;
+  declare order: number;
 }
 
 export const TaskSchema = SchemaFactory.createForClass(Task);

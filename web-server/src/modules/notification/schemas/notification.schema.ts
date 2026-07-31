@@ -1,5 +1,4 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
 import { BaseDocument } from '../../../common/schemas/base.schema';
 
 export enum NotificationType {
@@ -17,25 +16,25 @@ export enum NotificationStatus {
 @Schema({ timestamps: true })
 export class Notification extends BaseDocument {
   @Prop({ required: true })
-  userId: string;
+  declare userId: string;
 
   @Prop({ required: true })
-  title: string;
+  declare title: string;
 
   @Prop({ required: true })
-  message: string;
+  declare message: string;
 
   @Prop({ required: true, enum: NotificationType, default: NotificationType.WEBSOCKET })
-  type: NotificationType;
+  declare type: NotificationType;
 
   @Prop({ required: true, enum: NotificationStatus, default: NotificationStatus.PENDING })
-  status: NotificationStatus;
+  declare status: NotificationStatus;
 
   @Prop()
-  sentAt: Date;
+  declare sentAt: Date;
 
   @Prop()
-  error: string;
+  declare error: string;
 }
 
 export const NotificationSchema = SchemaFactory.createForClass(Notification);

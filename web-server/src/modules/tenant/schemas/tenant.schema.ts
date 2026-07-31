@@ -4,23 +4,23 @@ import { Document, Types } from 'mongoose';
 @Schema({ timestamps: true })
 export class Tenant extends Document {
   @Prop({ required: true, unique: true })
-  name: string;
+  declare name: string;
 
   @Prop({ required: true })
-  slug: string;
+  declare slug: string;
 
   @Prop({ type: Types.ObjectId, ref: 'User' })
-  ownerId: string;
+  declare ownerId: Types.ObjectId;
 
   @Prop({ type: [{ type: String }], default: [] })
-  memberIds: string[];
+  declare memberIds: string[];
 
   @Prop({ default: true })
-  isActive: boolean;
+  declare isActive: boolean;
 
-  _id: Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
+  declare _id: Types.ObjectId;
+  declare createdAt: Date;
+  declare updatedAt: Date;
 }
 
 export const TenantSchema = SchemaFactory.createForClass(Tenant);

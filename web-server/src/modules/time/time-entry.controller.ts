@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { TimeEntryService } from './time-entry.service';
 import { CreateTimeEntryDto, UpdateTimeEntryDto } from './dto/time-entry.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';

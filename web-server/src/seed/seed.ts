@@ -59,8 +59,7 @@ async function bootstrap() {
     for (const tenantData of tenants) {
       const tenant = await tenantModel.create({
         ...tenantData,
-        ownerId: null,
-      });
+      }) as any;
       seededTenants.push({ id: tenant._id.toString(), ...tenantData });
       counts.tenants++;
       console.log(`   ✓ Tenant: ${tenant.name} (${tenant.slug})`);
@@ -81,7 +80,8 @@ async function bootstrap() {
         });
         seededUsers.push({ id: user._id.toString(), ...userData });
         counts.users++;
-        logUser(user.email, DEFAULT_PASSWORD, user.role, tenant.name);
+        const userRole = userData.role || 'member';
+        logUser(user.email, DEFAULT_PASSWORD, userRole, tenant.name);
       }
 
       const adminUser = seededUsers.find((u) => u.tenantId === tenant.id && u.role === 'admin');

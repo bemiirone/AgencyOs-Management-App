@@ -5,52 +5,52 @@ export class CreateTimeEntryDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  projectId: string;
+  declare projectId: string;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  taskId?: string;
+  declare taskId?: string;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  description?: string;
+  declare description?: string;
 
   @ApiProperty({ default: false, required: false })
   @IsBoolean()
   @IsOptional()
-  isBillable?: boolean;
+  declare isBillable?: boolean;
 }
 
 export class UpdateTimeEntryDto {
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  taskId?: string;
+  declare taskId?: string;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  projectId?: string;
+  declare projectId?: string;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  description?: string;
+  declare description?: string;
 
   @ApiProperty({ required: false })
   @IsBoolean()
   @IsOptional()
-  isBillable?: boolean;
+  declare isBillable?: boolean;
 
   @ApiProperty({ required: false })
   @IsDateString()
   @IsOptional()
-  startTime?: string;
+  declare startTime?: string;
 
   @ApiProperty({ required: false })
   @IsDateString()
   @IsOptional()
-  endTime?: string;
+  declare endTime?: string;
 }

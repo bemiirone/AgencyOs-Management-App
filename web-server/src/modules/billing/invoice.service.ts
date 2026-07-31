@@ -13,8 +13,8 @@ export class InvoiceService {
     @InjectModel(Invoice.name) private invoiceModel: Model<Invoice>,
     private configService: ConfigService,
   ) {
-    this.isMockMode = !this.configService.get<string>('stripe.secretKey') ||
-      this.configService.get<string>('stripe.secretKey')?.includes('placeholder');
+    const secretKey = this.configService.get<string>('stripe.secretKey');
+    this.isMockMode = !secretKey || secretKey.includes('placeholder');
   }
 
   async create(createInvoiceDto: CreateInvoiceDto, tenantId: string) {
@@ -35,7 +35,7 @@ export class InvoiceService {
   }
 
   async findAll(tenantId: string, status?: InvoiceStatus) {
-    const query: any = { tenantId };
+    const query: Record<string, unknown> = { tenantId };
 
     if (status) {
       query.status = status;

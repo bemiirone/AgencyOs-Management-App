@@ -20,7 +20,7 @@ import { TimeEntryService } from './time-entry.service';
 })
 @UseGuards(JwtAuthGuard)
 export class TimeGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
-  @WebSocketServer() server: Server;
+  @WebSocketServer() declare server: Server;
 
   private timerIntervals: Map<string, NodeJS.Timeout> = new Map();
 

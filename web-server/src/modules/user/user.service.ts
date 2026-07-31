@@ -18,7 +18,7 @@ export class UserService {
     const memberships = await this.tenantMemberModel.find({ tenantId: new Types.ObjectId(tenantId) }).populate('userId').exec();
 
     return memberships.map((membership) => {
-      const user = membership.userId as any;
+      const user = membership.userId as unknown as User;
       return {
         id: user._id.toString(),
         email: user.email,
@@ -41,7 +41,7 @@ export class UserService {
       throw new NotFoundException('User not found in this workspace');
     }
 
-    const user = membership.userId as any;
+    const user = membership.userId as unknown as User;
     return {
       id: user._id.toString(),
       email: user.email,
@@ -78,7 +78,7 @@ export class UserService {
         tenantId: new Types.ObjectId(tenantId),
       }).populate('userId');
 
-      const populatedUser = tenantMember?.userId as any;
+      const populatedUser = tenantMember?.userId as unknown as User;
       return {
         id: populatedUser._id.toString(),
         email: populatedUser.email,
@@ -131,7 +131,7 @@ export class UserService {
       await membership.save();
     }
 
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (updateUserDto.name) updateData.name = updateUserDto.name;
     if (updateUserDto.email) {
       const existing = await this.userModel.findOne({ email: updateUserDto.email, _id: { $ne: userId } });

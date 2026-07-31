@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { TimeEntryService } from '../time-entry.service';
 
 const mockModel = {
   create: vi.fn(),
@@ -36,8 +37,7 @@ vi.mock('../schemas/time-entry.schema', () => ({
 }));
 
 describe('TimeEntryService', () => {
-  let TimeEntryService: any;
-  let service: any;
+  let service: TimeEntryService;
 
   const tenantId = 'test-tenant-id';
   const userId = 'test-user-id';
@@ -59,7 +59,7 @@ describe('TimeEntryService', () => {
     save: vi.fn(),
   };
 
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.clearAllMocks();
     mockModel.create.mockReset();
     mockModel.find.mockReset();
@@ -67,9 +67,7 @@ describe('TimeEntryService', () => {
     mockModel.findOneAndUpdate.mockReset();
     mockModel.deleteOne.mockReset();
     mockModel.updateMany.mockReset();
-    const module = await import('../time-entry.service');
-    TimeEntryService = module.TimeEntryService;
-    service = new TimeEntryService(mockModel);
+    service = new TimeEntryService(mockModel as any);
   });
 
   describe('create', () => {
