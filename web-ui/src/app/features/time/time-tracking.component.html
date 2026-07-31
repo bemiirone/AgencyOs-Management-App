@@ -27,10 +27,11 @@
       <div class="card-body">
         <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-end">
           <div class="form-control flex-1">
-            <label class="label">
+            <label for="timer-project" class="label">
               <span class="label-text font-medium">Project</span>
             </label>
             <select
+              id="timer-project"
               [(ngModel)]="selectedProjectId"
               (ngModelChange)="onProjectChange()"
               class="select select-bordered w-full"
@@ -43,10 +44,10 @@
           </div>
 
           <div class="form-control flex-1">
-            <label class="label">
+            <label for="timer-task" class="label">
               <span class="label-text font-medium">Task (optional)</span>
             </label>
-            <select [(ngModel)]="selectedTaskId" class="select select-bordered w-full">
+            <select id="timer-task" [(ngModel)]="selectedTaskId" class="select select-bordered w-full">
               <option value="">No task</option>
               @for (task of tasks(); track task._id) {
                 <option [value]="task._id">{{ task.title }}</option>
@@ -55,10 +56,11 @@
           </div>
 
           <div class="form-control flex-2 flex-grow-2">
-            <label class="label">
+            <label for="timer-desc" class="label">
               <span class="label-text font-medium">Description</span>
             </label>
             <input
+              id="timer-desc"
               type="text"
               [(ngModel)]="timerDescription"
               placeholder="What are you working on?"
@@ -67,9 +69,9 @@
           </div>
 
           <div class="form-control">
-            <label class="label cursor-pointer">
+            <label for="timer-billable" class="label cursor-pointer">
               <span class="label-text font-medium">Billable</span>
-              <input type="checkbox" [(ngModel)]="isBillable" class="checkbox checkbox-primary" />
+              <input id="timer-billable" type="checkbox" [(ngModel)]="isBillable" class="checkbox checkbox-primary" />
             </label>
           </div>
 

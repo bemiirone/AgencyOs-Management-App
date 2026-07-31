@@ -23,10 +23,11 @@
 
         <form (ngSubmit)="onSubmit()" #taskForm="ngForm">
           <div class="form-control mb-4">
-            <label class="label">
+            <label for="edit-task-title" class="label">
               <span class="label-text font-medium">Title</span>
             </label>
             <input
+              id="edit-task-title"
               type="text"
               [(ngModel)]="form.title"
               name="title"
@@ -36,17 +37,18 @@
               #titleModel="ngModel"
             />
             @if (titleModel.invalid && titleModel.touched) {
-              <label class="label">
+              <div class="label">
                 <span class="label-text-alt text-error">Title is required</span>
-              </label>
+              </div>
             }
           </div>
 
           <div class="form-control mb-4">
-            <label class="label">
+            <label for="edit-task-desc" class="label">
               <span class="label-text font-medium">Description</span>
             </label>
             <textarea
+              id="edit-task-desc"
               [(ngModel)]="form.description"
               name="description"
               placeholder="Enter task description"
@@ -56,10 +58,11 @@
           </div>
 
           <div class="form-control mb-4">
-            <label class="label">
+            <label for="edit-task-project" class="label">
               <span class="label-text font-medium">Project</span>
             </label>
             <select
+              id="edit-task-project"
               [(ngModel)]="form.projectId"
               name="projectId"
               class="select select-bordered w-full"
@@ -72,18 +75,18 @@
               }
             </select>
             @if (projectModel.invalid && projectModel.touched) {
-              <label class="label">
+              <div class="label">
                 <span class="label-text-alt text-error">Project is required</span>
-              </label>
+              </div>
             }
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div class="form-control">
-              <label class="label">
+              <label for="edit-task-status" class="label">
                 <span class="label-text font-medium">Status</span>
               </label>
-              <select [(ngModel)]="form.status" name="status" class="select select-bordered w-full">
+              <select id="edit-task-status" [(ngModel)]="form.status" name="status" class="select select-bordered w-full">
                 <option value="todo">To Do</option>
                 <option value="in_progress">In Progress</option>
                 <option value="in_review">In Review</option>
@@ -92,10 +95,10 @@
             </div>
 
             <div class="form-control">
-              <label class="label">
+              <label for="edit-task-priority" class="label">
                 <span class="label-text font-medium">Priority</span>
               </label>
-              <select [(ngModel)]="form.priority" name="priority" class="select select-bordered w-full">
+              <select id="edit-task-priority" [(ngModel)]="form.priority" name="priority" class="select select-bordered w-full">
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
                 <option value="high">High</option>
@@ -105,10 +108,11 @@
           </div>
 
           <div class="form-control mb-6">
-            <label class="label">
+            <label for="edit-task-due" class="label">
               <span class="label-text font-medium">Due Date</span>
             </label>
             <input
+              id="edit-task-due"
               type="date"
               [(ngModel)]="form.dueDate"
               name="dueDate"
