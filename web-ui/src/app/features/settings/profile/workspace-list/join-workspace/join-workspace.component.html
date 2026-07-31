@@ -1,0 +1,72 @@
+<app-modal [visible]="visible()" title="Join Workspace" (dismissed)="onDismiss()">
+  <form [formGroup]="form" (ngSubmit)="joinWorkspace()">
+    <div class="form-control mb-4">
+      <label for="join-search" class="label">
+        <span class="label-text font-medium">Search Workspace</span>
+      </label>
+      <div class="relative">
+        <fa-icon [icon]="faSearch" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
+        <input
+          id="join-search"
+          type="text"
+          formControlName="searchQuery"
+          (input)="onSearchInput()"
+          placeholder="Search by name..."
+          class="input input-bordered w-full pl-10"
+          [class.input-success]="selectedWorkspace()"
+        />
+        @if (searching()) {
+          <span class="loading loading-spinner loading-sm absolute right-3 top-1/2 -translate-y-1/2"></span>
+        }
+      </div>
+      @if (searchResults().length > 0) {
+        <div class="mt-2 max-h-40 overflow-y-auto border border-base-200 rounded-lg">
+          @for (result of searchResults(); track result.tenantId) {
+            <button
+              type="button"
+              class="w-full text-left px-3 py-2 hover:bg-base-200 border-b border-base-200 last:border-b-0"
+              (click)="selectWorkspace(result)"
+            >
+              <p class="font-medium text-sm">{{ result.tenantName }}</p>
+              <p class="text-xs text-base-content/50">{{ result.slug }}</p>
+            </button>
+          }
+        </div>
+      }
+      @if (selectedWorkspace()) {
+        <div class="label">
+          <span class="label-text-alt text-success flex items-center gap-1">
+            <fa-icon [icon]="faBuilding" class="text-xs"></fa-icon>
+            Selected: {{ selectedWorkspace()?.tenantName }}
+          </span>
+        </div>
+      }
+    </div>
+
+    <div class="form-control mb-4">
+      <label for="join-invite" class="label">
+        <span class="label-text font-medium">Invite Code</span>
+      </label>
+      <input
+        id="join-invite"
+        type="text"
+        formControlName="inviteCode"
+        placeholder="Enter invite code"
+        class="input input-bordered"
+      />
+      <div class="label">
+        <span class="label-text-alt text-base-content/50">Code: AGENCY-2026</span>
+      </div>
+    </div>
+
+    <div class="card-actions justify-end">
+      <button type="button" class="btn btn-ghost" (click)="onDismiss()">Cancel</button>
+      <button type="submit" class="btn btn-primary" [disabled]="joining() || !selectedWorkspace() || form.invalid">
+        @if (joining()) {
+          <span class="loading loading-spinner loading-sm"></span>
+        }
+        Join
+      </button>
+    </div>
+  </form>
+</app-modal>

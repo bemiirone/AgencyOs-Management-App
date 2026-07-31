@@ -1,0 +1,63 @@
+<div class="card bg-base-100 shadow-xl mb-6">
+  <div class="card-body">
+    <h2 class="card-title mb-4">Personal Information</h2>
+
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+      <div class="form-control mb-4">
+        <label for="profile-name" class="label">
+          <span class="label-text font-medium">Name</span>
+        </label>
+        <div class="relative">
+          <fa-icon [icon]="faUser" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
+          <input
+            id="profile-name"
+            type="text"
+            formControlName="name"
+            placeholder="Your name"
+            class="input input-bordered w-full pl-10"
+            [class.input-error]="profileForm.get('name')?.invalid && profileForm.get('name')?.touched"
+          />
+        </div>
+        @if (profileForm.get('name')?.invalid && profileForm.get('name')?.touched) {
+          <div class="label">
+            @if (profileForm.get('name')?.hasError('required')) {
+              <span class="label-text-alt text-error">Name is required</span>
+            } @else if (profileForm.get('name')?.hasError('minlength')) {
+              <span class="label-text-alt text-error">Name must be at least 2 characters</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-control mb-4">
+        <label for="profile-email" class="label">
+          <span class="label-text font-medium">Email</span>
+        </label>
+        <div class="relative">
+          <fa-icon [icon]="faEnvelope" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
+          <input
+            id="profile-email"
+            type="email"
+            formControlName="email"
+            placeholder="you@example.com"
+            class="input input-bordered w-full pl-10"
+          />
+        </div>
+        <div class="label">
+          <span class="label-text-alt text-base-content/50">Email cannot be changed</span>
+        </div>
+      </div>
+
+      <div class="card-actions justify-end">
+        <button type="submit" class="btn btn-primary" [disabled]="saving()">
+          @if (saving()) {
+            <span class="loading loading-spinner loading-sm"></span>
+          } @else {
+            <fa-icon [icon]="faSave" class="mr-2"></fa-icon>
+          }
+          Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,39 @@
+<div class="card bg-base-100 shadow-xl mb-6">
+  <div class="card-body">
+    <h2 class="card-title mb-4">Workspaces</h2>
+
+    @if (workspaces().length > 0) {
+      <div class="space-y-2">
+        @for (ws of workspaces(); track ws.tenantId) {
+          <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+            <div class="flex items-center gap-3">
+              <fa-icon [icon]="faBuilding" class="text-base-content/40"></fa-icon>
+              <div>
+                <p class="font-medium text-sm">{{ ws.tenantName }}</p>
+                <p class="text-xs text-base-content/50">{{ ws.role | titlecase }}</p>
+              </div>
+            </div>
+            @if (ws.isLastUsed) {
+              <span class="badge badge-primary badge-sm">Current</span>
+            }
+          </div>
+        }
+      </div>
+    } @else {
+      <p class="text-base-content/50 text-sm">No workspaces found</p>
+    }
+
+    <div class="card-actions justify-end mt-4">
+      <button class="btn btn-outline btn-sm" (click)="showJoinDialog.set(true)">
+        <fa-icon [icon]="faPlus" class="mr-2"></fa-icon>
+        Join Workspace
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-join-workspace
+  [visible]="showJoinDialog()"
+  (dismissed)="showJoinDialog.set(false)"
+  (joined)="onJoined()"
+/>
