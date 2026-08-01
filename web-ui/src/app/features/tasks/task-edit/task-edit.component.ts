@@ -12,6 +12,8 @@ import { Task } from '../../../shared/models/task.model';
 import { Project } from '../../../shared/models/project.model';
 import { TaskStore } from '../../../stores/task.store';
 import { ProjectStore } from '../../../stores/project.store';
+import { UserStore } from '../../../stores/user.store';
+import { AuthService } from '../../../core/services/auth.service';
 import { UpdateTaskPayload, TaskStatus, TaskPriority } from '../task.models';
 
 @Component({
@@ -26,6 +28,8 @@ export class TaskEditComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private taskStore = inject(TaskStore);
   private projectStore = inject(ProjectStore);
+  private userStore = inject(UserStore);
+  private authService = inject(AuthService);
   private router = inject(Router);
 
   projects = signal<Project[]>([]);
@@ -46,6 +50,8 @@ export class TaskEditComponent implements OnInit {
     status: 'todo' as TaskStatus,
     priority: 'medium' as TaskPriority,
     dueDate: '',
+    assigneeId: '',
+    createdBy: '',
   };
 
   ngOnInit(): void {
@@ -70,6 +76,8 @@ export class TaskEditComponent implements OnInit {
         this.form.status = task.status;
         this.form.priority = task.priority;
         this.form.dueDate = task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '';
+        this.form.assigneeId = task.assigneeIds?.[0] || '';
+        this.form.createdBy = task.createdBy || '';
         this.dataLoaded.set(true);
         this.loading.set(false);
       },
@@ -96,6 +104,7 @@ export class TaskEditComponent implements OnInit {
       projectId: this.form.projectId,
       status: this.form.status,
       priority: this.form.priority,
+      assigneeId: this.form.assigneeId || undefined,
     };
 
     if (this.form.dueDate) {
@@ -112,5 +121,11 @@ export class TaskEditComponent implements OnInit {
         this.saving.set(false);
       },
     });
+  }
+
+  getCreatorName(): string {
+    if (!this.form.createdBy) return 'Unknown';
+    const user = this.userStore.users().find((u) => u.id === this.form.createdBy);
+    return user?.name || 'Unknown';
   }
 }

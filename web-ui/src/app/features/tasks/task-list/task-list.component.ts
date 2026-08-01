@@ -16,6 +16,7 @@ import { Task } from '../../../shared/models/task.model';
 import { Project } from '../../../shared/models/project.model';
 import { TaskStore } from '../../../stores/task.store';
 import { ProjectStore } from '../../../stores/project.store';
+import { UserStore } from '../../../stores/user.store';
 
 @Component({
   selector: 'app-task-list',
@@ -28,6 +29,7 @@ import { ProjectStore } from '../../../stores/project.store';
 export class TaskListComponent implements OnInit {
   private taskStore = inject(TaskStore);
   private projectStore = inject(ProjectStore);
+  private userStore = inject(UserStore);
 
   tasks = signal<Task[]>([]);
   projects = signal<Project[]>([]);
@@ -147,5 +149,45 @@ export class TaskListComponent implements OnInit {
         error: (err) => console.error('Failed to delete task:', err),
       });
     }
+  }
+
+  getUserName(userId: string): string {
+    if (!userId) return 'Unknown';
+    const user = this.userStore.users().find((u) => u.id === userId);
+    return user?.name || 'Unknown';
+  }
+
+  getAssigneeName(task: Task): string {
+    const assigneeId = task.assigneeIds?.[0];
+    if (!assigneeId) return 'Unassigned';
+    return this.getUserName(assigneeId);
+  }
+
+  getCreatorName(task: Task): string {
+    if (!task.createdBy) return 'Unknown';
+    return this.getUserName(task.createdBy);
+  }
+
+  getInitials(name: string): string {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  }
+
+  getAvatarColor(name: string): string {
+    const colors = [
+      'bg-primary',
+      'bg-secondary',
+      'bg-accent',
+      'bg-info',
+      'bg-success',
+      'bg-warning',
+      'bg-error',
+    ];
+    const index = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
+    return colors[index];
   }
 }

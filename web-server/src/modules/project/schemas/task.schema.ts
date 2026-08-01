@@ -44,6 +44,9 @@ export class Task extends BaseDocument {
 
   @Prop({ default: 0 })
   declare order: number;
+
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  declare createdBy: string;
 }
 
 export const TaskSchema = SchemaFactory.createForClass(Task);

@@ -10,6 +10,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { TaskStore } from '../../../stores/task.store';
 import { ProjectStore } from '../../../stores/project.store';
+import { UserStore } from '../../../stores/user.store';
+import { AuthService } from '../../../core/services/auth.service';
 import { Project } from '../../../shared/models/project.model';
 import { CreateTaskPayload, TaskStatus, TaskPriority } from '../task.models';
 
@@ -24,6 +26,8 @@ import { CreateTaskPayload, TaskStatus, TaskPriority } from '../task.models';
 export class TaskCreateComponent implements OnInit {
   private taskStore = inject(TaskStore);
   private projectStore = inject(ProjectStore);
+  private userStore = inject(UserStore);
+  private authService = inject(AuthService);
   private router = inject(Router);
 
   projects = signal<Project[]>([]);
@@ -41,6 +45,7 @@ export class TaskCreateComponent implements OnInit {
     status: 'todo' as TaskStatus,
     priority: 'medium' as TaskPriority,
     dueDate: '',
+    assigneeId: '',
   };
 
   ngOnInit(): void {
@@ -65,6 +70,8 @@ export class TaskCreateComponent implements OnInit {
       projectId: this.form.projectId,
       status: this.form.status,
       priority: this.form.priority,
+      createdBy: this.authService.getUserId()!,
+      assigneeId: this.form.assigneeId || undefined,
     };
 
     if (this.form.dueDate) {

@@ -6,6 +6,7 @@ export interface Task {
   priority: 'low' | 'medium' | 'high' | 'urgent';
   projectId: string;
   assigneeIds?: string[];
+  createdBy?: string;
   dueDate?: string | Date;
   parentTaskId?: string;
   order?: number;

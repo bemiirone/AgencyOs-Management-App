@@ -8,6 +8,7 @@ import { HeaderComponent } from '../header/header.component';
 import { ToastComponent } from '../../shared/components/toast/toast.component';
 import { WorkspaceSelectModalComponent } from '../../shared/components/workspace-select-modal/workspace-select-modal.component';
 import { AuthService } from '../../core/services/auth.service';
+import { UserStore } from '../../stores/user.store';
 
 @Component({
   selector: 'app-main-layout',
@@ -19,12 +20,14 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class MainLayoutComponent implements OnInit {
   private authService = inject(AuthService);
+  private userStore = inject(UserStore);
 
   drawerOpen = false;
   showWorkspaceSelect = false;
 
   ngOnInit() {
     this.showWorkspaceSelect = this.authService.getShowWorkspaceSelect()();
+    this.userStore.loadUsers().subscribe();
   }
 
   toggleDrawer(): void {

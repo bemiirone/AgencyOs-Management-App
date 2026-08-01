@@ -47,6 +47,11 @@ export class CreateTaskDto {
   @IsNumber()
   @IsOptional()
   declare order?: number;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  declare createdBy?: string;
 }
 
 export class UpdateTaskDto {
@@ -94,4 +99,9 @@ export class UpdateTaskDto {
   @IsNumber()
   @IsOptional()
   declare order?: number;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  declare createdBy?: string;
 }

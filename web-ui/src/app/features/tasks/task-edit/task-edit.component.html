@@ -120,6 +120,25 @@
             />
           </div>
 
+          <div class="form-control mb-6">
+            <label for="edit-task-assignee" class="label">
+              <span class="label-text font-medium">Assignee</span>
+            </label>
+            <select id="edit-task-assignee" [(ngModel)]="form.assigneeId" name="assigneeId" class="select select-bordered w-full">
+              <option value="">Unassigned</option>
+              @for (user of userStore.users(); track user.id) {
+                <option [value]="user.id">{{ user.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-control mb-6">
+            <label for="edit-task-creator" class="label">
+              <span class="label-text font-medium">Created By</span>
+            </label>
+            <input id="edit-task-creator" type="text" [value]="getCreatorName()" class="input input-bordered w-full" disabled />
+          </div>
+
           <div class="flex gap-3">
             <button
               type="submit"

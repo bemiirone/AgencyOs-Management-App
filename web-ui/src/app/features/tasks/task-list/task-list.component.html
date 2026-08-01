@@ -57,6 +57,8 @@
                 <th>Project</th>
                 <th>Status</th>
                 <th>Priority</th>
+                <th>Assignee</th>
+                <th>Creator</th>
                 <th>Due Date</th>
                 <th>Actions</th>
               </tr>
@@ -83,6 +85,30 @@
                       {{ getPriorityLabel(task.priority) }}
                     </span>
                   </td>
+                  <td>
+                    @if (getAssigneeName(task) !== 'Unassigned') {
+                      <div class="flex items-center gap-2">
+                        <div class="avatar placeholder">
+                          <div class="{{ getAvatarColor(getAssigneeName(task) + task._id) }} text-primary-content rounded-full w-6 h-6">
+                            <span class="text-xs">{{ getInitials(getAssigneeName(task)) }}</span>
+                          </div>
+                        </div>
+                        <span class="text-sm">{{ getAssigneeName(task) }}</span>
+                      </div>
+                    } @else {
+                      <span class="text-sm text-base-content/50">Unassigned</span>
+                    }
+                  </td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <div class="avatar placeholder">
+                        <div class="{{ getAvatarColor(getCreatorName(task) + task._id) }} text-primary-content rounded-full w-6 h-6">
+                          <span class="text-xs">{{ getInitials(getCreatorName(task)) }}</span>
+                        </div>
+                      </div>
+                      <span class="text-sm">{{ getCreatorName(task) }}</span>
+                    </div>
+                  </td>
                   <td class="text-sm">{{ formatDate(task.dueDate) }}</td>
                   <td>
                     <div class="flex gap-2">
@@ -100,7 +126,7 @@
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="6" class="text-center py-8 text-base-content/50">
+                  <td colspan="8" class="text-center py-8 text-base-content/50">
                     No tasks found
                   </td>
                 </tr>
