@@ -60,3 +60,5 @@ CLAUDE.md
 .angular
 
 __screenshots__/
+fix-string-objectids.ts
+seed-task-createdby.ts

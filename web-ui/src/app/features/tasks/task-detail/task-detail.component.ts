@@ -229,10 +229,10 @@ export class TaskDetailComponent implements OnInit {
     return `${minutes}m`;
   }
 
-  getUserName(userId: string): string {
-    if (!userId) return 'Unknown';
+  getUserName(userId: string, fallback: string = 'Unknown'): string {
+    if (!userId) return fallback;
     const user = this.userStore.users().find((u) => u.id === userId);
-    return user?.name || 'Unknown';
+    return user?.name || fallback;
   }
 
   getAssigneeName(): string {
@@ -240,13 +240,23 @@ export class TaskDetailComponent implements OnInit {
     if (!t) return 'Unassigned';
     const assigneeId = t.assigneeIds?.[0];
     if (!assigneeId) return 'Unassigned';
-    return this.getUserName(assigneeId);
+    return this.getUserName(assigneeId, 'Unassigned');
+  }
+
+  getAssigneeId(): string {
+    const t = this.task();
+    return t?.assigneeIds?.[0] || '';
   }
 
   getCreatorName(): string {
     const t = this.task();
     if (!t?.createdBy) return 'Unknown';
     return this.getUserName(t.createdBy);
+  }
+
+  getCreatorId(): string {
+    const t = this.task();
+    return t?.createdBy || '';
   }
 
   getInitials(name: string): string {
@@ -269,6 +279,20 @@ export class TaskDetailComponent implements OnInit {
       'bg-error',
     ];
     const index = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
+    return colors[index];
+  }
+
+  getAvatarColorById(userId: string): string {
+    const colors = [
+      'bg-primary',
+      'bg-secondary',
+      'bg-accent',
+      'bg-info',
+      'bg-success',
+      'bg-warning',
+      'bg-error',
+    ];
+    const index = userId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
     return colors[index];
   }
 }

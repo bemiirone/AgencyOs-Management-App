@@ -88,6 +88,20 @@
           "command": "npx ts-node --project web-server/tsconfig.seed.json -r tsconfig-paths/register web-server/src/migrations/migrate-tenant-members.ts",
           "cwd": "{workspaceRoot}"
         }
+      },
+      "fix-objectids": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx ts-node --project web-server/tsconfig.seed.json -r tsconfig-paths/register web-server/src/migrations/fix-string-objectids.ts",
+          "cwd": "{workspaceRoot}"
+        }
+      },
+      "seed-createdby": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx ts-node --project web-server/tsconfig.seed.json -r tsconfig-paths/register web-server/src/migrations/seed-task-createdby.ts",
+          "cwd": "{workspaceRoot}"
+        }
       }
     }
   },
