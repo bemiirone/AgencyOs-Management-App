@@ -28,7 +28,7 @@ export class TaskEditComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private taskStore = inject(TaskStore);
   private projectStore = inject(ProjectStore);
-  private userStore = inject(UserStore);
+  userStore = inject(UserStore);
   private authService = inject(AuthService);
   private router = inject(Router);
 
@@ -104,7 +104,7 @@ export class TaskEditComponent implements OnInit {
       projectId: this.form.projectId,
       status: this.form.status,
       priority: this.form.priority,
-      assigneeId: this.form.assigneeId || undefined,
+      assigneeIds: this.form.assigneeId ? [this.form.assigneeId] : [],
     };
 
     if (this.form.dueDate) {

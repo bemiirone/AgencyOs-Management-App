@@ -141,6 +141,32 @@
               <span class="text-sm font-medium">{{ getProjectName(task()!.projectId) }}</span>
             </div>
             <div class="flex justify-between">
+              <span class="text-base-content/60 text-sm">Assignee</span>
+              @if (getAssigneeName() !== 'Unassigned') {
+                <div class="flex items-center gap-2">
+                  <div class="avatar placeholder">
+                    <div class="{{ getAvatarColor(getAssigneeName()) }} text-primary-content rounded-full w-6 h-6">
+                      <span class="text-xs">{{ getInitials(getAssigneeName()) }}</span>
+                    </div>
+                  </div>
+                  <span class="text-sm font-medium">{{ getAssigneeName() }}</span>
+                </div>
+              } @else {
+                <span class="text-sm text-base-content/50">Unassigned</span>
+              }
+            </div>
+            <div class="flex justify-between">
+              <span class="text-base-content/60 text-sm">Creator</span>
+              <div class="flex items-center gap-2">
+                <div class="avatar placeholder">
+                  <div class="{{ getAvatarColor(getCreatorName()) }} text-primary-content rounded-full w-6 h-6">
+                    <span class="text-xs">{{ getInitials(getCreatorName()) }}</span>
+                  </div>
+                </div>
+                <span class="text-sm font-medium">{{ getCreatorName() }}</span>
+              </div>
+            </div>
+            <div class="flex justify-between">
               <span class="text-base-content/60 text-sm">Task ID</span>
               <span class="text-sm font-mono">{{ task()?._id?.slice(-6) }}</span>
             </div>

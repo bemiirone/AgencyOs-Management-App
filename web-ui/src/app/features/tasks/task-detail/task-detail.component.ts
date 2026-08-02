@@ -19,6 +19,7 @@ import { Task } from '../../../shared/models/task.model';
 import { Project } from '../../../shared/models/project.model';
 import { TaskStore } from '../../../stores/task.store';
 import { ProjectStore } from '../../../stores/project.store';
+import { UserStore } from '../../../stores/user.store';
 import { TimeEntryStore } from '../../../stores/time-entry.store';
 import { TimeEntry } from '../../../shared/models/time-entry.model';
 
@@ -35,6 +36,7 @@ export class TaskDetailComponent implements OnInit {
   private router = inject(Router);
   private taskStore = inject(TaskStore);
   private projectStore = inject(ProjectStore);
+  private userStore = inject(UserStore);
   timeEntryStore = inject(TimeEntryStore);
 
   task = signal<Task | null>(null);
@@ -225,5 +227,48 @@ export class TaskDetailComponent implements OnInit {
       return `${hours}h ${minutes}m`;
     }
     return `${minutes}m`;
+  }
+
+  getUserName(userId: string): string {
+    if (!userId) return 'Unknown';
+    const user = this.userStore.users().find((u) => u.id === userId);
+    return user?.name || 'Unknown';
+  }
+
+  getAssigneeName(): string {
+    const t = this.task();
+    if (!t) return 'Unassigned';
+    const assigneeId = t.assigneeIds?.[0];
+    if (!assigneeId) return 'Unassigned';
+    return this.getUserName(assigneeId);
+  }
+
+  getCreatorName(): string {
+    const t = this.task();
+    if (!t?.createdBy) return 'Unknown';
+    return this.getUserName(t.createdBy);
+  }
+
+  getInitials(name: string): string {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  }
+
+  getAvatarColor(name: string): string {
+    const colors = [
+      'bg-primary',
+      'bg-secondary',
+      'bg-accent',
+      'bg-info',
+      'bg-success',
+      'bg-warning',
+      'bg-error',
+    ];
+    const index = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
+    return colors[index];
   }
 }

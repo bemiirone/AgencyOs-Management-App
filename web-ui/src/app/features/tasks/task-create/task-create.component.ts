@@ -26,7 +26,7 @@ import { CreateTaskPayload, TaskStatus, TaskPriority } from '../task.models';
 export class TaskCreateComponent implements OnInit {
   private taskStore = inject(TaskStore);
   private projectStore = inject(ProjectStore);
-  private userStore = inject(UserStore);
+  userStore = inject(UserStore);
   private authService = inject(AuthService);
   private router = inject(Router);
 
@@ -71,7 +71,7 @@ export class TaskCreateComponent implements OnInit {
       status: this.form.status,
       priority: this.form.priority,
       createdBy: this.authService.getUserId()!,
-      assigneeId: this.form.assigneeId || undefined,
+      assigneeIds: this.form.assigneeId ? [this.form.assigneeId] : [],
     };
 
     if (this.form.dueDate) {
