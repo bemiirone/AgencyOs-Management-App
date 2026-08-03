@@ -28,3 +28,10 @@ export interface StatItem {
   description: string;
   color: string;
 }
+
+export interface User {
+  id: string;
+  name: string;
+  role: string;
+  isActive: boolean;
+}

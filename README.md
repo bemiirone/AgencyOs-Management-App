@@ -60,6 +60,5 @@ agency-os/
 - **Role-Based Access Control**: Admin, Manager, Member, and Client roles with granular permissions
 - **Real-Time Time Tracking**: Live timer synchronization via WebSocket
 - **Project & Task Management**: Full CRUD with status workflows
-- **Invoicing & Payments**: Invoice generation, sending, and Stripe payment processing
 - **Notifications**: Email and in-app notification system powered by BullMQ queues
 - **Dashboard**: At-a-glance view of agency metrics, recent activity, and team members

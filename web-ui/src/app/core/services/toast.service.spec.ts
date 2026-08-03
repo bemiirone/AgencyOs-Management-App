@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ToastService } from '../toast.service';
+import { ToastService } from './toast.service';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 vi.useFakeTimers();

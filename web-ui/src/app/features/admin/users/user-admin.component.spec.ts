@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormsModule, FormBuilder } from '@angular/forms';
-import { UserAdminComponent } from '../user-admin.component';
-import { UserStore } from '../../../../stores/user.store';
-import { ToastService } from '../../../../core/services/toast.service';
+import { UserAdminComponent } from './user-admin.component';
+import { UserStore } from '../../../stores/user.store';
+import { ToastService } from '../../../core/services/toast.service';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 describe('UserAdminComponent', () => {

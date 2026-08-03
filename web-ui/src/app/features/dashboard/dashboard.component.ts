@@ -1,8 +1,8 @@
-import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { HttpClient } from '@angular/common/http';
-import { forkJoin } from 'rxjs';
+import { forkJoin, combineLatest } from 'rxjs';
 import {
   faProjectDiagram,
   faTasks,
@@ -27,6 +27,7 @@ import { Project } from '../../shared/models/project.model';
 import { Task } from '../../shared/models/task.model';
 import { TimeEntry } from '../../shared/models/time-entry.model';
 import { Invoice } from '../../shared/models/invoice.model';
+import { computeStats, buildActivities, mapTeamMembers } from './dashboard.transformers';
 
 @Component({
   selector: 'app-dashboard',
@@ -37,42 +38,55 @@ import { Invoice } from '../../shared/models/invoice.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardComponent implements OnInit {
-  private http = inject(HttpClient);
-  private authService = inject(AuthService);
-  private toast = inject(ToastService);
-  private userStore = inject(UserStore);
+  private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
+  private readonly toast = inject(ToastService);
+  private readonly userStore = inject(UserStore);
 
-  faProjectDiagram = faProjectDiagram;
-  faTasks = faTasks;
-  faClock = faClock;
-  faFileInvoiceDollar = faFileInvoiceDollar;
-  faUsers = faUsers;
-  faChartLine = faChartLine;
-  faPlus = faPlus;
-  faCheckCircle = faCheckCircle;
-  faHourglassHalf = faHourglassHalf;
-  faFileAlt = faFileAlt;
+  readonly faProjectDiagram = faProjectDiagram;
+  readonly faTasks = faTasks;
+  readonly faClock = faClock;
+  readonly faFileInvoiceDollar = faFileInvoiceDollar;
+  readonly faUsers = faUsers;
+  readonly faChartLine = faChartLine;
+  readonly faPlus = faPlus;
+  readonly faCheckCircle = faCheckCircle;
+  readonly faHourglassHalf = faHourglassHalf;
+  readonly faFileAlt = faFileAlt;
 
-  userName = signal('');
-  tenantName = signal('');
-  stats = signal<DashboardStats>({
-    totalProjects: 0,
-    activeTasks: 0,
-    totalHours: 0,
-    pendingInvoices: 0,
-  });
-  activities = signal<Activity[]>([]);
-  teamMembers = signal<TeamMember[]>([]);
-  loading = signal(false);
+  private readonly avatarColors = ['bg-primary', 'bg-secondary', 'bg-accent', 'bg-info', 'bg-success', 'bg-warning'];
 
-  statItems: StatItem[] = [
+  readonly userName = signal('');
+  readonly tenantName = signal('');
+  readonly loading = signal(false);
+
+  private readonly projects = signal<Project[]>([]);
+  private readonly tasks = signal<Task[]>([]);
+  private readonly timeEntries = signal<TimeEntry[]>([]);
+  private readonly invoices = signal<Invoice[]>([]);
+  private readonly users = signal<{ id: string; name: string; role: string; isActive: boolean }[]>([]);
+
+  readonly stats = computed<DashboardStats>(() =>
+    computeStats(this.projects(), this.tasks(), this.timeEntries(), this.invoices())
+  );
+
+  readonly activities = computed<Activity[]>(() =>
+    buildActivities(this.projects(), this.tasks(), {
+      project: faPlus,
+      task: faTasks,
+    })
+  );
+
+  readonly teamMembers = computed<TeamMember[]>(() =>
+    mapTeamMembers(this.users(), this.avatarColors)
+  );
+
+  readonly statItems: StatItem[] = [
     { icon: faProjectDiagram, key: 'totalProjects', title: 'Total Projects', description: 'Active and completed', color: 'text-primary' },
     { icon: faTasks, key: 'activeTasks', title: 'Active Tasks', description: 'In progress', color: 'text-secondary' },
     { icon: faClock, key: 'totalHours', title: 'Total Hours', description: 'Tracked this month', color: 'text-accent' },
     { icon: faFileInvoiceDollar, key: 'pendingInvoices', title: 'Pending Invoices', description: 'Awaiting payment', color: 'text-info' },
   ];
-
-  private readonly avatarColors = ['bg-primary', 'bg-secondary', 'bg-accent', 'bg-info', 'bg-success', 'bg-warning'];
 
   ngOnInit(): void {
     const user = this.authService.getUser();
@@ -84,60 +98,22 @@ export class DashboardComponent implements OnInit {
   private loadDashboard(): void {
     this.loading.set(true);
 
-    forkJoin({
+    const dashboardData$ = forkJoin({
       projects: this.http.get<Project[]>(API_CONFIG.PROJECTS.LIST),
       tasks: this.http.get<Task[]>(API_CONFIG.TASKS.LIST),
       timeEntries: this.http.get<TimeEntry[]>(API_CONFIG.TIME_ENTRIES.LIST),
       invoices: this.http.get<Invoice[]>(API_CONFIG.INVOICES.LIST),
-    }).subscribe({
-      next: ({ projects, tasks, timeEntries, invoices }) => {
-        const totalProjects = projects.length;
-        const activeTasks = tasks.filter(
-          (t) => t.status === 'in_progress' || t.status === 'todo'
-        ).length;
-        const totalMinutes = timeEntries.reduce(
-          (sum, e) => sum + (e.duration || 0),
-          0
-        );
-        const totalHours = Math.round((totalMinutes / 60) * 10) / 10;
-        const pendingInvoices = invoices.filter(
-          (i) => i.status === 'draft' || i.status === 'sent'
-        ).length;
+    });
 
-        this.stats.set({ totalProjects, activeTasks, totalHours, pendingInvoices });
+    const users$ = this.userStore.loadUsers();
 
-        const recentProjects = projects.slice(0, 3);
-        const recentTasks = tasks.slice(0, 3);
-
-        const projectActs: Activity[] = recentProjects.map((p) => ({
-          icon: faPlus,
-          color: 'bg-primary',
-          message: `Project "${p.name}" created`,
-          time: this.timeAgo(p.createdAt),
-        }));
-
-        const taskActs: Activity[] = recentTasks.map((t) => ({
-          icon: faTasks,
-          color: 'bg-secondary',
-          message: `Task "${t.title}" created`,
-          time: this.timeAgo(t.createdAt),
-        }));
-
-        const allActs = [...projectActs, ...taskActs]
-          .sort((a, b) => {
-            const parseTime = (timeStr: string) => {
-              if (timeStr === 'Just now') return 0;
-              const num = parseInt(timeStr);
-              if (timeStr.includes('h')) return num * 60;
-              if (timeStr.includes('d')) return num * 24 * 60;
-              return 999999;
-            };
-            return parseTime(a.time) - parseTime(b.time);
-          })
-          .reverse()
-          .slice(0, 6);
-
-        this.activities.set(allActs);
+    combineLatest([dashboardData$, users$]).subscribe({
+      next: ([{ projects, tasks, timeEntries, invoices }, users]) => {
+        this.projects.set(projects);
+        this.tasks.set(tasks);
+        this.timeEntries.set(timeEntries);
+        this.invoices.set(invoices);
+        this.users.set(users);
         this.loading.set(false);
       },
       error: () => {
@@ -145,42 +121,6 @@ export class DashboardComponent implements OnInit {
         this.loading.set(false);
       },
     });
-
-    this.userStore.loadUsers().subscribe({
-      next: (users) => {
-        const members: TeamMember[] = users
-          .filter((u) => u.isActive)
-          .map((u, i) => ({
-            initials: this.getInitials(u.name),
-            name: u.name,
-            role: u.role,
-            color: this.avatarColors[i % this.avatarColors.length],
-          }));
-        this.teamMembers.set(members);
-      },
-      error: (err) => console.error('Failed to load team members:', err),
-    });
-  }
-
-  private timeAgo(date: string | Date): string {
-    const then = date instanceof Date ? date : new Date(date);
-    const now = new Date();
-    const diffMs = now.getTime() - then.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffHours < 1) return 'Just now';
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays === 1) return '1d ago';
-    return `${diffDays}d ago`;
-  }
-
-  private getInitials(name: string): string {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
   }
 }
+
