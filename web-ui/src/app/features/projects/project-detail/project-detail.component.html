@@ -41,6 +41,18 @@
         <div class="stat-figure text-secondary">
           <fa-icon [icon]="faCalendar"></fa-icon>
         </div>
+        <div class="stat-title">Status</div>
+        <div class="stat-value text-lg">
+          <span class="badge {{ getStatusClass(project()!.status) }} badge-lg">
+            {{ getProjectStatusLabel(project()!.status) }}
+          </span>
+        </div>
+      </div>
+
+      <div class="stat bg-base-100 shadow rounded-box">
+        <div class="stat-figure text-secondary">
+          <fa-icon [icon]="faCalendar"></fa-icon>
+        </div>
         <div class="stat-title">Start Date</div>
         <div class="stat-value text-secondary text-lg">{{ formatDate(project()!.startDate) }}</div>
       </div>

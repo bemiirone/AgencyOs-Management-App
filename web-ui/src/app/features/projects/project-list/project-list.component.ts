@@ -79,6 +79,17 @@ export class ProjectListComponent implements OnInit {
     return this.getStatusColor(status);
   }
 
+  getProjectStatusLabel(status: string): string {
+    const labels: Record<string, string> = {
+      draft: 'Draft',
+      active: 'Active',
+      on_hold: 'On Hold',
+      completed: 'Completed',
+      archived: 'Archived',
+    };
+    return labels[status] || status;
+  }
+
   deleteProject(id: string): void {
     if (confirm('Are you sure you want to delete this project?')) {
       this.projectStore.deleteProject(id).subscribe({

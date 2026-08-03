@@ -104,6 +104,17 @@ export class ProjectDetailComponent implements OnInit {
     return classes[status] || 'badge-ghost';
   }
 
+  getProjectStatusLabel(status: string): string {
+    const labels: Record<string, string> = {
+      draft: 'Draft',
+      active: 'Active',
+      on_hold: 'On Hold',
+      completed: 'Completed',
+      archived: 'Archived',
+    };
+    return labels[status] || status;
+  }
+
   getTaskStatusClass(status: string): string {
     const classes: Record<string, string> = {
       todo: 'badge-ghost',
