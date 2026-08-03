@@ -12,8 +12,8 @@
 
   <div class="card bg-base-100 shadow">
     <div class="card-body">
-      <div class="flex flex-col sm:flex-row gap-4 mb-4">
-        <div class="form-control flex-1">
+      <div class="flex flex-wrap gap-4 mb-4">
+        <div class="form-control flex-1 min-w-[200px]">
           <div class="relative">
             <fa-icon [icon]="faSearch" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
             <input
@@ -23,6 +23,22 @@
               class="input input-bordered w-full pl-10"
             />
           </div>
+        </div>
+        <div class="form-control sm:w-48">
+          <select [(ngModel)]="projectFilter" class="select select-bordered">
+            <option value="">All Projects</option>
+            @for (project of projects(); track project._id) {
+              <option [value]="project._id">{{ project.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-control sm:w-48">
+          <select [(ngModel)]="assigneeFilter" class="select select-bordered">
+            <option value="">All Assignees</option>
+            @for (user of userStore.users(); track user.id) {
+              <option [value]="user.id">{{ user.name }}</option>
+            }
+          </select>
         </div>
         <div class="form-control sm:w-48">
           <select [(ngModel)]="statusFilter" class="select select-bordered">

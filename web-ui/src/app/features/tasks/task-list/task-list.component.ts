@@ -29,7 +29,7 @@ import { UserStore } from '../../../stores/user.store';
 export class TaskListComponent implements OnInit {
   private taskStore = inject(TaskStore);
   private projectStore = inject(ProjectStore);
-  private userStore = inject(UserStore);
+  userStore = inject(UserStore);
 
   tasks = signal<Task[]>([]);
   projects = signal<Project[]>([]);
@@ -37,6 +37,8 @@ export class TaskListComponent implements OnInit {
   searchQuery = signal('');
   statusFilter = signal<string>('');
   priorityFilter = signal<string>('');
+  projectFilter = signal<string>('');
+  assigneeFilter = signal<string>('');
 
   faPlus = faPlus;
   faEye = faEye;
@@ -70,6 +72,8 @@ export class TaskListComponent implements OnInit {
     const query = this.searchQuery().toLowerCase();
     const status = this.statusFilter();
     const priority = this.priorityFilter();
+    const project = this.projectFilter();
+    const assignee = this.assigneeFilter();
 
     if (query) {
       result = result.filter(
@@ -85,6 +89,14 @@ export class TaskListComponent implements OnInit {
 
     if (priority) {
       result = result.filter((t) => t.priority === priority);
+    }
+
+    if (project) {
+      result = result.filter((t) => t.projectId === project);
+    }
+
+    if (assignee) {
+      result = result.filter((t) => t.assigneeIds?.includes(assignee));
     }
 
     return result;
