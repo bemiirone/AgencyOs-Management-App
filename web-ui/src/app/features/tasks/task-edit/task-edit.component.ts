@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -7,6 +7,7 @@ import {
   faArrowLeft,
   faSpinner,
   faSave,
+  faInfoCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import { Task } from '../../../shared/models/task.model';
 import { Project } from '../../../shared/models/project.model';
@@ -42,6 +43,11 @@ export class TaskEditComponent implements OnInit {
   faArrowLeft = faArrowLeft;
   faSpinner = faSpinner;
   faSave = faSave;
+  faInfoCircle = faInfoCircle;
+
+  availableProjects = computed(() =>
+    this.projects().filter((p) => p.status === 'active' || p.status === 'draft')
+  );
 
   form = {
     title: '',

@@ -65,10 +65,16 @@
             #projectModel="ngModel"
           >
             <option value="" disabled>Select a project</option>
-            @for (project of projects(); track project._id) {
+            @for (project of availableProjects(); track project._id) {
               <option [value]="project._id">{{ project.name }}</option>
             }
           </select>
+          <div class="label">
+            <span class="label-text-alt text-base-content/50">
+              <fa-icon [icon]="faInfoCircle" class="mr-1"></fa-icon>
+              Only Active and Draft projects are available for task assignment
+            </span>
+          </div>
           @if (projectModel.invalid && projectModel.touched) {
             <div class="label">
               <span class="label-text-alt text-error">Project is required</span>

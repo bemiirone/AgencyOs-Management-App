@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -7,6 +7,7 @@ import {
   faArrowLeft,
   faSpinner,
   faSave,
+  faInfoCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import { TaskStore } from '../../../stores/task.store';
 import { ProjectStore } from '../../../stores/project.store';
@@ -37,6 +38,11 @@ export class TaskCreateComponent implements OnInit {
   faArrowLeft = faArrowLeft;
   faSpinner = faSpinner;
   faSave = faSave;
+  faInfoCircle = faInfoCircle;
+
+  availableProjects = computed(() =>
+    this.projects().filter((p) => p.status === 'active' || p.status === 'draft')
+  );
 
   form = {
     title: '',
