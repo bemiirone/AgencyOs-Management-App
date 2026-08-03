@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { RouterTestingModule } from '@angular/router/testing';
-import { TaskListComponent } from '../task-list.component';
-import { TaskStore } from '../../../../stores/task.store';
-import { ProjectStore } from '../../../../stores/project.store';
-import { UserStore } from '../../../../stores/user.store';
+import { TaskListComponent } from './task-list.component';
+import { TaskStore } from '../../../stores/task.store';
+import { ProjectStore } from '../../../stores/project.store';
+import { UserStore } from '../../../stores/user.store';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { signal } from '@angular/core';
 
