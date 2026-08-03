@@ -102,6 +102,13 @@
           "command": "npx ts-node --project web-server/tsconfig.seed.json -r tsconfig-paths/register web-server/src/migrations/seed-task-createdby.ts",
           "cwd": "{workspaceRoot}"
         }
+      },
+      "test": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "vitest run",
+          "cwd": "web-server"
+        }
       }
     }
   },
