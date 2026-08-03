@@ -16,29 +16,29 @@ import { Notification } from '../../shared/models/notification.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderComponent implements OnInit {
-  toggleDrawer = output<void>();
+  readonly toggleDrawer = output<void>();
 
-  private authService = inject(AuthService);
-  private notificationStore = inject(NotificationStore);
-  private router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly notificationStore = inject(NotificationStore);
+  private readonly router = inject(Router);
 
-  faBars = faBars;
-  faBell = faBell;
-  faUser = faUser;
-  faSignOutAlt = faSignOutAlt;
-  faChevronDown = faChevronDown;
-  faCheck = faCheck;
-  faBuilding = faBuilding;
+  readonly faBars = faBars;
+  readonly faBell = faBell;
+  readonly faUser = faUser;
+  readonly faSignOutAlt = faSignOutAlt;
+  readonly faChevronDown = faChevronDown;
+  readonly faCheck = faCheck;
+  readonly faBuilding = faBuilding;
 
-  userName = signal('');
-  userRole = signal('');
-  tenantName = signal('');
-  notifications = signal<Notification[]>([]);
-  unreadCount = signal(0);
-  showNotifications = signal(false);
-  showWorkspaceDropdown = signal(false);
-  workspaces = this.authService.getWorkspacesSignal();
-  hasMultipleWorkspaces = computed(() => this.workspaces().length > 1);
+  readonly userName = signal('');
+  readonly userRole = signal('');
+  readonly tenantName = signal('');
+  readonly notifications = signal<Notification[]>([]);
+  readonly unreadCount = signal(0);
+  readonly showNotifications = signal(false);
+  readonly showWorkspaceDropdown = signal(false);
+  readonly workspaces = this.authService.getWorkspacesSignal();
+  readonly hasMultipleWorkspaces = computed(() => this.workspaces().length > 1);
 
   ngOnInit(): void {
     const user = this.authService.getUser();

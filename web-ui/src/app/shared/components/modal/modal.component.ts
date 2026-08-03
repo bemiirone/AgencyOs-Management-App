@@ -12,11 +12,11 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ModalComponent {
-  visible = input.required<boolean>();
-  title = input.required<string>();
-  dismissed = output<void>();
+  readonly visible = input.required<boolean>();
+  readonly title = input.required<string>();
+  readonly dismissed = output<void>();
 
-  faTimes = faTimes;
+  readonly faTimes = faTimes;
 
   onDismiss() {
     this.dismissed.emit();

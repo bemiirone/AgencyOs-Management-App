@@ -12,5 +12,5 @@ import { faFileInvoiceDollar } from '@fortawesome/free-solid-svg-icons';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InvoicesComponent {
-  faFileInvoiceDollar = faFileInvoiceDollar;
+  readonly faFileInvoiceDollar = faFileInvoiceDollar;
 }

@@ -13,23 +13,23 @@ import { faLock, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChangePasswordComponent {
-  private fb = inject(FormBuilder);
+  private readonly fb = inject(FormBuilder);
 
-  changingPassword = input(false);
-  resetTrigger = input(0);
-  changePassword = output<{ currentPassword: string; newPassword: string }>();
+  readonly changingPassword = input(false);
+  readonly resetTrigger = input(0);
+  readonly changePassword = output<{ currentPassword: string; newPassword: string }>();
 
-  faLock = faLock;
-  faEye = faEye;
-  faEyeSlash = faEyeSlash;
+  readonly faLock = faLock;
+  readonly faEye = faEye;
+  readonly faEyeSlash = faEyeSlash;
 
-  passwordForm: FormGroup = this.fb.group({
+  readonly passwordForm: FormGroup = this.fb.group({
     currentPassword: ['', Validators.required],
     newPassword: ['', [Validators.required, Validators.minLength(8)]],
     confirmPassword: ['', Validators.required],
   }, { validators: this.passwordsMatchValidator });
 
-  showPasswords = signal({ current: false, new: false, confirm: false });
+  readonly showPasswords = signal({ current: false, new: false, confirm: false });
 
   constructor() {
     effect(() => {

@@ -33,36 +33,36 @@ interface CreateTimeEntryPayload {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimeTrackingComponent implements OnInit, OnDestroy {
-  timeEntryStore = inject(TimeEntryStore);
-  private projectStore = inject(ProjectStore);
-  private taskStore = inject(TaskStore);
-  private authService = inject(AuthService);
+  readonly timeEntryStore = inject(TimeEntryStore);
+  private readonly projectStore = inject(ProjectStore);
+  private readonly taskStore = inject(TaskStore);
+  private readonly authService = inject(AuthService);
 
-  currentUserId = signal<string | null>(null);
+  readonly currentUserId = signal<string | null>(null);
 
-  projects = signal<Project[]>([]);
-  tasks = signal<Task[]>([]);
-  groupedEntries = signal<GroupedEntries[]>([]);
-  loading = signal(false);
+  readonly projects = signal<Project[]>([]);
+  readonly tasks = signal<Task[]>([]);
+  readonly groupedEntries = signal<GroupedEntries[]>([]);
+  readonly loading = signal(false);
 
-  selectedProjectId = signal('');
-  selectedTaskId = signal('');
-  timerDescription = signal('');
-  isBillable = signal(false);
-  searchQuery = signal('');
+  readonly selectedProjectId = signal('');
+  readonly selectedTaskId = signal('');
+  readonly timerDescription = signal('');
+  readonly isBillable = signal(false);
+  readonly searchQuery = signal('');
 
-  showRunningBanner = signal(false);
-  runningTimerInfo = signal({ projectName: '', startedAgo: '' });
+  readonly showRunningBanner = signal(false);
+  readonly runningTimerInfo = signal({ projectName: '', startedAgo: '' });
 
-  elapsedSeconds = signal(0);
+  readonly elapsedSeconds = signal(0);
   private timerInterval: ReturnType<typeof setInterval> | null = null;
 
-  faPlay = faPlay;
-  faStop = faStop;
-  faTrash = faTrash;
-  faSpinner = faSpinner;
-  faClock = faClock;
-  faSearch = faSearch;
+  readonly faPlay = faPlay;
+  readonly faStop = faStop;
+  readonly faTrash = faTrash;
+  readonly faSpinner = faSpinner;
+  readonly faClock = faClock;
+  readonly faSearch = faSearch;
 
   ngOnInit(): void {
     this.loading.set(true);

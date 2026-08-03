@@ -14,13 +14,13 @@ import { JoinWorkspaceComponent } from './join-workspace/join-workspace.componen
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkspaceListComponent {
-  workspaces = input.required<Workspace[]>();
-  joined = output<void>();
+  readonly workspaces = input.required<Workspace[]>();
+  readonly joined = output<void>();
 
-  faBuilding = faBuilding;
-  faPlus = faPlus;
+  readonly faBuilding = faBuilding;
+  readonly faPlus = faPlus;
 
-  showJoinDialog = signal(false);
+  readonly showJoinDialog = signal(false);
 
   onJoined() {
     this.showJoinDialog.set(false);

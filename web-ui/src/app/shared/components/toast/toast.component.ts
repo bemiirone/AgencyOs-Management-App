@@ -33,13 +33,13 @@ import { ToastService } from '../../../core/services/toast.service';
   `,
 })
 export class ToastComponent {
-  toastService = inject(ToastService);
+  readonly toastService = inject(ToastService);
 
-  faCheckCircle = faCheckCircle;
-  faExclamationCircle = faExclamationCircle;
-  faInfoCircle = faInfoCircle;
-  faExclamationTriangle = faExclamationTriangle;
-  faTimes = faTimes;
+  readonly faCheckCircle = faCheckCircle;
+  readonly faExclamationCircle = faExclamationCircle;
+  readonly faInfoCircle = faInfoCircle;
+  readonly faExclamationTriangle = faExclamationTriangle;
+  readonly faTimes = faTimes;
 
   getIcon(type: string): IconDefinition {
     switch (type) {

@@ -16,19 +16,19 @@ import { UpdateProjectPayload, ProjectStatus } from '../project.models';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectEditComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private projectStore = inject(ProjectStore);
-  private router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly projectStore = inject(ProjectStore);
+  private readonly router = inject(Router);
 
-  loading = signal(true);
-  saving = signal(false);
-  error = signal('');
-  projectId = signal('');
-  dataLoaded = signal(false);
+  readonly loading = signal(true);
+  readonly saving = signal(false);
+  readonly error = signal('');
+  readonly projectId = signal('');
+  readonly dataLoaded = signal(false);
 
-  faArrowLeft = faArrowLeft;
-  faSpinner = faSpinner;
-  faSave = faSave;
+  readonly faArrowLeft = faArrowLeft;
+  readonly faSpinner = faSpinner;
+  readonly faSave = faSave;
 
   form = {
     name: '',

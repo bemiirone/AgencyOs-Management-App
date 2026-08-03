@@ -11,9 +11,9 @@ import { faBoxOpen } from '@fortawesome/free-solid-svg-icons';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmptyStateComponent {
-  faBoxOpen = faBoxOpen;
+  readonly faBoxOpen = faBoxOpen;
 
-  title = input('No items found');
-  message = input('There are no items to display.');
-  actionLabel = input<string>();
+  readonly title = input('No items found');
+  readonly message = input('There are no items to display.');
+  readonly actionLabel = input<string>();
 }

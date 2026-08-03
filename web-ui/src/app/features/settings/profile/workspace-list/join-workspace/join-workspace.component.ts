@@ -22,26 +22,26 @@ interface SearchResult {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JoinWorkspaceComponent implements OnDestroy {
-  private authService = inject(AuthService);
-  private toast = inject(ToastService);
+  private readonly authService = inject(AuthService);
+  private readonly toast = inject(ToastService);
 
-  visible = input.required<boolean>();
-  dismissed = output<void>();
-  joined = output<void>();
+  readonly visible = input.required<boolean>();
+  readonly dismissed = output<void>();
+  readonly joined = output<void>();
 
-  faSearch = faSearch;
-  faBuilding = faBuilding;
+  readonly faSearch = faSearch;
+  readonly faBuilding = faBuilding;
 
-  form = new FormGroup({
+  readonly form = new FormGroup({
     searchQuery: new FormControl('', { nonNullable: true }),
     inviteCode: new FormControl('AGENCY-2026', { nonNullable: true, validators: [Validators.required] }),
   });
 
-  searchResults = signal<SearchResult[]>([]);
-  searching = signal(false);
-  selectedWorkspace = signal<SearchResult | null>(null);
-  joining = signal(false);
-  searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  readonly searchResults = signal<SearchResult[]>([]);
+  readonly searching = signal(false);
+  readonly selectedWorkspace = signal<SearchResult | null>(null);
+  readonly joining = signal(false);
+  private searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   get searchQueryControl() {
     return this.form.controls.searchQuery;

@@ -32,30 +32,30 @@ import { TimeEntry } from '../../../shared/models/time-entry.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskDetailComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private taskStore = inject(TaskStore);
-  private projectStore = inject(ProjectStore);
-  private userStore = inject(UserStore);
-  timeEntryStore = inject(TimeEntryStore);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly taskStore = inject(TaskStore);
+  private readonly projectStore = inject(ProjectStore);
+  private readonly userStore = inject(UserStore);
+  readonly timeEntryStore = inject(TimeEntryStore);
 
-  task = signal<Task | null>(null);
-  subtasks = signal<Task[]>([]);
-  timeEntries = signal<TimeEntry[]>([]);
-  projects = signal<Project[]>([]);
-  loading = signal(false);
-  editing = signal(false);
+  readonly task = signal<Task | null>(null);
+  readonly subtasks = signal<Task[]>([]);
+  readonly timeEntries = signal<TimeEntry[]>([]);
+  readonly projects = signal<Project[]>([]);
+  readonly loading = signal(false);
+  readonly editing = signal(false);
 
-  faArrowLeft = faArrowLeft;
-  faCalendar = faCalendar;
-  faFlag = faFlag;
-  faSpinner = faSpinner;
-  faEdit = faEdit;
-  faSave = faSave;
-  faTimes = faTimes;
-  faTrash = faTrash;
-  faClock = faClock;
-  faListUl = faListUl;
+  readonly faArrowLeft = faArrowLeft;
+  readonly faCalendar = faCalendar;
+  readonly faFlag = faFlag;
+  readonly faSpinner = faSpinner;
+  readonly faEdit = faEdit;
+  readonly faSave = faSave;
+  readonly faTimes = faTimes;
+  readonly faTrash = faTrash;
+  readonly faClock = faClock;
+  readonly faListUl = faListUl;
 
   editForm = {
     title: '',

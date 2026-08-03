@@ -19,8 +19,8 @@ import { UserStore } from '../../stores/user.store';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainLayoutComponent implements OnInit {
-  private authService = inject(AuthService);
-  private userStore = inject(UserStore);
+  private readonly authService = inject(AuthService);
+  private readonly userStore = inject(UserStore);
 
   drawerOpen = false;
   showWorkspaceSelect = false;

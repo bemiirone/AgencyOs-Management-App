@@ -14,12 +14,12 @@ import { Router } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkspaceSelectModalComponent implements OnInit {
-  private authService = inject(AuthService);
-  private router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
-  faCheck = faCheck;
-  faBuilding = faBuilding;
-  faSpinner = faSpinner;
+  readonly faCheck = faCheck;
+  readonly faBuilding = faBuilding;
+  readonly faSpinner = faSpinner;
 
   workspaces: Workspace[] = [];
   loading = false;

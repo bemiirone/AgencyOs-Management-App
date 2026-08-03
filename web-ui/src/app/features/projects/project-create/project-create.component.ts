@@ -15,15 +15,15 @@ import { CreateProjectPayload, ProjectStatus } from '../project.models';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectCreateComponent {
-  private projectStore = inject(ProjectStore);
-  private router = inject(Router);
+  private readonly projectStore = inject(ProjectStore);
+  private readonly router = inject(Router);
 
-  saving = signal(false);
-  error = signal('');
+  readonly saving = signal(false);
+  readonly error = signal('');
 
-  faArrowLeft = faArrowLeft;
-  faSpinner = faSpinner;
-  faSave = faSave;
+  readonly faArrowLeft = faArrowLeft;
+  readonly faSpinner = faSpinner;
+  readonly faSave = faSave;
 
   form = {
     name: '',

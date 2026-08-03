@@ -16,24 +16,24 @@ import { AuthService } from '../../../core/services/auth.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserAdminComponent implements OnInit {
-  private store = inject(UserStore);
-  private toast = inject(ToastService);
-  private authService = inject(AuthService);
-  private fb = inject(FormBuilder);
+  private readonly store = inject(UserStore);
+  private readonly toast = inject(ToastService);
+  private readonly authService = inject(AuthService);
+  private readonly fb = inject(FormBuilder);
 
-  faEye = faEye;
-  faEyeSlash = faEyeSlash;
+  readonly faEye = faEye;
+  readonly faEyeSlash = faEyeSlash;
 
-  users = this.store.users;
-  isLoading = this.store.isLoading;
+  readonly users = this.store.users;
+  readonly isLoading = this.store.isLoading;
   showCreateForm = false;
   editingUserId: string | null = null;
   editingRole: string | null = null;
-  showPassword = signal(false);
+  readonly showPassword = signal(false);
 
-  isAdmin = computed(() => this.authService.getUserRole() === 'admin');
+  readonly isAdmin = computed(() => this.authService.getUserRole() === 'admin');
 
-  createUserForm: FormGroup = this.fb.group({
+  readonly createUserForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]],

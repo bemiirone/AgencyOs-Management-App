@@ -24,24 +24,24 @@ function passwordMatchValidator(group: AbstractControl): ValidationErrors | null
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegisterComponent {
-  private authService = inject(AuthService);
-  private router = inject(Router);
-  private fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly fb = inject(FormBuilder);
 
-  faUser = faUser;
-  faEnvelope = faEnvelope;
-  faLock = faLock;
-  faSpinner = faSpinner;
-  faEye = faEye;
-  faEyeSlash = faEyeSlash;
-  faBuilding = faBuilding;
+  readonly faUser = faUser;
+  readonly faEnvelope = faEnvelope;
+  readonly faLock = faLock;
+  readonly faSpinner = faSpinner;
+  readonly faEye = faEye;
+  readonly faEyeSlash = faEyeSlash;
+  readonly faBuilding = faBuilding;
 
-  error = signal('');
-  loading = signal(false);
-  showPassword = signal(false);
-  showConfirmPassword = signal(false);
+  readonly error = signal('');
+  readonly loading = signal(false);
+  readonly showPassword = signal(false);
+  readonly showConfirmPassword = signal(false);
 
-  registerForm: FormGroup = this.fb.group({
+  readonly registerForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
     agencyName: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],

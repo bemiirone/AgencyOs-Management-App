@@ -11,5 +11,5 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoadingSpinnerComponent {
-  faSpinner = faSpinner;
+  readonly faSpinner = faSpinner;
 }

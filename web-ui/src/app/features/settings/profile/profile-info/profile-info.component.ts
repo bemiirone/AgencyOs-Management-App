@@ -13,18 +13,18 @@ import { faUser, faEnvelope, faSave } from '@fortawesome/free-solid-svg-icons';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileInfoComponent {
-  private fb = inject(FormBuilder);
+  private readonly fb = inject(FormBuilder);
 
-  name = input.required<string>();
-  email = input.required<string>();
-  saving = input(false);
-  save = output<{ name: string }>();
+  readonly name = input.required<string>();
+  readonly email = input.required<string>();
+  readonly saving = input(false);
+  readonly save = output<{ name: string }>();
 
-  faUser = faUser;
-  faEnvelope = faEnvelope;
-  faSave = faSave;
+  readonly faUser = faUser;
+  readonly faEnvelope = faEnvelope;
+  readonly faSave = faSave;
 
-  profileForm: FormGroup = this.fb.group({
+  readonly profileForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
     email: [{ value: '', disabled: true }],
   });

@@ -24,27 +24,27 @@ import { AuthService } from '../../core/services/auth.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidebarComponent implements OnInit {
-  private authService = inject(AuthService);
+  private readonly authService = inject(AuthService);
 
-  faHome = faHome;
-  faProjectDiagram = faProjectDiagram;
-  faTasks = faTasks;
-  faClock = faClock;
-  faFileInvoiceDollar = faFileInvoiceDollar;
-  faUsers = faUsers;
-  faCog = faCog;
-  faBars = faBars;
-  faBuilding = faBuilding;
+  readonly faHome = faHome;
+  readonly faProjectDiagram = faProjectDiagram;
+  readonly faTasks = faTasks;
+  readonly faClock = faClock;
+  readonly faFileInvoiceDollar = faFileInvoiceDollar;
+  readonly faUsers = faUsers;
+  readonly faCog = faCog;
+  readonly faBars = faBars;
+  readonly faBuilding = faBuilding;
 
-  tenantName = signal('');
-  userRole = signal('');
+  readonly tenantName = signal('');
+  readonly userRole = signal('');
 
   ngOnInit(): void {
     this.tenantName.set(this.authService.getTenantName());
     this.userRole.set(this.authService.getUserRole());
   }
 
-  navItems = [
+  readonly navItems = [
     { label: 'Dashboard', icon: faHome, route: '/dashboard' },
     { label: 'Projects', icon: faProjectDiagram, route: '/projects' },
     { label: 'Tasks', icon: faTasks, route: '/tasks' },
@@ -54,5 +54,5 @@ export class SidebarComponent implements OnInit {
     { label: 'Settings', icon: faCog, route: '/settings' },
   ];
 
-  adminNavItems = [];
+  readonly adminNavItems = [];
 }

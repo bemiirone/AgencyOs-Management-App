@@ -15,20 +15,20 @@ import { AuthService } from '../../../core/services/auth.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent {
-  private authService = inject(AuthService);
-  private router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
-  faEnvelope = faEnvelope;
-  faLock = faLock;
-  faSpinner = faSpinner;
-  faEye = faEye;
-  faEyeSlash = faEyeSlash;
+  readonly faEnvelope = faEnvelope;
+  readonly faLock = faLock;
+  readonly faSpinner = faSpinner;
+  readonly faEye = faEye;
+  readonly faEyeSlash = faEyeSlash;
 
-  email = signal('');
-  password = signal('');
-  error = signal('');
-  loading = signal(false);
-  showPassword = signal(false);
+  readonly email = signal('');
+  readonly password = signal('');
+  readonly error = signal('');
+  readonly loading = signal(false);
+  readonly showPassword = signal(false);
 
   togglePasswordVisibility(): void {
     this.showPassword.update((v) => !v);

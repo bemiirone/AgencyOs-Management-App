@@ -27,26 +27,26 @@ import { UserStore } from '../../../stores/user.store';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskListComponent implements OnInit {
-  private taskStore = inject(TaskStore);
-  private projectStore = inject(ProjectStore);
-  userStore = inject(UserStore);
+  private readonly taskStore = inject(TaskStore);
+  private readonly projectStore = inject(ProjectStore);
+  readonly userStore = inject(UserStore);
 
-  tasks = signal<Task[]>([]);
-  projects = signal<Project[]>([]);
-  loading = signal(false);
-  searchQuery = signal('');
-  statusFilter = signal<string>('');
-  priorityFilter = signal<string>('');
-  projectFilter = signal<string>('');
-  assigneeFilter = signal<string>('');
+  readonly tasks = signal<Task[]>([]);
+  readonly projects = signal<Project[]>([]);
+  readonly loading = signal(false);
+  readonly searchQuery = signal('');
+  readonly statusFilter = signal<string>('');
+  readonly priorityFilter = signal<string>('');
+  readonly projectFilter = signal<string>('');
+  readonly assigneeFilter = signal<string>('');
 
-  faPlus = faPlus;
-  faEye = faEye;
-  faEdit = faEdit;
-  faTrash = faTrash;
-  faSearch = faSearch;
-  faSpinner = faSpinner;
-  faFilter = faFilter;
+  readonly faPlus = faPlus;
+  readonly faEye = faEye;
+  readonly faEdit = faEdit;
+  readonly faTrash = faTrash;
+  readonly faSearch = faSearch;
+  readonly faSpinner = faSpinner;
+  readonly faFilter = faFilter;
 
   ngOnInit(): void {
     this.loadTasks();

@@ -16,18 +16,18 @@ import { ProjectStore } from '../../../stores/project.store';
   styleUrls: ['./project-list.component.scss'],
 })
 export class ProjectListComponent implements OnInit {
-  private projectStore = inject(ProjectStore);
+  private readonly projectStore = inject(ProjectStore);
   
-  projects = signal<Project[]>([]);
-  loading = signal(false);
-  searchQuery = signal('');
+  readonly projects = signal<Project[]>([]);
+  readonly loading = signal(false);
+  readonly searchQuery = signal('');
 
-  faPlus = faPlus;
-  faEye = faEye;
-  faEdit = faEdit;
-  faTrash = faTrash;
-  faSearch = faSearch;
-  faSpinner = faSpinner;
+  readonly faPlus = faPlus;
+  readonly faEye = faEye;
+  readonly faEdit = faEdit;
+  readonly faTrash = faTrash;
+  readonly faSearch = faSearch;
+  readonly faSpinner = faSpinner;
 
   ngOnInit(): void {
     this.loadProjects();

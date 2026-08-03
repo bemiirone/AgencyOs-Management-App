@@ -15,15 +15,15 @@ import { ChangePasswordComponent } from './change-password/change-password.compo
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileSettingsComponent implements OnInit {
-  private authService = inject(AuthService);
-  private toast = inject(ToastService);
+  private readonly authService = inject(AuthService);
+  private readonly toast = inject(ToastService);
 
-  name = signal('');
-  email = signal('');
-  workspaces = signal<Workspace[]>([]);
-  saving = signal(false);
-  changingPassword = signal(false);
-  passwordResetCount = signal(0);
+  readonly name = signal('');
+  readonly email = signal('');
+  readonly workspaces = signal<Workspace[]>([]);
+  readonly saving = signal(false);
+  readonly changingPassword = signal(false);
+  readonly passwordResetCount = signal(0);
 
   ngOnInit() {
     const user = this.authService.getUser();

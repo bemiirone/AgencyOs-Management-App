@@ -26,26 +26,26 @@ import { UpdateTaskPayload, TaskStatus, TaskPriority } from '../task.models';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskEditComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private taskStore = inject(TaskStore);
-  private projectStore = inject(ProjectStore);
-  userStore = inject(UserStore);
-  private authService = inject(AuthService);
-  private router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly taskStore = inject(TaskStore);
+  private readonly projectStore = inject(ProjectStore);
+  readonly userStore = inject(UserStore);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
-  projects = signal<Project[]>([]);
-  loading = signal(true);
-  saving = signal(false);
-  error = signal('');
-  taskId = signal('');
-  dataLoaded = signal(false);
+  readonly projects = signal<Project[]>([]);
+  readonly loading = signal(true);
+  readonly saving = signal(false);
+  readonly error = signal('');
+  readonly taskId = signal('');
+  readonly dataLoaded = signal(false);
 
-  faArrowLeft = faArrowLeft;
-  faSpinner = faSpinner;
-  faSave = faSave;
-  faInfoCircle = faInfoCircle;
+  readonly faArrowLeft = faArrowLeft;
+  readonly faSpinner = faSpinner;
+  readonly faSave = faSave;
+  readonly faInfoCircle = faInfoCircle;
 
-  availableProjects = computed(() =>
+  readonly availableProjects = computed(() =>
     this.projects().filter((p) => p.status === 'active' || p.status === 'draft')
   );
 

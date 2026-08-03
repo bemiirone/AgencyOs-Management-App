@@ -25,22 +25,22 @@ import { CreateTaskPayload, TaskStatus, TaskPriority } from '../task.models';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskCreateComponent implements OnInit {
-  private taskStore = inject(TaskStore);
-  private projectStore = inject(ProjectStore);
-  userStore = inject(UserStore);
-  private authService = inject(AuthService);
-  private router = inject(Router);
+  private readonly taskStore = inject(TaskStore);
+  private readonly projectStore = inject(ProjectStore);
+  readonly userStore = inject(UserStore);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
-  projects = signal<Project[]>([]);
-  loading = signal(false);
-  error = signal('');
+  readonly projects = signal<Project[]>([]);
+  readonly loading = signal(false);
+  readonly error = signal('');
 
-  faArrowLeft = faArrowLeft;
-  faSpinner = faSpinner;
-  faSave = faSave;
-  faInfoCircle = faInfoCircle;
+  readonly faArrowLeft = faArrowLeft;
+  readonly faSpinner = faSpinner;
+  readonly faSave = faSave;
+  readonly faInfoCircle = faInfoCircle;
 
-  availableProjects = computed(() =>
+  readonly availableProjects = computed(() =>
     this.projects().filter((p) => p.status === 'active' || p.status === 'draft')
   );
 

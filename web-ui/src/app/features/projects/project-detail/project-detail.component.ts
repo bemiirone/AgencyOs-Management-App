@@ -19,29 +19,29 @@ import { TimeEntry } from '../../../shared/models/time-entry.model';
   styleUrls: ['./project-detail.component.scss'],
 })
 export class ProjectDetailComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private projectStore = inject(ProjectStore);
-  private taskStore = inject(TaskStore);
-  timeEntryStore = inject(TimeEntryStore);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly projectStore = inject(ProjectStore);
+  private readonly taskStore = inject(TaskStore);
+  readonly timeEntryStore = inject(TimeEntryStore);
 
-  project = signal<Project | null>(null);
-  tasks = signal<Task[]>([]);
-  timeEntries = signal<TimeEntry[]>([]);
-  loading = signal(false);
+  readonly project = signal<Project | null>(null);
+  readonly tasks = signal<Task[]>([]);
+  readonly timeEntries = signal<TimeEntry[]>([]);
+  readonly loading = signal(false);
 
-  faArrowLeft = faArrowLeft;
-  faCalendar = faCalendar;
-  faUser = faUser;
-  faDollarSign = faDollarSign;
-  faClock = faClock;
-  faSpinner = faSpinner;
-  faEdit = faEdit;
-  faTasks = faTasks;
-  faCheckCircle = faCheckCircle;
-  faHourglassHalf = faHourglassHalf;
-  faTrash = faTrash;
-  faPlay = faPlay;
+  readonly faArrowLeft = faArrowLeft;
+  readonly faCalendar = faCalendar;
+  readonly faUser = faUser;
+  readonly faDollarSign = faDollarSign;
+  readonly faClock = faClock;
+  readonly faSpinner = faSpinner;
+  readonly faEdit = faEdit;
+  readonly faTasks = faTasks;
+  readonly faCheckCircle = faCheckCircle;
+  readonly faHourglassHalf = faHourglassHalf;
+  readonly faTrash = faTrash;
+  readonly faPlay = faPlay;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
