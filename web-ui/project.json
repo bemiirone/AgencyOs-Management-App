@@ -51,7 +51,8 @@
       "executor": "@angular/build:dev-server",
       "defaultConfiguration": "development",
       "options": {
-        "proxyConfig": "web-ui/proxy.conf.json"
+        "proxyConfig": "web-ui/proxy.conf.json",
+        "port": 4200
       },
       "configurations": {
         "production": {
