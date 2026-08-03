@@ -116,6 +116,26 @@ describe('TaskStore', () => {
       const req = httpMock.expectOne(API_CONFIG.TASKS.CREATE);
       req.flush({ message: 'Error' }, { status: 400, statusText: 'Bad Request' });
     });
+
+    it('should create task with assigneeIds and createdBy', () => {
+      const createData = {
+        title: 'Assigned Task',
+        projectId: 'project-1',
+        assigneeIds: ['user-1'],
+        createdBy: 'user-2',
+      };
+
+      store.createTask(createData).subscribe((task) => {
+        expect(task.assigneeIds).toEqual(['user-1']);
+        expect(task.createdBy).toBe('user-2');
+      });
+
+      const req = httpMock.expectOne(API_CONFIG.TASKS.CREATE);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body.assigneeIds).toEqual(['user-1']);
+      expect(req.request.body.createdBy).toBe('user-2');
+      req.flush({ ...mockTask, ...createData });
+    });
   });
 
   describe('updateTask', () => {
@@ -129,6 +149,19 @@ describe('TaskStore', () => {
 
       const req = httpMock.expectOne(API_CONFIG.TASKS.UPDATE('task-1'));
       expect(req.request.method).toBe('PATCH');
+      req.flush({ ...mockTask, ...updateData });
+    });
+
+    it('should update task with assigneeIds', () => {
+      const updateData = { assigneeIds: ['user-1'] };
+
+      store.updateTask('task-1', updateData).subscribe((task) => {
+        expect(task.assigneeIds).toEqual(['user-1']);
+      });
+
+      const req = httpMock.expectOne(API_CONFIG.TASKS.UPDATE('task-1'));
+      expect(req.request.method).toBe('PATCH');
+      expect(req.request.body.assigneeIds).toEqual(['user-1']);
       req.flush({ ...mockTask, ...updateData });
     });
   });
