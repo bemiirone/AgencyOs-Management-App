@@ -62,3 +62,4 @@ CLAUDE.md
 __screenshots__/
 fix-string-objectids.ts
 seed-task-createdby.ts
+ci.yml
