@@ -241,9 +241,7 @@ describe('RegisterComponent', () => {
     });
 
     it('should set error message on API failure', async () => {
-      authServiceMock.register.mockRejectedValue({
-        error: { message: 'Email already registered' },
-      });
+      authServiceMock.register.mockRejectedValue(new Error('Email already registered'));
 
       component.registerForm.setValue({
         name: 'Test User',
