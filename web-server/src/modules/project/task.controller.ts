@@ -1,10 +1,11 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { TaskService } from './task.service';
 import { CreateTaskDto, UpdateTaskDto } from './dto/task.dto';
 import { TaskStatus } from './schemas/task.schema';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { TenantId } from '../../common/decorators/tenant-id.decorator';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 
 @ApiTags('tasks')
 @Controller('tasks')
@@ -20,8 +21,14 @@ export class TaskController {
 
   @Get()
   @ApiOperation({ summary: 'Get all tasks' })
-  async findAll(@TenantId() tenantId: string, @Query('status') status?: TaskStatus) {
-    return this.taskService.findAll(tenantId, status);
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  async findAll(
+    @TenantId() tenantId: string,
+    @Query('status') status?: TaskStatus,
+    @Query() pagination?: PaginationQueryDto,
+  ) {
+    return this.taskService.findAll(tenantId, status, pagination?.page, pagination?.limit);
   }
 
   @Get('project/:projectId')

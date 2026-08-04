@@ -1,11 +1,12 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { ProjectService } from './project.service';
 import { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
 import { ProjectStatus } from './schemas/project.schema';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { TenantId } from '../../common/decorators/tenant-id.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 
 @ApiTags('projects')
 @Controller('projects')
@@ -25,8 +26,14 @@ export class ProjectController {
 
   @Get()
   @ApiOperation({ summary: 'Get all projects' })
-  async findAll(@TenantId() tenantId: string, @Query('status') status?: ProjectStatus) {
-    return this.projectService.findAll(tenantId, status);
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  async findAll(
+    @TenantId() tenantId: string,
+    @Query('status') status?: ProjectStatus,
+    @Query() pagination?: PaginationQueryDto,
+  ) {
+    return this.projectService.findAll(tenantId, status, pagination?.page, pagination?.limit);
   }
 
   @Get(':id')

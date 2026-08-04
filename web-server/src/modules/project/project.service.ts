@@ -20,14 +20,22 @@ export class ProjectService {
     return project;
   }
 
-  async findAll(tenantId: string, status?: ProjectStatus) {
+  async findAll(tenantId: string, status?: ProjectStatus, page = 1, limit = 10) {
     const query: Record<string, unknown> = { tenantId };
 
     if (status) {
       query.status = status;
     }
 
-    return this.projectModel.find(query).sort({ createdAt: -1 }).exec();
+    const total = await this.projectModel.countDocuments(query);
+    const data = await this.projectModel
+      .find(query)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .exec();
+
+    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
   async findOne(id: string, tenantId: string) {
