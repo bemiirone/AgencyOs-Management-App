@@ -20,6 +20,8 @@ describe('ProjectEditComponent', () => {
     tenantId: 'tenant-1',
     ownerId: 'owner-1',
     clientId: 'client-1',
+    clientName: 'Test Client',
+    clientEmail: 'test@example.com',
     budget: 10000,
     startDate: new Date('2024-01-01'),
     endDate: new Date('2024-06-01'),
@@ -79,16 +81,18 @@ describe('ProjectEditComponent', () => {
 
   describe('Load Project Data', () => {
     it('should populate form fields from loaded project', () => {
-      expect(component.form.name).toBe('Existing Project');
-      expect(component.form.description).toBe('Project description');
-      expect(component.form.status).toBe('active');
-      expect(component.form.clientId).toBe('client-1');
-      expect(component.form.budget).toBe(10000);
+      expect(component.projectForm.get('name')?.value).toBe('Existing Project');
+      expect(component.projectForm.get('description')?.value).toBe('Project description');
+      expect(component.projectForm.get('status')?.value).toBe('active');
+      expect(component.projectForm.get('clientId')?.value).toBe('client-1');
+      expect(component.projectForm.get('clientName')?.value).toBe('Test Client');
+      expect(component.projectForm.get('clientEmail')?.value).toBe('test@example.com');
+      expect(component.projectForm.get('budget')?.value).toBe(10000);
     });
 
     it('should convert dates to YYYY-MM-DD format', () => {
-      expect(component.form.startDate).toBe('2024-01-01');
-      expect(component.form.endDate).toBe('2024-06-01');
+      expect(component.projectForm.get('startDate')?.value).toBe('2024-01-01');
+      expect(component.projectForm.get('endDate')?.value).toBe('2024-06-01');
     });
 
     it('should set dataLoaded to true after loading', () => {
@@ -105,6 +109,8 @@ describe('ProjectEditComponent', () => {
           callbacks.next({
             ...mockProject,
             clientId: undefined,
+            clientName: undefined,
+            clientEmail: undefined,
             description: undefined,
             budget: undefined,
             startDate: undefined,
@@ -115,11 +121,13 @@ describe('ProjectEditComponent', () => {
       const component2 = fixture2.componentInstance as ProjectEditComponent;
       component2.ngOnInit();
 
-      expect(component2.form.clientId).toBe('');
-      expect(component2.form.description).toBe('');
-      expect(component2.form.budget).toBe(0);
-      expect(component2.form.startDate).toBe('');
-      expect(component2.form.endDate).toBe('');
+      expect(component2.projectForm.get('clientId')?.value).toBe('');
+      expect(component2.projectForm.get('clientName')?.value).toBe('');
+      expect(component2.projectForm.get('clientEmail')?.value).toBe('');
+      expect(component2.projectForm.get('description')?.value).toBe('');
+      expect(component2.projectForm.get('budget')?.value).toBe(0);
+      expect(component2.projectForm.get('startDate')?.value).toBe('');
+      expect(component2.projectForm.get('endDate')?.value).toBe('');
     });
   });
 
@@ -152,15 +160,19 @@ describe('ProjectEditComponent', () => {
 
   describe('Submit - Success', () => {
     it('should call updateProject with form data', () => {
-      component.form.name = 'Updated Name';
-      component.form.description = 'Updated description';
-      component.form.status = 'completed';
+      component.projectForm.patchValue({
+        name: 'Updated Name',
+        description: 'Updated description',
+        status: 'completed',
+      });
       component.onSubmit();
 
       expect(projectStoreMock.updateProject).toHaveBeenCalledWith('project-1', {
         name: 'Updated Name',
         description: 'Updated description',
         status: 'completed',
+        clientName: 'Test Client',
+        clientEmail: 'test@example.com',
         clientId: 'client-1',
         startDate: new Date('2024-01-01'),
         endDate: new Date('2024-06-01'),
@@ -169,28 +181,34 @@ describe('ProjectEditComponent', () => {
     });
 
     it('should include optional fields when provided', () => {
-      component.form.clientId = 'client-2';
-      component.form.startDate = '2024-03-01';
-      component.form.endDate = '2024-09-01';
-      component.form.budget = 15000;
+      component.projectForm.patchValue({
+        clientId: 'client-2',
+        clientName: 'New Client',
+        clientEmail: 'new@example.com',
+        startDate: '2024-03-01',
+        endDate: '2024-09-01',
+        budget: 15000,
+      });
       component.onSubmit();
 
       const callArg = projectStoreMock.updateProject.mock.calls[0][1];
       expect(callArg.clientId).toBe('client-2');
+      expect(callArg.clientName).toBe('New Client');
+      expect(callArg.clientEmail).toBe('new@example.com');
       expect(callArg.startDate).toEqual(new Date('2024-03-01'));
       expect(callArg.endDate).toEqual(new Date('2024-09-01'));
       expect(callArg.budget).toBe(15000);
     });
 
     it('should navigate to project detail on success', () => {
-      component.form.name = 'Updated Name';
+      component.projectForm.patchValue({ name: 'Updated Name' });
       component.onSubmit();
 
       expect(routerMock.navigate).toHaveBeenCalledWith(['/projects', 'project-1'], { queryParamsHandling: 'preserve' });
     });
 
     it('should set saving to false on success', () => {
-      component.form.name = 'Updated Name';
+      component.projectForm.patchValue({ name: 'Updated Name' });
       component.onSubmit();
 
       expect(component.saving()).toBe(false);
@@ -203,7 +221,7 @@ describe('ProjectEditComponent', () => {
         subscribe: (callbacks: any) =>
           callbacks.error({ error: { message: 'Validation failed' } }),
       });
-      component.form.name = 'Updated Name';
+      component.projectForm.patchValue({ name: 'Updated Name' });
       component.onSubmit();
 
       expect(component.error()).toBe('Validation failed');
@@ -214,7 +232,7 @@ describe('ProjectEditComponent', () => {
       projectStoreMock.updateProject = vi.fn().mockReturnValue({
         subscribe: (callbacks: any) => callbacks.error({}),
       });
-      component.form.name = 'Updated Name';
+      component.projectForm.patchValue({ name: 'Updated Name' });
       component.onSubmit();
 
       expect(component.error()).toBe('Failed to update project');
@@ -222,7 +240,7 @@ describe('ProjectEditComponent', () => {
 
     it('should clear previous error before submitting', () => {
       component.error.set('Previous error');
-      component.form.name = 'Updated Name';
+      component.projectForm.patchValue({ name: 'Updated Name' });
       component.onSubmit();
 
       expect(component.error()).toBe('');
@@ -231,15 +249,31 @@ describe('ProjectEditComponent', () => {
 
   describe('Form Validation Edge Cases', () => {
     it('should not include clientId when empty', () => {
-      component.form.clientId = '';
+      component.projectForm.patchValue({ clientId: '' });
       component.onSubmit();
 
       const callArg = projectStoreMock.updateProject.mock.calls[0][1];
       expect(callArg.clientId).toBeUndefined();
     });
 
+    it('should not include clientName when empty', () => {
+      component.projectForm.patchValue({ clientName: '' });
+      component.onSubmit();
+
+      const callArg = projectStoreMock.updateProject.mock.calls[0][1];
+      expect(callArg.clientName).toBeUndefined();
+    });
+
+    it('should not include clientEmail when empty', () => {
+      component.projectForm.patchValue({ clientEmail: '' });
+      component.onSubmit();
+
+      const callArg = projectStoreMock.updateProject.mock.calls[0][1];
+      expect(callArg.clientEmail).toBeUndefined();
+    });
+
     it('should not include startDate when empty', () => {
-      component.form.startDate = '';
+      component.projectForm.patchValue({ startDate: '' });
       component.onSubmit();
 
       const callArg = projectStoreMock.updateProject.mock.calls[0][1];
@@ -247,7 +281,7 @@ describe('ProjectEditComponent', () => {
     });
 
     it('should not include endDate when empty', () => {
-      component.form.endDate = '';
+      component.projectForm.patchValue({ endDate: '' });
       component.onSubmit();
 
       const callArg = projectStoreMock.updateProject.mock.calls[0][1];
@@ -255,11 +289,23 @@ describe('ProjectEditComponent', () => {
     });
 
     it('should not include budget when zero', () => {
-      component.form.budget = 0;
+      component.projectForm.patchValue({ budget: 0 });
       component.onSubmit();
 
       const callArg = projectStoreMock.updateProject.mock.calls[0][1];
       expect(callArg.budget).toBeUndefined();
+    });
+
+    it('should be invalid when name is empty', () => {
+      component.projectForm.patchValue({ name: '' });
+      expect(component.projectForm.invalid).toBe(true);
+    });
+
+    it('should not submit when form is invalid', () => {
+      component.projectForm.patchValue({ name: '' });
+      component.onSubmit();
+
+      expect(projectStoreMock.updateProject).not.toHaveBeenCalled();
     });
   });
 });

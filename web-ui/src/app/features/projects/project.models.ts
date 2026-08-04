@@ -5,6 +5,8 @@ export interface CreateProjectPayload {
   description?: string;
   status?: ProjectStatus;
   clientId?: string;
+  clientName: string;
+  clientEmail: string;
   startDate?: Date;
   endDate?: Date;
   budget?: number;
@@ -15,6 +17,8 @@ export interface UpdateProjectPayload {
   description?: string;
   status?: ProjectStatus;
   clientId?: string;
+  clientName?: string;
+  clientEmail?: string;
   startDate?: Date;
   endDate?: Date;
   budget?: number;

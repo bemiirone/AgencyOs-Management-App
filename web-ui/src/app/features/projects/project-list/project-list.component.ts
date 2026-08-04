@@ -6,6 +6,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faPlus, faEye, faEdit, faTrash, faSearch, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { Project } from '../../../shared/models/project.model';
 import { ProjectStore } from '../../../stores/project.store';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-project-list',
@@ -19,12 +20,14 @@ export class ProjectListComponent implements OnInit {
   private readonly projectStore = inject(ProjectStore);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
   readonly Math = Math;
   
   readonly projects = signal<Project[]>([]);
   readonly loading = signal(false);
   readonly searchQuery = signal('');
   readonly currentPage = signal(1);
+  readonly isAdmin = signal(this.authService.isAdmin());
   readonly pageSize = 10;
 
   readonly faPlus = faPlus;

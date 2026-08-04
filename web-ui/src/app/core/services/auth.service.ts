@@ -168,6 +168,10 @@ export class AuthService {
     return this.currentUser()?.role ?? '';
   }
 
+  isAdmin(): boolean {
+    return this.currentUser()?.role === 'admin';
+  }
+
   getUserId(): string | null {
     return this.currentUser()?.id ?? null;
   }

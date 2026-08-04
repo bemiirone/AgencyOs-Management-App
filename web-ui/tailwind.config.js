@@ -10,6 +10,15 @@ module.exports = {
     require("daisyui"),
   ],
   daisyui: {
-    themes: ["light", "dark"],
+    themes: [
+      "light",
+      {
+        dark: {
+          ...require("daisyui/src/theming/themes")["dark"],
+          "base-100": "#2a323c",
+          "base-200": "#222830",
+        },
+      },
+    ],
   },
 };

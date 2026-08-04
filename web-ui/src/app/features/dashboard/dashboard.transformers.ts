@@ -149,8 +149,7 @@ export function buildProjectStatusChart(projects: Project[]): ApexOptions {
       fontWeight: 400,
     },
     dataLabels: {
-      enabled: true,
-      formatter: (val: number) => Math.round(val).toString(),
+      enabled: false,
     },
     stroke: {
       show: false,

@@ -21,7 +21,7 @@
           </div>
         }
 
-        <form (ngSubmit)="onSubmit()" #projectForm="ngForm">
+        <form [formGroup]="projectForm" (ngSubmit)="onSubmit()">
           <div class="form-control mb-4">
             <label for="edit-name" class="label">
               <span class="label-text font-medium">Name</span>
@@ -29,14 +29,12 @@
             <input
               id="edit-name"
               type="text"
-              [(ngModel)]="form.name"
-              name="name"
+              formControlName="name"
               placeholder="Enter project name"
               class="input input-bordered w-full"
-              required
-              #nameModel="ngModel"
+              [class.input-error]="nameControl?.invalid && nameControl?.touched"
             />
-            @if (nameModel.invalid && nameModel.touched) {
+            @if (nameControl?.invalid && nameControl?.touched) {
               <div class="label">
                 <span class="label-text-alt text-error">Name is required</span>
               </div>
@@ -49,8 +47,7 @@
             </label>
             <textarea
               id="edit-desc"
-              [(ngModel)]="form.description"
-              name="description"
+              formControlName="description"
               placeholder="Enter project description"
               class="textarea textarea-bordered w-full"
               rows="4"
@@ -61,7 +58,7 @@
             <label for="edit-status" class="label">
               <span class="label-text font-medium">Status</span>
             </label>
-            <select id="edit-status" [(ngModel)]="form.status" name="status" class="select select-bordered w-full">
+            <select id="edit-status" formControlName="status" class="select select-bordered w-full">
               <option value="draft">Draft</option>
               <option value="active">Active</option>
               <option value="on_hold">On Hold</option>
@@ -71,14 +68,53 @@
           </div>
 
           <div class="form-control mb-4">
+            <label for="edit-client-name" class="label">
+              <span class="label-text font-medium">Client Name</span>
+            </label>
+            <input
+              id="edit-client-name"
+              type="text"
+              formControlName="clientName"
+              placeholder="Enter client name"
+              class="input input-bordered w-full"
+              [class.input-error]="clientNameControl?.invalid && clientNameControl?.touched"
+            />
+            @if (clientNameControl?.invalid && clientNameControl?.touched) {
+              <div class="label">
+                <span class="label-text-alt text-error">Client name is required</span>
+              </div>
+            }
+          </div>
+
+          <div class="form-control mb-4">
+            <label for="edit-client-email" class="label">
+              <span class="label-text font-medium">Client Email</span>
+            </label>
+            <input
+              id="edit-client-email"
+              type="email"
+              formControlName="clientEmail"
+              placeholder="Enter client email"
+              class="input input-bordered w-full"
+              [class.input-error]="clientEmailControl?.invalid && clientEmailControl?.touched"
+            />
+            @if (clientEmailControl?.invalid && clientEmailControl?.touched) {
+              <div class="label">
+                @if (clientEmailControl?.errors?.['email']) {
+                  <span class="label-text-alt text-error">Please enter a valid email address</span>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="form-control mb-4">
             <label for="edit-client" class="label">
-              <span class="label-text font-medium">Client ID</span>
+              <span class="label-text font-medium">Client ID (Optional)</span>
             </label>
             <input
               id="edit-client"
               type="text"
-              [(ngModel)]="form.clientId"
-              name="clientId"
+              formControlName="clientId"
               placeholder="Enter client ID (optional)"
               class="input input-bordered w-full"
             />
@@ -92,8 +128,7 @@
               <input
                 id="edit-start"
                 type="date"
-                [(ngModel)]="form.startDate"
-                name="startDate"
+                formControlName="startDate"
                 class="input input-bordered w-full"
               />
             </div>
@@ -105,8 +140,7 @@
               <input
                 id="edit-end"
                 type="date"
-                [(ngModel)]="form.endDate"
-                name="endDate"
+                formControlName="endDate"
                 class="input input-bordered w-full"
               />
             </div>
@@ -119,8 +153,7 @@
             <input
               id="edit-budget"
               type="number"
-              [(ngModel)]="form.budget"
-              name="budget"
+              formControlName="budget"
               placeholder="0"
               class="input input-bordered w-full"
               min="0"

@@ -9,6 +9,7 @@ import { TaskStore } from '../../../stores/task.store';
 import { TimeEntryStore } from '../../../stores/time-entry.store';
 import { Task } from '../../../shared/models/task.model';
 import { TimeEntry } from '../../../shared/models/time-entry.model';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-project-detail',
@@ -24,11 +25,13 @@ export class ProjectDetailComponent implements OnInit {
   private readonly projectStore = inject(ProjectStore);
   private readonly taskStore = inject(TaskStore);
   readonly timeEntryStore = inject(TimeEntryStore);
+  private readonly authService = inject(AuthService);
 
   readonly project = signal<Project | null>(null);
   readonly tasks = signal<Task[]>([]);
   readonly timeEntries = signal<TimeEntry[]>([]);
   readonly loading = signal(false);
+  readonly isAdmin = signal(this.authService.isAdmin());
 
   readonly faArrowLeft = faArrowLeft;
   readonly faCalendar = faCalendar;

@@ -14,18 +14,23 @@
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
       <div>
         <h1 class="text-3xl font-bold text-base-content">{{ project()?.name }}</h1>
-        <p class="text-base-content/60 mt-1">Client ID: {{ project()?.clientId }}</p>
+        <p class="text-base-content/60 mt-1">Client: {{ project()?.clientName || 'Unknown' }}</p>
+        @if (project()?.clientEmail) {
+          <p class="text-base-content/50 text-sm">{{ project()?.clientEmail }}</p>
+        }
       </div>
-      <div class="flex gap-2">
-        <a [routerLink]="['/projects', project()?._id, 'edit']" class="btn btn-primary">
-          <fa-icon [icon]="faEdit" class="mr-2"></fa-icon>
-          Edit Project
-        </a>
-        <button class="btn btn-error" (click)="deleteProject()">
-          <fa-icon [icon]="faTrash" class="mr-2"></fa-icon>
-          Delete
-        </button>
-      </div>
+      @if (isAdmin()) {
+        <div class="flex gap-2">
+          <a [routerLink]="['/projects', project()?._id, 'edit']" class="btn btn-primary">
+            <fa-icon [icon]="faEdit" class="mr-2"></fa-icon>
+            Edit Project
+          </a>
+          <button class="btn btn-error" (click)="deleteProject()">
+            <fa-icon [icon]="faTrash" class="mr-2"></fa-icon>
+            Delete
+          </button>
+        </div>
+      }
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

@@ -7,6 +7,8 @@ export interface Project {
   ownerId: string;
   teamMemberIds?: string[];
   clientId?: string;
+  clientName?: string;
+  clientEmail?: string;
   startDate?: string | Date;
   endDate?: string | Date;
   budget?: number;
