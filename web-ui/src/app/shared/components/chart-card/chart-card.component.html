@@ -1,0 +1,29 @@
+<div class="card bg-base-100 shadow h-full flex flex-col">
+  <div class="card-body p-6 flex flex-col flex-1">
+    <h2 class="card-title mb-4">{{ title() }}</h2>
+
+    @if (loading()) {
+      <div class="flex items-center justify-center flex-1 py-8">
+        <div class="loading loading-spinner loading-lg text-primary"></div>
+      </div>
+    } @else {
+      <div class="flex-1 flex items-center justify-center">
+        <apx-chart
+          [series]="$any(chartOptions().series)"
+          [chart]="$any(chartOptions().chart)"
+          [labels]="$any(chartOptions().labels)"
+          [colors]="$any(chartOptions().colors)"
+          [plotOptions]="$any(chartOptions().plotOptions)"
+          [legend]="$any(chartOptions().legend)"
+          [dataLabels]="$any(chartOptions().dataLabels)"
+          [stroke]="$any(chartOptions().stroke)"
+          [xaxis]="$any(chartOptions().xaxis)"
+          [yaxis]="$any(chartOptions().yaxis)"
+          [tooltip]="$any(chartOptions().tooltip)"
+          [grid]="$any(chartOptions().grid)"
+          [responsive]="$any(chartOptions().responsive)"
+        ></apx-chart>
+      </div>
+    }
+  </div>
+</div>

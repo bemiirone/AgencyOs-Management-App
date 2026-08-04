@@ -1,0 +1,73 @@
+<div class="card bg-base-100 shadow">
+  <div class="card-body p-6">
+    <h2 class="card-title mb-4">
+      <fa-icon [icon]="faCalendarAlt" class="text-primary mr-2"></fa-icon>
+      Upcoming Tasks
+    </h2>
+
+    @if (upcomingTasks().length > 0) {
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Task Name</th>
+              <th>Project</th>
+              <th>Status</th>
+              <th>Due Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of upcomingTasks(); track item.task._id) {
+              <tr class="hover">
+                <td>
+                  <div class="flex items-center gap-2">
+                    @if (item.urgency === 'overdue') {
+                      <fa-icon
+                        [icon]="faExclamationCircle"
+                        class="text-error"
+                        title="Overdue"
+                      ></fa-icon>
+                    } @else if (item.urgency === 'soon') {
+                      <fa-icon
+                        [icon]="faExclamationTriangle"
+                        class="text-warning"
+                        title="Due soon"
+                      ></fa-icon>
+                    }
+                    <a
+                      [routerLink]="['/tasks', item.task._id]"
+                      class="link link-hover font-semibold"
+                    >
+                      {{ item.task.title }}
+                    </a>
+                  </div>
+                </td>
+                <td class="text-sm">{{ getProjectName(item.task.projectId) }}</td>
+                <td>
+                  <span class="badge {{ getStatusBadgeClass(item.task.status) }} badge-sm gap-1">
+                    @if (item.task.status === 'done') {
+                      <fa-icon [icon]="faCheckCircle" class="text-xs"></fa-icon>
+                    }
+                    {{ getStatusLabel(item.task.status) }}
+                  </span>
+                </td>
+                <td>
+                  <div class="flex items-center gap-2">
+                    <span [class.text-error]="item.urgency === 'overdue' && item.task.status !== 'done'" [class.text-warning]="item.urgency === 'soon' && item.task.status !== 'done'">
+                      {{ formatDate(item.task.dueDate) }}
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="text-center py-8 text-base-content/50">
+        <fa-icon [icon]="faCheckCircle" class="text-4xl mb-2 text-success"></fa-icon>
+        <p>No upcoming tasks</p>
+      </div>
+    }
+  </div>
+</div>

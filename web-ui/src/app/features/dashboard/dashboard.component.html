@@ -26,6 +26,15 @@
       }
     </div>
 
+    <div class="mb-8">
+      <app-upcoming-tasks [tasks]="tasks()" [projects]="projects()" />
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <app-chart-card title="Projects by Status" [chartOptions]="projectChartData()" [loading]="loading()" />
+      <app-chart-card title="Tasks by Status" [chartOptions]="taskChartData()" [loading]="loading()" />
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <app-recent-activity [activities]="activities()" />
       <app-team-members [members]="teamMembers()" />

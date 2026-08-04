@@ -4,6 +4,7 @@ import { TimeEntry } from '../../shared/models/time-entry.model';
 import { Invoice } from '../../shared/models/invoice.model';
 import { Activity, TeamMember, DashboardStats, User } from './dashboard.models';
 import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import type { ApexOptions } from 'apexcharts';
 
 export function computeStats(
   projects: Project[],
@@ -96,3 +97,189 @@ function getInitials(name: string): string {
     .toUpperCase()
     .slice(0, 2);
 }
+
+export function buildProjectStatusChart(projects: Project[]): ApexOptions {
+  const statusCounts: Record<string, number> = {
+    active: 0,
+    completed: 0,
+    on_hold: 0,
+    archived: 0,
+    draft: 0,
+  };
+
+  projects.forEach((p) => {
+    if (statusCounts[p.status] !== undefined) {
+      statusCounts[p.status]++;
+    }
+  });
+
+  const filteredLabels = Object.keys(statusCounts).filter(
+    (key) => statusCounts[key] > 0
+  );
+  const filteredData = filteredLabels.map((key) => statusCounts[key]);
+
+  const statusLabels: Record<string, string> = {
+    active: 'Active',
+    completed: 'Completed',
+    on_hold: 'On Hold',
+    archived: 'Archived',
+    draft: 'Draft',
+  };
+
+  return {
+    series: filteredData,
+    chart: {
+      type: 'donut',
+      height: 300,
+      toolbar: { show: false },
+    },
+    labels: filteredLabels.map((key) => statusLabels[key]),
+    colors: ['#570df8', '#00b5b7', '#f9a825', '#9e9e9e', '#78909c'],
+    legend: {
+      show: true,
+      position: 'bottom',
+      horizontalAlign: 'center',
+      labels: {
+        colors: '#a0a0a0',
+      },
+      markers: {
+        size: 10,
+      },
+      fontSize: '12px',
+      fontWeight: 400,
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: (val: number) => Math.round(val).toString(),
+    },
+    stroke: {
+      show: false,
+    },
+    responsive: [
+      {
+        breakpoint: 480,
+        options: {
+          chart: { width: 200 },
+          legend: { show: false },
+        },
+      },
+    ],
+    plotOptions: {
+      pie: {
+        donut: {
+          size: '65%',
+          labels: {
+            show: true,
+            name: { show: true },
+            value: { show: true, fontSize: '20px', fontWeight: 600 },
+            total: {
+              show: true,
+              label: 'Total',
+              formatter: (w: any) => w.globals.seriesTotals.reduce((a: number, b: number) => a + b, 0).toString(),
+            },
+          },
+        },
+      },
+    },
+  };
+}
+
+export function buildTaskStatusChart(tasks: Task[]): ApexOptions {
+  const statusCounts: Record<string, number> = {
+    todo: 0,
+    in_progress: 0,
+    in_review: 0,
+    done: 0,
+  };
+
+  tasks.forEach((t) => {
+    if (statusCounts[t.status] !== undefined) {
+      statusCounts[t.status]++;
+    }
+  });
+
+  const statusLabels: Record<string, string> = {
+    todo: 'To Do',
+    in_progress: 'In Progress',
+    in_review: 'In Review',
+    done: 'Done',
+  };
+
+  return {
+    series: [
+      {
+        name: 'Tasks',
+        data: Object.values(statusCounts),
+      },
+    ],
+    chart: {
+      type: 'bar',
+      height: 300,
+      toolbar: { show: false },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: '55%',
+        borderRadius: 4,
+      },
+    },
+    colors: ['#78909c', '#f9a825', '#00b5b7', '#570df8'],
+    legend: {
+      show: true,
+      position: 'bottom',
+      horizontalAlign: 'center',
+      labels: {
+        colors: '#a0a0a0',
+      },
+      markers: {
+        size: 10,
+      },
+      fontSize: '12px',
+      fontWeight: 400,
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    stroke: {
+      show: true,
+      width: 2,
+      colors: ['transparent'],
+    },
+    xaxis: {
+      categories: Object.keys(statusCounts).map((key) => statusLabels[key]),
+      labels: {
+        style: {
+          colors: '#a0a0a0',
+          fontSize: '12px',
+        },
+      },
+    },
+    yaxis: {
+      tickAmount: 1,
+      labels: {
+        style: {
+          colors: '#a0a0a0',
+          fontSize: '12px',
+        },
+      },
+    },
+    grid: {
+      borderColor: '#e0e0e0',
+    },
+    tooltip: {
+      y: {
+        formatter: (val: number) => `${val} tasks`,
+      },
+    },
+    responsive: [
+      {
+        breakpoint: 480,
+        options: {
+          chart: { width: 200 },
+        },
+      },
+    ],
+  };
+}
+
