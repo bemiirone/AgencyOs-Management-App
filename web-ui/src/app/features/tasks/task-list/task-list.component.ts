@@ -106,7 +106,6 @@ export class TaskListComponent implements OnInit {
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: params,
-      queryParamsHandling: 'merge',
       replaceUrl: true,
     });
   }
