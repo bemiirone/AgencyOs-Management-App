@@ -19,13 +19,14 @@
             <input
               type="text"
               [(ngModel)]="searchQuery"
+              (ngModelChange)="onFilterChange()"
               placeholder="Search tasks..."
               class="input input-bordered w-full pl-10"
             />
           </div>
         </div>
         <div class="form-control sm:w-48">
-          <select [(ngModel)]="projectFilter" class="select select-bordered">
+          <select [(ngModel)]="projectFilter" (ngModelChange)="onFilterChange()" class="select select-bordered">
             <option value="">All Projects</option>
             @for (project of projects(); track project._id) {
               <option [value]="project._id">{{ project.name }}</option>
@@ -33,7 +34,7 @@
           </select>
         </div>
         <div class="form-control sm:w-48">
-          <select [(ngModel)]="assigneeFilter" class="select select-bordered">
+          <select [(ngModel)]="assigneeFilter" (ngModelChange)="onFilterChange()" class="select select-bordered">
             <option value="">All Assignees</option>
             @for (user of userStore.users(); track user.id) {
               <option [value]="user.id">{{ user.name }}</option>
@@ -41,7 +42,7 @@
           </select>
         </div>
         <div class="form-control sm:w-48">
-          <select [(ngModel)]="statusFilter" class="select select-bordered">
+          <select [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()" class="select select-bordered">
             <option value="">All Statuses</option>
             <option value="todo">To Do</option>
             <option value="in_progress">In Progress</option>
@@ -50,7 +51,7 @@
           </select>
         </div>
         <div class="form-control sm:w-48">
-          <select [(ngModel)]="priorityFilter" class="select select-bordered">
+          <select [(ngModel)]="priorityFilter" (ngModelChange)="onFilterChange()" class="select select-bordered">
             <option value="">All Priorities</option>
             <option value="low">Low</option>
             <option value="medium">Medium</option>
@@ -80,7 +81,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (task of filteredTasks; track task._id) {
+              @for (task of paginatedTasks; track task._id) {
                 <tr class="hover">
                   <td>
                     <div>
@@ -151,10 +152,10 @@
           </table>
         </div>
 
-        @if (totalPages() > 1) {
+        @if (filteredTotalPages > 1) {
           <div class="flex justify-center items-center gap-4 mt-4">
             <div class="text-sm text-base-content/60">
-              Page {{ currentPage() }} of {{ totalPages() }} ({{ total() }} total)
+              Showing {{ (currentPage() - 1) * pageSize + 1 }}–{{ Math.min(currentPage() * pageSize, filteredTasks.length) }} of {{ filteredTasks.length }} results
             </div>
             <div class="join">
               <button 
@@ -173,7 +174,7 @@
               }
               <button 
                 class="join-item btn" 
-                [disabled]="currentPage() === totalPages()"
+                [disabled]="currentPage() === filteredTotalPages"
                 (click)="onPageChange(currentPage() + 1)">
                 »
               </button>

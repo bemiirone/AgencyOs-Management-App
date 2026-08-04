@@ -17,14 +17,13 @@ import { ProjectStore } from '../../../stores/project.store';
 })
 export class ProjectListComponent implements OnInit {
   private readonly projectStore = inject(ProjectStore);
+  readonly Math = Math;
   
   readonly projects = signal<Project[]>([]);
   readonly loading = signal(false);
   readonly searchQuery = signal('');
   readonly currentPage = signal(1);
   readonly pageSize = 10;
-  readonly total = signal(0);
-  readonly totalPages = signal(0);
 
   readonly faPlus = faPlus;
   readonly faEye = faEye;
@@ -37,31 +36,52 @@ export class ProjectListComponent implements OnInit {
     this.loadProjects();
   }
 
-  loadProjects(page = 1): void {
+  loadProjects(): void {
     this.loading.set(true);
-    this.currentPage.set(page);
-    this.projectStore.loadProjects(page, this.pageSize).subscribe({
+    this.projectStore.loadAllProjects().subscribe({
       next: (response) => {
         this.projects.set(response.data);
-        this.total.set(response.total);
-        this.totalPages.set(response.totalPages);
+        this.currentPage.set(1);
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
     });
   }
 
+  onSearchChange(): void {
+    this.currentPage.set(1);
+  }
+
   onPageChange(page: number): void {
-    if (page >= 1 && page <= this.totalPages()) {
-      this.loadProjects(page);
+    if (page >= 1 && page <= this.filteredTotalPages) {
+      this.currentPage.set(page);
     }
+  }
+
+  get filteredProjects(): Project[] {
+    const query = this.searchQuery().toLowerCase();
+    if (!query) return this.projects();
+    return this.projects().filter(
+      (p) =>
+        p.name.toLowerCase().includes(query) ||
+        (p.description && p.description.toLowerCase().includes(query))
+    );
+  }
+
+  get filteredTotalPages(): number {
+    return Math.ceil(this.filteredProjects.length / this.pageSize);
+  }
+
+  get paginatedProjects(): Project[] {
+    const start = (this.currentPage() - 1) * this.pageSize;
+    return this.filteredProjects.slice(start, start + this.pageSize);
   }
 
   get pages(): number[] {
     const pages: number[] = [];
     const maxVisible = 5;
     const current = this.currentPage();
-    const total = this.totalPages();
+    const total = this.filteredTotalPages;
 
     if (total <= maxVisible) {
       for (let i = 1; i <= total; i++) {
@@ -76,16 +96,6 @@ export class ProjectListComponent implements OnInit {
     }
 
     return pages;
-  }
-
-  get filteredProjects(): Project[] {
-    const query = this.searchQuery().toLowerCase();
-    if (!query) return this.projects();
-    return this.projects().filter(
-      (p) =>
-        p.name.toLowerCase().includes(query) ||
-        (p.description && p.description.toLowerCase().includes(query))
-    );
   }
 
   formatDate(date: string | Date | undefined): string {

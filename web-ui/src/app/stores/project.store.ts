@@ -50,6 +50,24 @@ export class ProjectStore {
     );
   }
 
+  loadAllProjects() {
+    this._isLoading.set(true);
+    this._error.set(null);
+
+    return this.http.get<PaginatedResponse<Project>>(API_CONFIG.PROJECTS.LIST(1, 1000)).pipe(
+      tap((response) => {
+        this._projects.set(response.data);
+        this._total.set(response.total);
+        this._isLoading.set(false);
+      }),
+      catchError((error) => {
+        this._error.set(error.error?.message || 'Failed to load projects');
+        this._isLoading.set(false);
+        return throwError(() => error);
+      })
+    );
+  }
+
   loadProject(id: string) {
     this._isLoading.set(true);
     this._error.set(null);

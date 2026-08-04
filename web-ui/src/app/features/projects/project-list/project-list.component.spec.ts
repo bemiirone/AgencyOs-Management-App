@@ -50,6 +50,9 @@ describe('ProjectListComponent', () => {
       loadProjects: vi.fn().mockReturnValue({
         subscribe: (callbacks: any) => callbacks.next(paginatedResponse),
       }),
+      loadAllProjects: vi.fn().mockReturnValue({
+        subscribe: (callbacks: any) => callbacks.next(paginatedResponse),
+      }),
       deleteProject: vi.fn().mockReturnValue({
         subscribe: (callbacks: any) => callbacks.next({}),
       }),
@@ -76,7 +79,7 @@ describe('ProjectListComponent', () => {
 
     it('should load projects on init', () => {
       component.ngOnInit();
-      expect(projectStoreMock.loadProjects).toHaveBeenCalled();
+      expect(projectStoreMock.loadAllProjects).toHaveBeenCalled();
     });
   });
 

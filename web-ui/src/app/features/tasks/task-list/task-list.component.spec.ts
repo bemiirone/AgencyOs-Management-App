@@ -73,11 +73,17 @@ describe('TaskListComponent', () => {
       loadTasks: vi.fn().mockReturnValue({
         subscribe: (callbacks: any) => callbacks.next(paginatedTasks),
       }),
+      loadAllTasks: vi.fn().mockReturnValue({
+        subscribe: (callbacks: any) => callbacks.next(paginatedTasks),
+      }),
       deleteTask: vi.fn(),
     };
 
     projectStoreMock = {
       loadProjects: vi.fn().mockReturnValue({
+        subscribe: (callbacks: any) => callbacks.next(paginatedProjects),
+      }),
+      loadAllProjects: vi.fn().mockReturnValue({
         subscribe: (callbacks: any) => callbacks.next(paginatedProjects),
       }),
     };
@@ -112,7 +118,7 @@ describe('TaskListComponent', () => {
 
     it('should load tasks on init', () => {
       component.ngOnInit();
-      expect(taskStoreMock.loadTasks).toHaveBeenCalled();
+      expect(taskStoreMock.loadAllTasks).toHaveBeenCalled();
     });
 
     it('should load projects on init', () => {

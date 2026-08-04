@@ -30,6 +30,7 @@ export class TaskListComponent implements OnInit {
   private readonly taskStore = inject(TaskStore);
   private readonly projectStore = inject(ProjectStore);
   readonly userStore = inject(UserStore);
+  readonly Math = Math;
 
   readonly tasks = signal<Task[]>([]);
   readonly projects = signal<Project[]>([]);
@@ -41,8 +42,6 @@ export class TaskListComponent implements OnInit {
   readonly assigneeFilter = signal<string>('');
   readonly currentPage = signal(1);
   readonly pageSize = 10;
-  readonly total = signal(0);
-  readonly totalPages = signal(0);
 
   readonly faPlus = faPlus;
   readonly faEye = faEye;
@@ -60,45 +59,26 @@ export class TaskListComponent implements OnInit {
     });
   }
 
-  loadTasks(page = 1): void {
+  loadTasks(): void {
     this.loading.set(true);
-    this.currentPage.set(page);
-    this.taskStore.loadTasks(page, this.pageSize).subscribe({
+    this.taskStore.loadAllTasks().subscribe({
       next: (response) => {
         this.tasks.set(response.data);
-        this.total.set(response.total);
-        this.totalPages.set(response.totalPages);
+        this.currentPage.set(1);
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
     });
   }
 
-  onPageChange(page: number): void {
-    if (page >= 1 && page <= this.totalPages()) {
-      this.loadTasks(page);
-    }
+  onFilterChange(): void {
+    this.currentPage.set(1);
   }
 
-  get pages(): number[] {
-    const pages: number[] = [];
-    const maxVisible = 5;
-    const current = this.currentPage();
-    const total = this.totalPages();
-
-    if (total <= maxVisible) {
-      for (let i = 1; i <= total; i++) {
-        pages.push(i);
-      }
-    } else {
-      const start = Math.max(1, current - 2);
-      const end = Math.min(total, start + maxVisible - 1);
-      for (let i = start; i <= end; i++) {
-        pages.push(i);
-      }
+  onPageChange(page: number): void {
+    if (page >= 1 && page <= this.filteredTotalPages) {
+      this.currentPage.set(page);
     }
-
-    return pages;
   }
 
   get filteredTasks(): Task[] {
@@ -134,6 +114,36 @@ export class TaskListComponent implements OnInit {
     }
 
     return result;
+  }
+
+  get filteredTotalPages(): number {
+    return Math.ceil(this.filteredTasks.length / this.pageSize);
+  }
+
+  get paginatedTasks(): Task[] {
+    const start = (this.currentPage() - 1) * this.pageSize;
+    return this.filteredTasks.slice(start, start + this.pageSize);
+  }
+
+  get pages(): number[] {
+    const pages: number[] = [];
+    const maxVisible = 5;
+    const current = this.currentPage();
+    const total = this.filteredTotalPages;
+
+    if (total <= maxVisible) {
+      for (let i = 1; i <= total; i++) {
+        pages.push(i);
+      }
+    } else {
+      const start = Math.max(1, current - 2);
+      const end = Math.min(total, start + maxVisible - 1);
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+    }
+
+    return pages;
   }
 
   getProjectName(projectId: string): string {

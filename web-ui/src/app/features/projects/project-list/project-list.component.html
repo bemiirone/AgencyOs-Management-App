@@ -18,6 +18,7 @@
           <input
             type="text"
             [(ngModel)]="searchQuery"
+            (ngModelChange)="onSearchChange()"
             placeholder="Search projects..."
             class="input input-bordered w-full pl-10"
           />
@@ -41,7 +42,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (project of filteredProjects; track project._id) {
+              @for (project of paginatedProjects; track project._id) {
                 <tr class="hover">
                   <td>
                     <div>
@@ -83,10 +84,10 @@
           </table>
         </div>
 
-        @if (totalPages() > 1) {
+        @if (filteredTotalPages > 1) {
           <div class="flex justify-center items-center gap-4 mt-4">
             <div class="text-sm text-base-content/60">
-              Page {{ currentPage() }} of {{ totalPages() }} ({{ total() }} total)
+              Showing {{ (currentPage() - 1) * pageSize + 1 }}–{{ Math.min(currentPage() * pageSize, filteredProjects.length) }} of {{ filteredProjects.length }} results
             </div>
             <div class="join">
               <button 
@@ -105,7 +106,7 @@
               }
               <button 
                 class="join-item btn" 
-                [disabled]="currentPage() === totalPages()"
+                [disabled]="currentPage() === filteredTotalPages"
                 (click)="onPageChange(currentPage() + 1)">
                 »
               </button>
