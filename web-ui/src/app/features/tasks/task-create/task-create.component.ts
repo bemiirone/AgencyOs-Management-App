@@ -1,6 +1,6 @@
 import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
@@ -19,7 +19,7 @@ import { CreateTaskPayload, TaskStatus, TaskPriority } from '../task.models';
 @Component({
   selector: 'app-task-create',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, FontAwesomeModule],
   templateUrl: './task-create.component.html',
   styleUrl: './task-create.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,6 +30,7 @@ export class TaskCreateComponent implements OnInit {
   readonly userStore = inject(UserStore);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly fb = inject(FormBuilder);
 
   readonly projects = signal<Project[]>([]);
   readonly loading = signal(false);
@@ -44,15 +45,18 @@ export class TaskCreateComponent implements OnInit {
     this.projects().filter((p) => p.status === 'active' || p.status === 'draft')
   );
 
-  form = {
-    title: '',
-    description: '',
-    projectId: '',
-    status: 'todo' as TaskStatus,
-    priority: 'medium' as TaskPriority,
-    dueDate: '',
-    assigneeId: '',
-  };
+  taskForm: FormGroup = this.fb.group({
+    title: ['', Validators.required],
+    description: [''],
+    projectId: ['', Validators.required],
+    status: ['todo'],
+    priority: ['medium'],
+    dueDate: [''],
+    assigneeId: [''],
+  });
+
+  get titleControl() { return this.taskForm.get('title'); }
+  get projectIdControl() { return this.taskForm.get('projectId'); }
 
   ngOnInit(): void {
     this.projectStore.loadProjects().subscribe({
@@ -62,26 +66,28 @@ export class TaskCreateComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (!this.form.title || !this.form.projectId) {
-      this.error.set('Title and Project are required');
+    if (this.taskForm.invalid) {
+      this.taskForm.markAllAsTouched();
       return;
     }
 
     this.loading.set(true);
     this.error.set('');
 
+    const formValue = this.taskForm.value;
+
     const taskData: CreateTaskPayload = {
-      title: this.form.title,
-      description: this.form.description,
-      projectId: this.form.projectId,
-      status: this.form.status,
-      priority: this.form.priority,
+      title: formValue.title,
+      description: formValue.description,
+      projectId: formValue.projectId,
+      status: formValue.status,
+      priority: formValue.priority,
       createdBy: this.authService.getUserId()!,
-      assigneeIds: this.form.assigneeId ? [this.form.assigneeId] : [],
+      assigneeIds: formValue.assigneeId ? [formValue.assigneeId] : [],
     };
 
-    if (this.form.dueDate) {
-      taskData.dueDate = new Date(this.form.dueDate);
+    if (formValue.dueDate) {
+      taskData.dueDate = new Date(formValue.dueDate);
     }
 
     this.taskStore.createTask(taskData).subscribe({

@@ -16,7 +16,7 @@
         </div>
       }
 
-      <form (ngSubmit)="onSubmit()" #taskForm="ngForm">
+      <form [formGroup]="taskForm" (ngSubmit)="onSubmit()">
         <div class="form-control mb-4">
           <label for="task-title" class="label">
             <span class="label-text font-medium">Title</span>
@@ -24,14 +24,12 @@
           <input
             id="task-title"
             type="text"
-            [(ngModel)]="form.title"
-            name="title"
+            formControlName="title"
             placeholder="Enter task title"
             class="input input-bordered w-full"
-            required
-            #titleModel="ngModel"
+            [class.input-error]="titleControl?.invalid && titleControl?.touched"
           />
-          @if (titleModel.invalid && titleModel.touched) {
+          @if (titleControl?.invalid && titleControl?.touched) {
             <div class="label">
               <span class="label-text-alt text-error">Title is required</span>
             </div>
@@ -44,8 +42,7 @@
           </label>
           <textarea
             id="task-desc"
-            [(ngModel)]="form.description"
-            name="description"
+            formControlName="description"
             placeholder="Enter task description"
             class="textarea textarea-bordered w-full"
             rows="4"
@@ -58,11 +55,9 @@
           </label>
           <select
             id="task-project"
-            [(ngModel)]="form.projectId"
-            name="projectId"
+            formControlName="projectId"
             class="select select-bordered w-full"
-            required
-            #projectModel="ngModel"
+            [class.select-error]="projectIdControl?.invalid && projectIdControl?.touched"
           >
             <option value="" disabled>Select a project</option>
             @for (project of availableProjects(); track project._id) {
@@ -75,7 +70,7 @@
               Only Active and Draft projects are available for task assignment
             </span>
           </div>
-          @if (projectModel.invalid && projectModel.touched) {
+          @if (projectIdControl?.invalid && projectIdControl?.touched) {
             <div class="label">
               <span class="label-text-alt text-error">Project is required</span>
             </div>
@@ -87,7 +82,7 @@
             <label for="task-status" class="label">
               <span class="label-text font-medium">Status</span>
             </label>
-            <select id="task-status" [(ngModel)]="form.status" name="status" class="select select-bordered w-full">
+            <select id="task-status" formControlName="status" class="select select-bordered w-full">
               <option value="todo">To Do</option>
               <option value="in_progress">In Progress</option>
               <option value="in_review">In Review</option>
@@ -99,7 +94,7 @@
             <label for="task-priority" class="label">
               <span class="label-text font-medium">Priority</span>
             </label>
-            <select id="task-priority" [(ngModel)]="form.priority" name="priority" class="select select-bordered w-full">
+            <select id="task-priority" formControlName="priority" class="select select-bordered w-full">
               <option value="low">Low</option>
               <option value="medium">Medium</option>
               <option value="high">High</option>
@@ -115,8 +110,7 @@
           <input
             id="task-due"
             type="date"
-            [(ngModel)]="form.dueDate"
-            name="dueDate"
+            formControlName="dueDate"
             class="input input-bordered w-full"
           />
         </div>
@@ -125,7 +119,7 @@
           <label for="task-assignee" class="label">
             <span class="label-text font-medium">Assignee</span>
           </label>
-          <select id="task-assignee" [(ngModel)]="form.assigneeId" name="assigneeId" class="select select-bordered w-full">
+          <select id="task-assignee" formControlName="assigneeId" class="select select-bordered w-full">
             <option value="">Unassigned</option>
             @for (user of userStore.users(); track user.id) {
               <option [value]="user.id">{{ user.name }}</option>

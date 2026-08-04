@@ -82,13 +82,13 @@ describe('TaskCreateComponent', () => {
     });
 
     it('should initialize form with default values', () => {
-      expect(component.form.title).toBe('');
-      expect(component.form.description).toBe('');
-      expect(component.form.projectId).toBe('');
-      expect(component.form.status).toBe('todo');
-      expect(component.form.priority).toBe('medium');
-      expect(component.form.dueDate).toBe('');
-      expect(component.form.assigneeId).toBe('');
+      expect(component.taskForm.get('title')?.value).toBe('');
+      expect(component.taskForm.get('description')?.value).toBe('');
+      expect(component.taskForm.get('projectId')?.value).toBe('');
+      expect(component.taskForm.get('status')?.value).toBe('todo');
+      expect(component.taskForm.get('priority')?.value).toBe('medium');
+      expect(component.taskForm.get('dueDate')?.value).toBe('');
+      expect(component.taskForm.get('assigneeId')?.value).toBe('');
     });
 
     it('should load projects on init', () => {
@@ -119,38 +119,34 @@ describe('TaskCreateComponent', () => {
   });
 
   describe('Form Validation', () => {
-    it('should show error when title is empty', () => {
-      component.form.title = '';
-      component.form.projectId = 'project-1';
-      component.onSubmit();
-
-      expect(component.error()).toBe('Title and Project are required');
-      expect(taskStoreMock.createTask).not.toHaveBeenCalled();
+    it('should be invalid when title is empty', () => {
+      component.taskForm.patchValue({ title: '', projectId: 'project-1' });
+      expect(component.taskForm.invalid).toBe(true);
+      expect(component.taskForm.get('title')?.errors?.['required']).toBeTruthy();
     });
 
-    it('should show error when projectId is empty', () => {
-      component.form.title = 'Test Task';
-      component.form.projectId = '';
-      component.onSubmit();
-
-      expect(component.error()).toBe('Title and Project are required');
-      expect(taskStoreMock.createTask).not.toHaveBeenCalled();
+    it('should be invalid when projectId is empty', () => {
+      component.taskForm.patchValue({ title: 'Test Task', projectId: '' });
+      expect(component.taskForm.invalid).toBe(true);
+      expect(component.taskForm.get('projectId')?.errors?.['required']).toBeTruthy();
     });
 
-    it('should show error when both title and projectId are empty', () => {
-      component.form.title = '';
-      component.form.projectId = '';
+    it('should be invalid when both title and projectId are empty', () => {
+      component.taskForm.patchValue({ title: '', projectId: '' });
+      expect(component.taskForm.invalid).toBe(true);
+    });
+
+    it('should not submit when form is invalid', () => {
+      component.taskForm.patchValue({ title: '', projectId: '' });
       component.onSubmit();
 
-      expect(component.error()).toBe('Title and Project are required');
       expect(taskStoreMock.createTask).not.toHaveBeenCalled();
     });
   });
 
   describe('Form Submission', () => {
     it('should submit task with createdBy from AuthService', () => {
-      component.form.title = 'Test Task';
-      component.form.projectId = 'project-1';
+      component.taskForm.patchValue({ title: 'Test Task', projectId: 'project-1' });
       component.onSubmit();
 
       expect(taskStoreMock.createTask).toHaveBeenCalledWith(
@@ -161,9 +157,7 @@ describe('TaskCreateComponent', () => {
     });
 
     it('should submit task with assigneeIds when assigneeId is provided', () => {
-      component.form.title = 'Test Task';
-      component.form.projectId = 'project-1';
-      component.form.assigneeId = 'user-2';
+      component.taskForm.patchValue({ title: 'Test Task', projectId: 'project-1', assigneeId: 'user-2' });
       component.onSubmit();
 
       expect(taskStoreMock.createTask).toHaveBeenCalledWith(
@@ -174,9 +168,7 @@ describe('TaskCreateComponent', () => {
     });
 
     it('should submit task with empty assigneeIds when no assignee', () => {
-      component.form.title = 'Test Task';
-      component.form.projectId = 'project-1';
-      component.form.assigneeId = '';
+      component.taskForm.patchValue({ title: 'Test Task', projectId: 'project-1', assigneeId: '' });
       component.onSubmit();
 
       expect(taskStoreMock.createTask).toHaveBeenCalledWith(
@@ -187,9 +179,7 @@ describe('TaskCreateComponent', () => {
     });
 
     it('should include dueDate when provided', () => {
-      component.form.title = 'Test Task';
-      component.form.projectId = 'project-1';
-      component.form.dueDate = '2024-12-31';
+      component.taskForm.patchValue({ title: 'Test Task', projectId: 'project-1', dueDate: '2024-12-31' });
       component.onSubmit();
 
       const callArg = taskStoreMock.createTask.mock.calls[0][0];
@@ -197,9 +187,7 @@ describe('TaskCreateComponent', () => {
     });
 
     it('should not include dueDate when empty', () => {
-      component.form.title = 'Test Task';
-      component.form.projectId = 'project-1';
-      component.form.dueDate = '';
+      component.taskForm.patchValue({ title: 'Test Task', projectId: 'project-1', dueDate: '' });
       component.onSubmit();
 
       const callArg = taskStoreMock.createTask.mock.calls[0][0];
@@ -207,8 +195,7 @@ describe('TaskCreateComponent', () => {
     });
 
     it('should call createTask with correct payload', () => {
-      component.form.title = 'Test Task';
-      component.form.projectId = 'project-1';
+      component.taskForm.patchValue({ title: 'Test Task', projectId: 'project-1' });
       component.onSubmit();
 
       expect(taskStoreMock.createTask).toHaveBeenCalledWith(
@@ -224,8 +211,7 @@ describe('TaskCreateComponent', () => {
         subscribe: (callbacks: any) => callbacks.error({ error: { message: 'Creation failed' } }),
       });
 
-      component.form.title = 'Test Task';
-      component.form.projectId = 'project-1';
+      component.taskForm.patchValue({ title: 'Test Task', projectId: 'project-1' });
       component.onSubmit();
 
       expect(component.error()).toBe('Creation failed');
@@ -240,16 +226,14 @@ describe('TaskCreateComponent', () => {
         },
       });
 
-      component.form.title = 'Test Task';
-      component.form.projectId = 'project-1';
+      component.taskForm.patchValue({ title: 'Test Task', projectId: 'project-1' });
       component.onSubmit();
 
       expect(loadingDuringSubmit).toBe(true);
     });
 
     it('should reset loading state after submission', () => {
-      component.form.title = 'Test Task';
-      component.form.projectId = 'project-1';
+      component.taskForm.patchValue({ title: 'Test Task', projectId: 'project-1' });
       component.onSubmit();
 
       expect(component.loading()).toBe(false);
