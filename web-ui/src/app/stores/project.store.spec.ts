@@ -51,15 +51,24 @@ describe('ProjectStore', () => {
   describe('loadProjects', () => {
     it('should load projects from API', () => {
       const mockProjects = [mockProject];
+      const paginatedResponse = {
+        data: mockProjects,
+        total: 1,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      };
 
-      store.loadProjects().subscribe((projects) => {
-        expect(projects).toEqual(mockProjects);
+      store.loadProjects().subscribe((response) => {
+        expect(response.data).toEqual(mockProjects);
         expect(store.projects()).toEqual(mockProjects);
+        expect(store.total()).toBe(1);
+        expect(store.page()).toBe(1);
       });
 
-      const req = httpMock.expectOne(API_CONFIG.PROJECTS.LIST);
+      const req = httpMock.expectOne(API_CONFIG.PROJECTS.LIST(1, 10));
       expect(req.request.method).toBe('GET');
-      req.flush(mockProjects);
+      req.flush(paginatedResponse);
     });
 
     it('should set error on failure', () => {
@@ -69,7 +78,7 @@ describe('ProjectStore', () => {
         },
       });
 
-      const req = httpMock.expectOne(API_CONFIG.PROJECTS.LIST);
+      const req = httpMock.expectOne(API_CONFIG.PROJECTS.LIST(1, 10));
       req.flush({ message: 'Server error' }, { status: 500, statusText: 'Error' });
     });
   });

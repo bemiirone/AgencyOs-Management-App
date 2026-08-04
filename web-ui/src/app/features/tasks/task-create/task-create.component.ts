@@ -56,7 +56,7 @@ export class TaskCreateComponent implements OnInit {
 
   ngOnInit(): void {
     this.projectStore.loadProjects().subscribe({
-      next: (projects) => this.projects.set(projects),
+      next: (response) => this.projects.set(response.data),
       error: (err) => console.error('Failed to load projects:', err),
     });
   }

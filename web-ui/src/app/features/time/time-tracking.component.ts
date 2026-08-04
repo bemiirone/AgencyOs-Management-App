@@ -69,8 +69,8 @@ export class TimeTrackingComponent implements OnInit, OnDestroy {
     this.currentUserId.set(this.authService.getUserId());
 
     this.projectStore.loadProjects().subscribe({
-      next: (projects) => {
-        this.projects.set(projects);
+      next: (response) => {
+        this.projects.set(response.data);
       },
       error: (err) => console.error('Failed to load projects:', err),
     });

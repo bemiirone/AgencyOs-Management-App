@@ -2,6 +2,7 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, tap, throwError } from 'rxjs';
 import { Project } from '../shared/models/project.model';
+import { PaginatedResponse } from '../shared/models/paginated-response.model';
 import { API_CONFIG } from '../core/config/api.config';
 import { ToastService } from '../core/services/toast.service';
 
@@ -14,19 +15,31 @@ export class ProjectStore {
   private _selectedProject = signal<Project | null>(null);
   private _isLoading = signal(false);
   private _error = signal<string | null>(null);
+  private _total = signal(0);
+  private _page = signal(1);
+  private _limit = signal(10);
+  private _totalPages = signal(0);
 
   projects = computed(() => this._projects());
   selectedProject = computed(() => this._selectedProject());
   isLoading = computed(() => this._isLoading());
   error = computed(() => this._error());
+  total = computed(() => this._total());
+  page = computed(() => this._page());
+  limit = computed(() => this._limit());
+  totalPages = computed(() => this._totalPages());
 
-  loadProjects() {
+  loadProjects(page = 1, limit = 10) {
     this._isLoading.set(true);
     this._error.set(null);
 
-    return this.http.get<Project[]>(API_CONFIG.PROJECTS.LIST).pipe(
-      tap((projects) => {
-        this._projects.set(projects);
+    return this.http.get<PaginatedResponse<Project>>(API_CONFIG.PROJECTS.LIST(page, limit)).pipe(
+      tap((response) => {
+        this._projects.set(response.data);
+        this._total.set(response.total);
+        this._page.set(response.page);
+        this._limit.set(response.limit);
+        this._totalPages.set(response.totalPages);
         this._isLoading.set(false);
       }),
       catchError((error) => {

@@ -51,15 +51,24 @@ describe('TaskStore', () => {
   describe('loadTasks', () => {
     it('should load tasks from API', () => {
       const mockTasks = [mockTask];
+      const paginatedResponse = {
+        data: mockTasks,
+        total: 1,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      };
 
-      store.loadTasks().subscribe((tasks) => {
-        expect(tasks).toEqual(mockTasks);
+      store.loadTasks().subscribe((response) => {
+        expect(response.data).toEqual(mockTasks);
         expect(store.tasks()).toEqual(mockTasks);
+        expect(store.total()).toBe(1);
+        expect(store.page()).toBe(1);
       });
 
-      const req = httpMock.expectOne(API_CONFIG.TASKS.LIST);
+      const req = httpMock.expectOne(API_CONFIG.TASKS.LIST(1, 10));
       expect(req.request.method).toBe('GET');
-      req.flush(mockTasks);
+      req.flush(paginatedResponse);
     });
   });
 

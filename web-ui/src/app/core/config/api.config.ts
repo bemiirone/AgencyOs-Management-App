@@ -11,14 +11,26 @@ export const API_CONFIG = {
     SEARCH_WORKSPACES: (q: string) => `/api/auth/search-workspaces?q=${encodeURIComponent(q)}`,
   },
   PROJECTS: {
-    LIST: '/api/projects',
+    LIST: (page?: number, limit?: number) => {
+      const params = new URLSearchParams();
+      if (page) params.set('page', page.toString());
+      if (limit) params.set('limit', limit.toString());
+      const query = params.toString();
+      return `/api/projects${query ? `?${query}` : ''}`;
+    },
     DETAIL: (id: string) => `/api/projects/${id}`,
     CREATE: '/api/projects',
     UPDATE: (id: string) => `/api/projects/${id}`,
     DELETE: (id: string) => `/api/projects/${id}`,
   },
   TASKS: {
-    LIST: '/api/tasks',
+    LIST: (page?: number, limit?: number) => {
+      const params = new URLSearchParams();
+      if (page) params.set('page', page.toString());
+      if (limit) params.set('limit', limit.toString());
+      const query = params.toString();
+      return `/api/tasks${query ? `?${query}` : ''}`;
+    },
     BY_PROJECT: (projectId: string) => `/api/tasks/project/${projectId}`,
     DETAIL: (id: string) => `/api/tasks/${id}`,
     CREATE: '/api/tasks',

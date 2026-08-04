@@ -53,16 +53,32 @@ describe('TaskListComponent', () => {
   ];
 
   beforeEach(async () => {
+    const paginatedTasks = {
+      data: mockTasks,
+      total: mockTasks.length,
+      page: 1,
+      limit: 10,
+      totalPages: 1,
+    };
+
+    const paginatedProjects = {
+      data: mockProjects,
+      total: mockProjects.length,
+      page: 1,
+      limit: 10,
+      totalPages: 1,
+    };
+
     taskStoreMock = {
       loadTasks: vi.fn().mockReturnValue({
-        subscribe: (callbacks: any) => callbacks.next(mockTasks),
+        subscribe: (callbacks: any) => callbacks.next(paginatedTasks),
       }),
       deleteTask: vi.fn(),
     };
 
     projectStoreMock = {
       loadProjects: vi.fn().mockReturnValue({
-        subscribe: (callbacks: any) => callbacks.next(mockProjects),
+        subscribe: (callbacks: any) => callbacks.next(paginatedProjects),
       }),
     };
 

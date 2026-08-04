@@ -41,7 +41,7 @@ describe('TaskCreateComponent', () => {
 
     projectStoreMock = {
       loadProjects: vi.fn().mockReturnValue({
-        subscribe: (callbacks: any) => callbacks.next(mockProjects),
+        subscribe: (callbacks: any) => callbacks.next({ data: mockProjects, total: mockProjects.length, page: 1, limit: 10, totalPages: 1 }),
       }),
     };
 

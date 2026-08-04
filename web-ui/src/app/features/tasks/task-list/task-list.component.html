@@ -150,6 +150,36 @@
             </tbody>
           </table>
         </div>
+
+        @if (totalPages() > 1) {
+          <div class="flex justify-center items-center gap-4 mt-4">
+            <div class="text-sm text-base-content/60">
+              Page {{ currentPage() }} of {{ totalPages() }} ({{ total() }} total)
+            </div>
+            <div class="join">
+              <button 
+                class="join-item btn" 
+                [disabled]="currentPage() === 1"
+                (click)="onPageChange(currentPage() - 1)">
+                «
+              </button>
+              @for (page of pages; track page) {
+                <button 
+                  class="join-item btn" 
+                  [class.btn-active]="page === currentPage()"
+                  (click)="onPageChange(page)">
+                  {{ page }}
+                </button>
+              }
+              <button 
+                class="join-item btn" 
+                [disabled]="currentPage() === totalPages()"
+                (click)="onPageChange(currentPage() + 1)">
+                »
+              </button>
+            </div>
+          </div>
+        }
       }
     </div>
   </div>

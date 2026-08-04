@@ -18,6 +18,7 @@ import {
 import { AuthService } from '../../core/services/auth.service';
 import { API_CONFIG } from '../../core/config/api.config';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
+import { PaginatedResponse } from '../../shared/models/paginated-response.model';
 import { RecentActivityComponent } from './recent-activity/recent-activity.component';
 import { TeamMembersComponent } from './team-members/team-members.component';
 import { Activity, TeamMember, DashboardStats, StatItem } from './dashboard.models';
@@ -99,8 +100,8 @@ export class DashboardComponent implements OnInit {
     this.loading.set(true);
 
     const dashboardData$ = forkJoin({
-      projects: this.http.get<Project[]>(API_CONFIG.PROJECTS.LIST),
-      tasks: this.http.get<Task[]>(API_CONFIG.TASKS.LIST),
+      projects: this.http.get<PaginatedResponse<Project>>(API_CONFIG.PROJECTS.LIST(1, 100)),
+      tasks: this.http.get<PaginatedResponse<Task>>(API_CONFIG.TASKS.LIST(1, 100)),
       timeEntries: this.http.get<TimeEntry[]>(API_CONFIG.TIME_ENTRIES.LIST),
       invoices: this.http.get<Invoice[]>(API_CONFIG.INVOICES.LIST),
     });
@@ -109,8 +110,8 @@ export class DashboardComponent implements OnInit {
 
     combineLatest([dashboardData$, users$]).subscribe({
       next: ([{ projects, tasks, timeEntries, invoices }, users]) => {
-        this.projects.set(projects);
-        this.tasks.set(tasks);
+        this.projects.set(projects.data);
+        this.tasks.set(tasks.data);
         this.timeEntries.set(timeEntries);
         this.invoices.set(invoices);
         this.users.set(users);

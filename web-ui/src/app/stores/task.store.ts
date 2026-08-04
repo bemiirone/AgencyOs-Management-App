@@ -2,6 +2,7 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, tap, throwError } from 'rxjs';
 import { Task } from '../shared/models/task.model';
+import { PaginatedResponse } from '../shared/models/paginated-response.model';
 import { API_CONFIG } from '../core/config/api.config';
 import { ToastService } from '../core/services/toast.service';
 
@@ -14,19 +15,31 @@ export class TaskStore {
   private _selectedTask = signal<Task | null>(null);
   private _isLoading = signal(false);
   private _error = signal<string | null>(null);
+  private _total = signal(0);
+  private _page = signal(1);
+  private _limit = signal(10);
+  private _totalPages = signal(0);
 
   tasks = computed(() => this._tasks());
   selectedTask = computed(() => this._selectedTask());
   isLoading = computed(() => this._isLoading());
   error = computed(() => this._error());
+  total = computed(() => this._total());
+  page = computed(() => this._page());
+  limit = computed(() => this._limit());
+  totalPages = computed(() => this._totalPages());
 
-  loadTasks() {
+  loadTasks(page = 1, limit = 10) {
     this._isLoading.set(true);
     this._error.set(null);
 
-    return this.http.get<Task[]>(API_CONFIG.TASKS.LIST).pipe(
-      tap((tasks) => {
-        this._tasks.set(tasks);
+    return this.http.get<PaginatedResponse<Task>>(API_CONFIG.TASKS.LIST(page, limit)).pipe(
+      tap((response) => {
+        this._tasks.set(response.data);
+        this._total.set(response.total);
+        this._page.set(response.page);
+        this._limit.set(response.limit);
+        this._totalPages.set(response.totalPages);
         this._isLoading.set(false);
       }),
       catchError((error) => {
