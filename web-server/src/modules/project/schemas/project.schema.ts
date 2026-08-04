@@ -31,6 +31,12 @@ export class Project extends BaseDocument {
   declare clientId: string;
 
   @Prop()
+  declare clientName: string;
+
+  @Prop()
+  declare clientEmail: string;
+
+  @Prop()
   declare startDate: Date;
 
   @Prop()

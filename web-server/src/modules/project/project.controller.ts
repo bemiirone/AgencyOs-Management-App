@@ -4,17 +4,21 @@ import { ProjectService } from './project.service';
 import { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
 import { ProjectStatus } from './schemas/project.schema';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { UserRole } from '../auth/enums/user-role.enum';
 import { TenantId } from '../../common/decorators/tenant-id.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 
 @ApiTags('projects')
 @Controller('projects')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
   @Post()
+  @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Create a new project' })
   async create(
     @Body() createProjectDto: CreateProjectDto,
@@ -43,6 +47,7 @@ export class ProjectController {
   }
 
   @Patch(':id')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Update project' })
   async update(
     @Param('id') id: string,
@@ -53,6 +58,7 @@ export class ProjectController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Delete project' })
   async remove(@Param('id') id: string, @TenantId() tenantId: string) {
     return this.projectService.remove(id, tenantId);

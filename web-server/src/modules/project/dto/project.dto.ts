@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsOptional, IsEnum, IsDateString, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsEnum, IsDateString, IsNumber, IsEmail } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { ProjectStatus } from '../schemas/project.schema';
 
@@ -27,6 +27,17 @@ export class CreateProjectDto {
   @IsString()
   @IsOptional()
   declare clientId?: string;
+
+  @ApiProperty({ example: 'Acme Corp' })
+  @IsString()
+  @IsNotEmpty()
+  declare clientName: string;
+
+  @ApiProperty({ example: 'contact@acme.com' })
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  declare clientEmail: string;
 
   @ApiProperty({ required: false })
   @IsDateString()
@@ -69,6 +80,17 @@ export class UpdateProjectDto {
   @IsString()
   @IsOptional()
   declare clientId?: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  declare clientName?: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  @IsEmail()
+  declare clientEmail?: string;
 
   @ApiProperty({ required: false })
   @IsDateString()
