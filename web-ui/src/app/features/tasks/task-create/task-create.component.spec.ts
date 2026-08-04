@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { RouterTestingModule } from '@angular/router/testing';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { of } from 'rxjs';
 import { TaskCreateComponent } from './task-create.component';
 import { TaskStore } from '../../../stores/task.store';
 import { ProjectStore } from '../../../stores/project.store';
@@ -55,17 +55,19 @@ describe('TaskCreateComponent', () => {
     };
 
     routerMock = {
-      navigate: vi.fn(),
+      navigate: vi.fn().mockResolvedValue(true),
     };
 
     await TestBed.configureTestingModule({
-      imports: [RouterTestingModule, TaskCreateComponent],
+      imports: [TaskCreateComponent],
       providers: [
         provideHttpClient(),
         { provide: TaskStore, useValue: taskStoreMock },
         { provide: ProjectStore, useValue: projectStoreMock },
         { provide: UserStore, useValue: userStoreMock },
         { provide: AuthService, useValue: authServiceMock },
+        { provide: Router, useValue: routerMock },
+        { provide: ActivatedRoute, useValue: { snapshot: {} } },
       ],
     }).compileComponents();
 

@@ -70,7 +70,7 @@ describe('TaskEditComponent', () => {
     };
 
     routerMock = {
-      navigate: vi.fn(),
+      navigate: vi.fn().mockResolvedValue(true),
     };
 
     routeMock = {
@@ -82,7 +82,7 @@ describe('TaskEditComponent', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [RouterTestingModule, TaskEditComponent],
+      imports: [TaskEditComponent],
       providers: [
         provideHttpClient(),
         { provide: TaskStore, useValue: taskStoreMock },
@@ -90,6 +90,7 @@ describe('TaskEditComponent', () => {
         { provide: UserStore, useValue: userStoreMock },
         { provide: AuthService, useValue: authServiceMock },
         { provide: ActivatedRoute, useValue: routeMock },
+        { provide: Router, useValue: routerMock },
       ],
     }).compileComponents();
 
@@ -136,7 +137,7 @@ describe('TaskEditComponent', () => {
       TestBed.resetTestingModule();
       
       TestBed.configureTestingModule({
-        imports: [RouterTestingModule, TaskEditComponent],
+        imports: [TaskEditComponent],
         providers: [
           provideHttpClient(),
           { provide: TaskStore, useValue: taskStoreMock },
@@ -144,6 +145,7 @@ describe('TaskEditComponent', () => {
           { provide: UserStore, useValue: userStoreMock },
           { provide: AuthService, useValue: authServiceMock },
           { provide: ActivatedRoute, useValue: routeMock },
+          { provide: Router, useValue: routerMock },
         ],
       }).compileComponents();
 
@@ -164,7 +166,7 @@ describe('TaskEditComponent', () => {
       routeMock.snapshot.paramMap.get.mockReturnValue('task-2');
 
       TestBed.configureTestingModule({
-        imports: [RouterTestingModule, TaskEditComponent],
+        imports: [TaskEditComponent],
         providers: [
           provideHttpClient(),
           { provide: TaskStore, useValue: taskStoreMock },
@@ -172,6 +174,7 @@ describe('TaskEditComponent', () => {
           { provide: UserStore, useValue: userStoreMock },
           { provide: AuthService, useValue: authServiceMock },
           { provide: ActivatedRoute, useValue: routeMock },
+          { provide: Router, useValue: routerMock },
         ],
       }).compileComponents();
 
