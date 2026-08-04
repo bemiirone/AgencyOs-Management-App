@@ -61,10 +61,10 @@
                   <td>{{ formatDate(project.endDate) }}</td>
                   <td>
                     <div class="flex gap-2">
-                      <a [routerLink]="['/projects', project._id]" class="btn btn-ghost btn-xs">
+                      <a [routerLink]="['/projects', project._id]" queryParamsHandling="preserve" class="btn btn-ghost btn-xs">
                         <fa-icon [icon]="faEye"></fa-icon>
                       </a>
-                      <a [routerLink]="['/projects', project._id, 'edit']" class="btn btn-ghost btn-xs">
+                      <a [routerLink]="['/projects', project._id, 'edit']" queryParamsHandling="preserve" class="btn btn-ghost btn-xs">
                         <fa-icon [icon]="faEdit"></fa-icon>
                       </a>
                       <button class="btn btn-ghost btn-xs text-error" (click)="deleteProject(project._id)">

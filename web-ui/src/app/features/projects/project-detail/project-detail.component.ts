@@ -152,7 +152,7 @@ export class ProjectDetailComponent implements OnInit {
     if (confirm('Are you sure you want to delete this project?')) {
       this.projectStore.deleteProject(id).subscribe({
         next: () => {
-          this.router.navigate(['/projects']);
+          this.router.navigate(['/projects'], { queryParamsHandling: 'preserve' });
         },
         error: (err) => console.error('Failed to delete project:', err),
       });

@@ -129,10 +129,10 @@
                   <td class="text-sm">{{ formatDate(task.dueDate) }}</td>
                   <td>
                     <div class="flex gap-2">
-                      <a [routerLink]="['/tasks', task._id]" class="btn btn-ghost btn-xs">
+                      <a [routerLink]="['/tasks', task._id]" queryParamsHandling="preserve" class="btn btn-ghost btn-xs">
                         <fa-icon [icon]="faEye"></fa-icon>
                       </a>
-                      <a [routerLink]="['/tasks', task._id, 'edit']" class="btn btn-ghost btn-xs">
+                      <a [routerLink]="['/tasks', task._id, 'edit']" queryParamsHandling="preserve" class="btn btn-ghost btn-xs">
                         <fa-icon [icon]="faEdit"></fa-icon>
                       </a>
                       <button class="btn btn-ghost btn-xs text-error" (click)="deleteTask(task._id)">

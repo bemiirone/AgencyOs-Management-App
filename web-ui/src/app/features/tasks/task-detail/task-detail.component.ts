@@ -158,7 +158,7 @@ export class TaskDetailComponent implements OnInit {
     if (confirm('Are you sure you want to delete this task?')) {
       this.taskStore.deleteTask(id).subscribe({
         next: () => {
-          this.router.navigate(['/tasks']);
+          this.router.navigate(['/tasks'], { queryParamsHandling: 'preserve' });
         },
         error: (err) => console.error('Failed to delete task:', err),
       });

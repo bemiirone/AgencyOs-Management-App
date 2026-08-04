@@ -1,7 +1,7 @@
 import { Component, signal, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faPlus, faEye, faEdit, faTrash, faSearch, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { Project } from '../../../shared/models/project.model';
@@ -17,6 +17,8 @@ import { ProjectStore } from '../../../stores/project.store';
 })
 export class ProjectListComponent implements OnInit {
   private readonly projectStore = inject(ProjectStore);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   readonly Math = Math;
   
   readonly projects = signal<Project[]>([]);
@@ -33,7 +35,15 @@ export class ProjectListComponent implements OnInit {
   readonly faSpinner = faSpinner;
 
   ngOnInit(): void {
-    this.loadProjects();
+    const search = this.route.snapshot.queryParams['search'] || '';
+    const page = parseInt(this.route.snapshot.queryParams['page'], 10) || 1;
+
+    this.searchQuery.set(search);
+    this.currentPage.set(page);
+
+    if (this.projects().length === 0) {
+      this.loadProjects();
+    }
   }
 
   loadProjects(): void {
@@ -41,7 +51,6 @@ export class ProjectListComponent implements OnInit {
     this.projectStore.loadAllProjects().subscribe({
       next: (response) => {
         this.projects.set(response.data);
-        this.currentPage.set(1);
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
@@ -50,12 +59,27 @@ export class ProjectListComponent implements OnInit {
 
   onSearchChange(): void {
     this.currentPage.set(1);
+    this.updateQueryParams();
   }
 
   onPageChange(page: number): void {
     if (page >= 1 && page <= this.filteredTotalPages) {
       this.currentPage.set(page);
+      this.updateQueryParams();
     }
+  }
+
+  private updateQueryParams(): void {
+    const params: Record<string, string> = {};
+    if (this.searchQuery()) params.search = this.searchQuery();
+    if (this.currentPage() > 1) params.page = this.currentPage().toString();
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: params,
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   get filteredProjects(): Project[] {

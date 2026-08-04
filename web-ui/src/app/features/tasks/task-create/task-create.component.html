@@ -1,6 +1,6 @@
 <div class="p-6">
   <div class="mb-6">
-    <a routerLink="/tasks" class="btn btn-ghost btn-sm gap-2">
+    <a routerLink="/tasks" queryParamsHandling="preserve" class="btn btn-ghost btn-sm gap-2">
       <fa-icon [icon]="faArrowLeft"></fa-icon>
       Back to Tasks
     </a>
@@ -147,7 +147,7 @@
               Create Task
             }
           </button>
-          <a routerLink="/tasks" class="btn btn-ghost">Cancel</a>
+          <a routerLink="/tasks" queryParamsHandling="preserve" class="btn btn-ghost">Cancel</a>
         </div>
       </form>
     </div>

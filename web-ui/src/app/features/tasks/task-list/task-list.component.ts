@@ -1,7 +1,7 @@
 import { Component, signal, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faPlus,
@@ -30,6 +30,8 @@ export class TaskListComponent implements OnInit {
   private readonly taskStore = inject(TaskStore);
   private readonly projectStore = inject(ProjectStore);
   readonly userStore = inject(UserStore);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   readonly Math = Math;
 
   readonly tasks = signal<Task[]>([]);
@@ -52,7 +54,17 @@ export class TaskListComponent implements OnInit {
   readonly faFilter = faFilter;
 
   ngOnInit(): void {
-    this.loadTasks();
+    const queryParams = this.route.snapshot.queryParams;
+    this.searchQuery.set(queryParams['search'] || '');
+    this.statusFilter.set(queryParams['status'] || '');
+    this.priorityFilter.set(queryParams['priority'] || '');
+    this.projectFilter.set(queryParams['project'] || '');
+    this.assigneeFilter.set(queryParams['assignee'] || '');
+    this.currentPage.set(parseInt(queryParams['page'], 10) || 1);
+
+    if (this.tasks().length === 0) {
+      this.loadTasks();
+    }
     this.projectStore.loadProjects().subscribe({
       next: (response) => this.projects.set(response.data),
       error: (err) => console.error('Failed to load projects:', err),
@@ -64,7 +76,6 @@ export class TaskListComponent implements OnInit {
     this.taskStore.loadAllTasks().subscribe({
       next: (response) => {
         this.tasks.set(response.data);
-        this.currentPage.set(1);
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
@@ -73,12 +84,31 @@ export class TaskListComponent implements OnInit {
 
   onFilterChange(): void {
     this.currentPage.set(1);
+    this.updateQueryParams();
   }
 
   onPageChange(page: number): void {
     if (page >= 1 && page <= this.filteredTotalPages) {
       this.currentPage.set(page);
+      this.updateQueryParams();
     }
+  }
+
+  private updateQueryParams(): void {
+    const params: Record<string, string> = {};
+    if (this.searchQuery()) params.search = this.searchQuery();
+    if (this.statusFilter()) params.status = this.statusFilter();
+    if (this.priorityFilter()) params.priority = this.priorityFilter();
+    if (this.projectFilter()) params.project = this.projectFilter();
+    if (this.assigneeFilter()) params.assignee = this.assigneeFilter();
+    if (this.currentPage() > 1) params.page = this.currentPage().toString();
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: params,
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   get filteredTasks(): Task[] {

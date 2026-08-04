@@ -68,7 +68,6 @@ describe('ProjectListComponent', () => {
 
     fixture = TestBed.createComponent(ProjectListComponent);
     component = fixture.componentInstance;
-    component.projects.set(mockProjects);
     fixture.detectChanges();
   });
 
