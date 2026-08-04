@@ -91,7 +91,7 @@ describe('ProjectCreateComponent', () => {
       component.form.name = 'Test Project';
       component.onSubmit();
 
-      expect(routerMock.navigate).toHaveBeenCalledWith(['/projects', 'new-project-1']);
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/projects', 'new-project-1'], { queryParamsHandling: 'preserve' });
     });
 
     it('should set saving to false on success', () => {

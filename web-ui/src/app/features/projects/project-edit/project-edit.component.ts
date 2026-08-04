@@ -87,7 +87,7 @@ export class ProjectEditComponent implements OnInit {
     this.projectStore.updateProject(id, projectData).subscribe({
       next: (project) => {
         this.saving.set(false);
-        this.router.navigate(['/projects', project._id]);
+        this.router.navigate(['/projects', project._id], { queryParamsHandling: 'preserve' });
       },
       error: (err) => {
         this.error.set(err.error?.message || 'Failed to update project');

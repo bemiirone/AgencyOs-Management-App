@@ -87,7 +87,7 @@ export class TaskCreateComponent implements OnInit {
     this.taskStore.createTask(taskData).subscribe({
       next: (task) => {
         this.loading.set(false);
-        this.router.navigate(['/tasks', task._id]);
+        this.router.navigate(['/tasks', task._id], { queryParamsHandling: 'preserve' });
       },
       error: (err) => {
         this.error.set(err.error?.message || 'Failed to create task');

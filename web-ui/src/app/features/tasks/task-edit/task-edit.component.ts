@@ -120,7 +120,7 @@ export class TaskEditComponent implements OnInit {
     this.taskStore.updateTask(id, taskData).subscribe({
       next: (task) => {
         this.saving.set(false);
-        this.router.navigate(['/tasks', task._id]);
+        this.router.navigate(['/tasks', task._id], { queryParamsHandling: 'preserve' });
       },
       error: (err) => {
         this.error.set(err.error?.message || 'Failed to update task');

@@ -186,7 +186,7 @@ describe('ProjectEditComponent', () => {
       component.form.name = 'Updated Name';
       component.onSubmit();
 
-      expect(routerMock.navigate).toHaveBeenCalledWith(['/projects', 'project-1']);
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/projects', 'project-1'], { queryParamsHandling: 'preserve' });
     });
 
     it('should set saving to false on success', () => {
