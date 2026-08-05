@@ -1,6 +1,6 @@
 <div class="p-6">
   <div class="mb-6">
-      <a routerLink="/tasks" queryParamsHandling="preserve" class="btn btn-ghost btn-sm gap-2">
+    <a routerLink="/tasks" queryParamsHandling="preserve" class="btn btn-ghost btn-sm gap-2">
       <fa-icon [icon]="faArrowLeft"></fa-icon>
       Back to Tasks
     </a>
@@ -10,10 +10,10 @@
     <div class="flex justify-center py-16">
       <fa-icon [icon]="faSpinner" class="animate-spin text-4xl text-primary"></fa-icon>
     </div>
-  } @else if (dataLoaded()) {
+  } @else {
     <div class="card bg-base-100 shadow max-w-2xl">
       <div class="card-body">
-        <h2 class="card-title text-2xl mb-4">Edit Task</h2>
+        <h2 class="card-title text-2xl mb-4">{{ mode() === 'create' ? 'Create New Task' : 'Edit Task' }}</h2>
 
         @if (error()) {
           <div class="alert alert-error mb-4">
@@ -21,22 +21,20 @@
           </div>
         }
 
-        <form (ngSubmit)="onSubmit()" #taskForm="ngForm">
+        <form [formGroup]="taskForm" (ngSubmit)="onSubmit()">
           <div class="form-control mb-4">
-            <label for="edit-task-title" class="label">
+            <label for="task-title" class="label">
               <span class="label-text font-medium">Title</span>
             </label>
             <input
-              id="edit-task-title"
+              id="task-title"
               type="text"
-              [(ngModel)]="form.title"
-              name="title"
+              formControlName="title"
               placeholder="Enter task title"
               class="input input-bordered w-full"
-              required
-              #titleModel="ngModel"
+              [class.input-error]="titleControl?.invalid && titleControl?.touched"
             />
-            @if (titleModel.invalid && titleModel.touched) {
+            @if (titleControl?.invalid && titleControl?.touched) {
               <div class="label">
                 <span class="label-text-alt text-error">Title is required</span>
               </div>
@@ -44,13 +42,12 @@
           </div>
 
           <div class="form-control mb-4">
-            <label for="edit-task-desc" class="label">
+            <label for="task-desc" class="label">
               <span class="label-text font-medium">Description</span>
             </label>
             <textarea
-              id="edit-task-desc"
-              [(ngModel)]="form.description"
-              name="description"
+              id="task-desc"
+              formControlName="description"
               placeholder="Enter task description"
               class="textarea textarea-bordered w-full"
               rows="4"
@@ -58,16 +55,14 @@
           </div>
 
           <div class="form-control mb-4">
-            <label for="edit-task-project" class="label">
+            <label for="task-project" class="label">
               <span class="label-text font-medium">Project</span>
             </label>
             <select
-              id="edit-task-project"
-              [(ngModel)]="form.projectId"
-              name="projectId"
+              id="task-project"
+              formControlName="projectId"
               class="select select-bordered w-full"
-              required
-              #projectModel="ngModel"
+              [class.select-error]="projectIdControl?.invalid && projectIdControl?.touched"
             >
               <option value="" disabled>Select a project</option>
               @for (project of availableProjects(); track project._id) {
@@ -80,7 +75,7 @@
                 Only Active and Draft projects are available for task assignment
               </span>
             </div>
-            @if (projectModel.invalid && projectModel.touched) {
+            @if (projectIdControl?.invalid && projectIdControl?.touched) {
               <div class="label">
                 <span class="label-text-alt text-error">Project is required</span>
               </div>
@@ -89,10 +84,10 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div class="form-control">
-              <label for="edit-task-status" class="label">
+              <label for="task-status" class="label">
                 <span class="label-text font-medium">Status</span>
               </label>
-              <select id="edit-task-status" [(ngModel)]="form.status" name="status" class="select select-bordered w-full">
+              <select id="task-status" formControlName="status" class="select select-bordered w-full">
                 <option value="todo">To Do</option>
                 <option value="in_progress">In Progress</option>
                 <option value="in_review">In Review</option>
@@ -101,10 +96,10 @@
             </div>
 
             <div class="form-control">
-              <label for="edit-task-priority" class="label">
+              <label for="task-priority" class="label">
                 <span class="label-text font-medium">Priority</span>
               </label>
-              <select id="edit-task-priority" [(ngModel)]="form.priority" name="priority" class="select select-bordered w-full">
+              <select id="task-priority" formControlName="priority" class="select select-bordered w-full">
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
                 <option value="high">High</option>
@@ -114,23 +109,22 @@
           </div>
 
           <div class="form-control mb-6">
-            <label for="edit-task-due" class="label">
+            <label for="task-due" class="label">
               <span class="label-text font-medium">Due Date</span>
             </label>
             <input
-              id="edit-task-due"
+              id="task-due"
               type="date"
-              [(ngModel)]="form.dueDate"
-              name="dueDate"
+              formControlName="dueDate"
               class="input input-bordered w-full"
             />
           </div>
 
           <div class="form-control mb-6">
-            <label for="edit-task-assignee" class="label">
+            <label for="task-assignee" class="label">
               <span class="label-text font-medium">Assignee</span>
             </label>
-            <select id="edit-task-assignee" [(ngModel)]="form.assigneeId" name="assigneeId" class="select select-bordered w-full">
+            <select id="task-assignee" formControlName="assigneeId" class="select select-bordered w-full">
               <option value="">Unassigned</option>
               @for (user of userStore.users(); track user.id) {
                 <option [value]="user.id">{{ user.name }}</option>
@@ -138,12 +132,14 @@
             </select>
           </div>
 
-          <div class="form-control mb-6">
-            <label for="edit-task-creator" class="label">
-              <span class="label-text font-medium">Created By</span>
-            </label>
-            <input id="edit-task-creator" type="text" [value]="getCreatorName()" class="input input-bordered w-full" disabled />
-          </div>
+          @if (mode() === 'edit') {
+            <div class="form-control mb-6">
+              <label for="task-creator" class="label">
+                <span class="label-text font-medium">Created By</span>
+              </label>
+              <input id="task-creator" type="text" [value]="getCreatorName()" class="input input-bordered w-full" disabled />
+            </div>
+          }
 
           <div class="flex gap-3">
             <button
@@ -153,13 +149,13 @@
             >
               @if (saving()) {
                 <fa-icon [icon]="faSpinner" class="animate-spin mr-2"></fa-icon>
-                Saving...
+                {{ mode() === 'create' ? 'Creating...' : 'Saving...' }}
               } @else {
                 <fa-icon [icon]="faSave" class="mr-2"></fa-icon>
-                Save Changes
+                {{ mode() === 'create' ? 'Create Task' : 'Save Changes' }}
               }
             </button>
-            <a [routerLink]="['/tasks', taskId()]" class="btn btn-ghost">Cancel</a>
+            <a [routerLink]="mode() === 'create' ? '/tasks' : ['/tasks', taskId()]" queryParamsHandling="preserve" class="btn btn-ghost">Cancel</a>
           </div>
         </form>
       </div>

@@ -66,15 +66,15 @@ export const routes: Routes = [
       {
         path: 'tasks/create',
         loadComponent: () =>
-          import('./features/tasks/task-create/task-create.component').then(
-            (m) => m.TaskCreateComponent
+          import('./features/tasks/task-form/task-form.component').then(
+            (m) => m.TaskFormComponent
           ),
       },
       {
         path: 'tasks/:id/edit',
         loadComponent: () =>
-          import('./features/tasks/task-edit/task-edit.component').then(
-            (m) => m.TaskEditComponent
+          import('./features/tasks/task-form/task-form.component').then(
+            (m) => m.TaskFormComponent
           ),
       },
       {
