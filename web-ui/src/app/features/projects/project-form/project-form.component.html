@@ -10,10 +10,10 @@
     <div class="flex justify-center py-16">
       <fa-icon [icon]="faSpinner" class="animate-spin text-4xl text-primary"></fa-icon>
     </div>
-  } @else if (dataLoaded()) {
+  } @else {
     <div class="card bg-base-100 shadow max-w-2xl">
       <div class="card-body">
-        <h2 class="card-title text-2xl mb-4">Edit Project</h2>
+        <h2 class="card-title text-2xl mb-4">{{ mode() === 'create' ? 'Create Project' : 'Edit Project' }}</h2>
 
         @if (error()) {
           <div class="alert alert-error mb-4">
@@ -23,11 +23,11 @@
 
         <form [formGroup]="projectForm" (ngSubmit)="onSubmit()">
           <div class="form-control mb-4">
-            <label for="edit-name" class="label">
+            <label for="project-name" class="label">
               <span class="label-text font-medium">Name</span>
             </label>
             <input
-              id="edit-name"
+              id="project-name"
               type="text"
               formControlName="name"
               placeholder="Enter project name"
@@ -42,11 +42,11 @@
           </div>
 
           <div class="form-control mb-4">
-            <label for="edit-desc" class="label">
+            <label for="project-desc" class="label">
               <span class="label-text font-medium">Description</span>
             </label>
             <textarea
-              id="edit-desc"
+              id="project-desc"
               formControlName="description"
               placeholder="Enter project description"
               class="textarea textarea-bordered w-full"
@@ -55,10 +55,10 @@
           </div>
 
           <div class="form-control mb-4">
-            <label for="edit-status" class="label">
+            <label for="project-status" class="label">
               <span class="label-text font-medium">Status</span>
             </label>
-            <select id="edit-status" formControlName="status" class="select select-bordered w-full">
+            <select id="project-status" formControlName="status" class="select select-bordered w-full">
               <option value="draft">Draft</option>
               <option value="active">Active</option>
               <option value="on_hold">On Hold</option>
@@ -68,18 +68,18 @@
           </div>
 
           <div class="form-control mb-4">
-            <label for="edit-client-name" class="label">
+            <label for="project-client-name" class="label">
               <span class="label-text font-medium">Client Name</span>
             </label>
             <input
-              id="edit-client-name"
+              id="project-client-name"
               type="text"
               formControlName="clientName"
               placeholder="Enter client name"
               class="input input-bordered w-full"
               [class.input-error]="clientNameControl?.invalid && clientNameControl?.touched"
             />
-            @if (clientNameControl?.invalid && clientNameControl?.touched) {
+            @if (clientNameControl?.invalid && clientNameControl?.touched && mode() === 'create') {
               <div class="label">
                 <span class="label-text-alt text-error">Client name is required</span>
               </div>
@@ -87,11 +87,11 @@
           </div>
 
           <div class="form-control mb-4">
-            <label for="edit-client-email" class="label">
+            <label for="project-client-email" class="label">
               <span class="label-text font-medium">Client Email</span>
             </label>
             <input
-              id="edit-client-email"
+              id="project-client-email"
               type="email"
               formControlName="clientEmail"
               placeholder="Enter client email"
@@ -100,6 +100,9 @@
             />
             @if (clientEmailControl?.invalid && clientEmailControl?.touched) {
               <div class="label">
+                @if (clientEmailControl?.errors?.['required']) {
+                  <span class="label-text-alt text-error">Client email is required</span>
+                }
                 @if (clientEmailControl?.errors?.['email']) {
                   <span class="label-text-alt text-error">Please enter a valid email address</span>
                 }
@@ -108,11 +111,11 @@
           </div>
 
           <div class="form-control mb-4">
-            <label for="edit-client" class="label">
+            <label for="project-client" class="label">
               <span class="label-text font-medium">Client ID (Optional)</span>
             </label>
             <input
-              id="edit-client"
+              id="project-client"
               type="text"
               formControlName="clientId"
               placeholder="Enter client ID (optional)"
@@ -122,11 +125,11 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div class="form-control">
-              <label for="edit-start" class="label">
+              <label for="project-start" class="label">
                 <span class="label-text font-medium">Start Date</span>
               </label>
               <input
-                id="edit-start"
+                id="project-start"
                 type="date"
                 formControlName="startDate"
                 class="input input-bordered w-full"
@@ -134,11 +137,11 @@
             </div>
 
             <div class="form-control">
-              <label for="edit-end" class="label">
+              <label for="project-end" class="label">
                 <span class="label-text font-medium">End Date</span>
               </label>
               <input
-                id="edit-end"
+                id="project-end"
                 type="date"
                 formControlName="endDate"
                 class="input input-bordered w-full"
@@ -147,11 +150,11 @@
           </div>
 
           <div class="form-control mb-6">
-            <label for="edit-budget" class="label">
+            <label for="project-budget" class="label">
               <span class="label-text font-medium">Budget</span>
             </label>
             <input
-              id="edit-budget"
+              id="project-budget"
               type="number"
               formControlName="budget"
               placeholder="0"
@@ -168,13 +171,13 @@
             >
               @if (saving()) {
                 <fa-icon [icon]="faSpinner" class="animate-spin mr-2"></fa-icon>
-                Saving...
+                {{ mode() === 'create' ? 'Creating...' : 'Saving...' }}
               } @else {
                 <fa-icon [icon]="faSave" class="mr-2"></fa-icon>
-                Save Changes
+                {{ mode() === 'create' ? 'Create Project' : 'Save Changes' }}
               }
             </button>
-            <a [routerLink]="['/projects', projectId()]" class="btn btn-ghost">Cancel</a>
+            <a [routerLink]="mode() === 'create' ? '/projects' : ['/projects', projectId()]" queryParamsHandling="preserve" class="btn btn-ghost">Cancel</a>
           </div>
         </form>
       </div>
