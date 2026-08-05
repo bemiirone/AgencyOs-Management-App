@@ -175,7 +175,9 @@ export class InvoiceFormComponent implements OnInit {
       });
     } else {
       this.mode.set('create');
-      this.addLineItem();
+      if (this.invoiceForm.get('billingType')?.value === 'manual') {
+        this.addLineItem();
+      }
     }
 
     this.invoiceForm.get('projectId')?.valueChanges.subscribe((projectId) => {
@@ -193,6 +195,11 @@ export class InvoiceFormComponent implements OnInit {
     });
 
     this.invoiceForm.get('billingType')?.valueChanges.subscribe((billingType) => {
+      if (billingType !== 'manual') {
+        this.clearLineItems();
+      } else if (this.lineItems.length === 0) {
+        this.addLineItem();
+      }
       if (billingType !== 'budget') {
         this.clearPaymentStages();
       }
@@ -240,6 +247,13 @@ export class InvoiceFormComponent implements OnInit {
 
   removeLineItem(index: number): void {
     this.lineItems.removeAt(index);
+    this.updateLineItemAmounts();
+  }
+
+  clearLineItems(): void {
+    while (this.lineItems.length) {
+      this.lineItems.removeAt(0);
+    }
     this.updateLineItemAmounts();
   }
 
@@ -448,7 +462,6 @@ export class InvoiceFormComponent implements OnInit {
 
     const payload: CreateInvoicePayload = {
       projectId: formValue.projectId,
-      clientId: '',
       clientName: formValue.clientName,
       clientEmail: formValue.clientEmail,
       billingType: formValue.billingType,
@@ -458,6 +471,11 @@ export class InvoiceFormComponent implements OnInit {
       dueDate: formValue.dueDate ? new Date(formValue.dueDate).toISOString() : undefined,
       notes: formValue.notes || undefined,
     };
+
+    const project = this.projects().find((p) => p._id === formValue.projectId);
+    if (project?.clientId) {
+      payload.clientId = project.clientId;
+    }
 
     if (formValue.billingType === 'hourly' || formValue.billingType === 'daily') {
       payload.hourlyRate = formValue.hourlyRate;

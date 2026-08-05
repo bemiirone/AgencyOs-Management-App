@@ -78,7 +78,7 @@ export class Invoice extends BaseDocument {
   @Prop({ type: Types.ObjectId, ref: 'Project', required: true })
   declare projectId: string;
 
-  @Prop({ required: true })
+  @Prop()
   declare clientId: string;
 
   @Prop({ required: true })

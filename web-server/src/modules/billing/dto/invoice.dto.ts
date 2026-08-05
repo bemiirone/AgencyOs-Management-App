@@ -77,10 +77,10 @@ export class CreateInvoiceDto {
   @IsNotEmpty()
   projectId: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsString()
-  @IsNotEmpty()
-  clientId: string;
+  @IsOptional()
+  clientId?: string;
 
   @ApiProperty()
   @IsString()

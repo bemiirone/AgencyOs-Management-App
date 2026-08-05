@@ -13,7 +13,7 @@ interface ErrorResponse {
 
 export interface CreateInvoicePayload {
   projectId: string;
-  clientId: string;
+  clientId?: string;
   clientName: string;
   clientEmail: string;
   billingType?: 'budget' | 'hourly' | 'daily' | 'manual';
