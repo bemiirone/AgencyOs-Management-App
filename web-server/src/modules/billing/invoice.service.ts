@@ -3,7 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { Invoice, InvoiceStatus } from './schemas/invoice.schema';
-import { CreateInvoiceDto, UpdateInvoiceDto } from './dto/invoice.dto';
+import { CreateInvoiceDto, UpdateInvoiceDto, TimeAggregationQueryDto } from './dto/invoice.dto';
+import { TimeEntry } from '../time/schemas/time-entry.schema';
 
 @Injectable()
 export class InvoiceService {
@@ -11,6 +12,7 @@ export class InvoiceService {
 
   constructor(
     @InjectModel(Invoice.name) private invoiceModel: Model<Invoice>,
+    @InjectModel(TimeEntry.name) private timeEntryModel: Model<TimeEntry>,
     private configService: ConfigService,
   ) {
     const secretKey = this.configService.get<string>('stripe.secretKey');
@@ -21,7 +23,8 @@ export class InvoiceService {
     const invoiceNumber = await this.generateInvoiceNumber(tenantId);
 
     const tax = createInvoiceDto.tax || 0;
-    const total = createInvoiceDto.amount + tax;
+    const subtotal = createInvoiceDto.subtotal || createInvoiceDto.amount;
+    const total = subtotal + tax;
 
     const invoice = await this.invoiceModel.create({
       ...createInvoiceDto,
@@ -103,6 +106,42 @@ export class InvoiceService {
     }
 
     return this.processStripePayment(invoice, paymentMethodId);
+  }
+
+  async aggregateTime(query: TimeAggregationQueryDto, tenantId: string) {
+    const startDate = new Date(query.startDate);
+    const endDate = new Date(query.endDate);
+    endDate.setHours(23, 59, 59, 999);
+
+    const timeEntries = await this.timeEntryModel
+      .find({
+        tenantId,
+        projectId: query.projectId,
+        isBillable: true,
+        isRunning: false,
+        startTime: { $gte: startDate, $lte: endDate },
+      })
+      .exec();
+
+    const totalSeconds = timeEntries.reduce((sum, entry) => sum + entry.duration, 0);
+    const totalHours = totalSeconds / 3600;
+    const totalDays = totalHours / 8;
+
+    let amount = 0;
+    if (query.rateType === 'hourly') {
+      amount = totalHours * query.rate;
+    } else {
+      amount = totalDays * query.rate;
+    }
+
+    return {
+      totalSeconds,
+      totalHours: Math.round(totalHours * 100) / 100,
+      totalDays: Math.round(totalDays * 100) / 100,
+      entryCount: timeEntries.length,
+      amount: Math.round(amount * 100) / 100,
+      timeEntryIds: timeEntries.map((e) => e._id.toString()),
+    };
   }
 
   private async processMockPayment(invoice: Invoice) {

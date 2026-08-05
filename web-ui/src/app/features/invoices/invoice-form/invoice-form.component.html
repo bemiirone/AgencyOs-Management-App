@@ -1,0 +1,327 @@
+<div class="p-6">
+  <div class="mb-6">
+    <a routerLink="/invoices" queryParamsHandling="preserve" class="btn btn-ghost btn-sm gap-2">
+      <fa-icon [icon]="faArrowLeft"></fa-icon>
+      Back to Invoices
+    </a>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center py-16">
+      <fa-icon [icon]="faSpinner" class="animate-spin text-4xl text-primary"></fa-icon>
+    </div>
+  } @else {
+    <div class="card bg-base-100 shadow max-w-4xl">
+      <div class="card-body">
+        <h2 class="card-title text-2xl mb-4">{{ mode() === 'create' ? 'Generate Invoice' : 'Edit Invoice' }}</h2>
+
+        @if (error()) {
+          <div class="alert alert-error mb-4">
+            <span>{{ error() }}</span>
+          </div>
+        }
+
+        <form [formGroup]="invoiceForm" (ngSubmit)="onSubmit()">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">Project</span>
+              </label>
+              <select formControlName="projectId" class="select select-bordered w-full">
+                <option value="">Select Project</option>
+                @for (project of projects(); track project._id) {
+                  <option [value]="project._id">{{ project.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">Due Date</span>
+              </label>
+              <input type="date" formControlName="dueDate" class="input input-bordered w-full" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">Client Name</span>
+              </label>
+              <input type="text" formControlName="clientName" class="input input-bordered w-full" placeholder="Client name" />
+            </div>
+
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">Client Email</span>
+              </label>
+              <input type="email" formControlName="clientEmail" class="input input-bordered w-full" placeholder="client@example.com" />
+            </div>
+          </div>
+
+          <div class="form-control mb-4">
+            <label class="label">
+              <span class="label-text font-medium">Billing Type</span>
+            </label>
+            <div class="flex gap-4">
+              <label class="label cursor-pointer gap-2">
+                <input type="radio" formControlName="billingType" value="budget" class="radio radio-primary" />
+                <span class="label-text">Project Budget</span>
+              </label>
+              <label class="label cursor-pointer gap-2">
+                <input type="radio" formControlName="billingType" value="hourly" class="radio radio-primary" />
+                <span class="label-text">Hourly Rate</span>
+              </label>
+              <label class="label cursor-pointer gap-2">
+                <input type="radio" formControlName="billingType" value="daily" class="radio radio-primary" />
+                <span class="label-text">Daily Rate</span>
+              </label>
+              <label class="label cursor-pointer gap-2">
+                <input type="radio" formControlName="billingType" value="manual" class="radio radio-primary" />
+                <span class="label-text">Manual Line Items</span>
+              </label>
+            </div>
+          </div>
+
+          @if (showProjectBudget) {
+            <div class="form-control mb-4">
+              <label class="label">
+                <span class="label-text font-medium">Amount (from Project Budget)</span>
+              </label>
+              <input type="number" formControlName="amount" class="input input-bordered w-full" min="0" step="0.01" />
+            </div>
+          }
+
+          @if (showTimeAggregation) {
+            <div class="card bg-base-200 mb-4">
+              <div class="card-body p-4">
+                <h3 class="card-title text-lg mb-2">
+                  <fa-icon [icon]="faClock" class="mr-2"></fa-icon>
+                  Time Aggregation
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div class="form-control">
+                    <label class="label">
+                      <span class="label-text">Start Date</span>
+                    </label>
+                    <input type="date" formControlName="startDate" class="input input-bordered w-full" />
+                  </div>
+
+                  <div class="form-control">
+                    <label class="label">
+                      <span class="label-text">End Date</span>
+                    </label>
+                    <input type="date" formControlName="endDate" class="input input-bordered w-full" />
+                  </div>
+
+                  <div class="form-control">
+                    <label class="label">
+                      <span class="label-text">{{ billingType === 'hourly' ? 'Hourly Rate (£)' : 'Daily Rate (£)' }}</span>
+                    </label>
+                    <input type="number" [formControlName]="billingType === 'hourly' ? 'hourlyRate' : 'dailyRate'" class="input input-bordered w-full" min="0" step="0.01" />
+                  </div>
+                </div>
+
+                <button type="button" class="btn btn-secondary btn-sm" (click)="aggregateTime()" [disabled]="aggregatingTime()">
+                  @if (aggregatingTime()) {
+                    <fa-icon [icon]="faSpinner" class="animate-spin mr-2"></fa-icon>
+                    Aggregating...
+                  } @else {
+                    <fa-icon [icon]="faClock" class="mr-2"></fa-icon>
+                    Fetch Time Entries
+                  }
+                </button>
+
+                @if (billingType === 'hourly') {
+                  <div class="mt-2 text-sm text-base-content/70">
+                    Total Hours: {{ invoiceForm.get('totalHours')?.value || 0 }}
+                  </div>
+                }
+                @if (billingType === 'daily') {
+                  <div class="mt-2 text-sm text-base-content/70">
+                    Total Days: {{ invoiceForm.get('totalDays')?.value || 0 }}
+                  </div>
+                }
+              </div>
+            </div>
+
+            <div class="form-control mb-4">
+              <label class="label">
+                <span class="label-text font-medium">Calculated Amount</span>
+              </label>
+              <input type="number" formControlName="amount" class="input input-bordered w-full" min="0" step="0.01" />
+            </div>
+          }
+
+          @if (showLineItems) {
+            <div class="card bg-base-200 mb-4">
+              <div class="card-body p-4">
+                <div class="flex justify-between items-center mb-2">
+                  <h3 class="card-title text-lg">Line Items</h3>
+                  <button type="button" class="btn btn-sm btn-primary" (click)="addLineItem()">
+                    <fa-icon [icon]="faPlus" class="mr-2"></fa-icon>
+                    Add Line Item
+                  </button>
+                </div>
+
+                <div formArrayName="lineItems">
+                  @for (item of lineItems.controls; track $index) {
+                    <div [formGroupName]="$index" class="grid grid-cols-12 gap-2 mb-2 items-end">
+                      <div class="col-span-4 form-control">
+                        <input type="text" formControlName="description" class="input input-bordered input-sm w-full" placeholder="Description" />
+                      </div>
+                      <div class="col-span-2 form-control">
+                        <input type="number" formControlName="quantity" class="input input-bordered input-sm w-full" placeholder="Qty" min="0" step="1" (input)="onLineItemChange()" />
+                      </div>
+                      <div class="col-span-2 form-control">
+                        <input type="number" formControlName="rate" class="input input-bordered input-sm w-full" placeholder="Rate" min="0" step="0.01" (input)="onLineItemChange()" />
+                      </div>
+                      <div class="col-span-3 form-control">
+                        <input type="number" formControlName="amount" class="input input-bordered input-sm w-full" placeholder="Amount" min="0" step="0.01" readonly />
+                      </div>
+                      <div class="col-span-1">
+                        <button type="button" class="btn btn-sm btn-error btn-ghost" (click)="removeLineItem($index)">
+                          <fa-icon [icon]="faTrash"></fa-icon>
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+          <div class="form-control mb-4">
+            <label class="label cursor-pointer">
+              <span class="label-text font-medium">Add Payment Stages</span>
+              <input type="checkbox" class="toggle toggle-primary" [checked]="paymentStages.length > 0" (change)="paymentStages.length === 0 ? addPaymentStage() : null" />
+            </label>
+          </div>
+
+          @if (paymentStages.length > 0) {
+            <div class="card bg-base-200 mb-4">
+              <div class="card-body p-4">
+                <div class="flex justify-between items-center mb-2">
+                  <h3 class="card-title text-lg">Payment Stages</h3>
+                  <button type="button" class="btn btn-sm btn-primary" (click)="addPaymentStage()">
+                    <fa-icon [icon]="faPlus" class="mr-2"></fa-icon>
+                    Add Stage
+                  </button>
+                </div>
+
+                <div formArrayName="paymentStages">
+                  @for (stage of paymentStages.controls; track $index) {
+                    <div [formGroupName]="$index" class="grid grid-cols-12 gap-2 mb-2 items-end">
+                      <div class="col-span-4 form-control">
+                        <input type="text" formControlName="name" class="input input-bordered input-sm w-full" placeholder="Stage name" />
+                      </div>
+                      <div class="col-span-3 form-control">
+                        <div class="relative">
+                          <input type="number" formControlName="percentage" class="input input-bordered input-sm w-full" placeholder="Percentage" min="0" max="100" step="1" />
+                          <span class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/50">%</span>
+                        </div>
+                      </div>
+                      <div class="col-span-4 form-control">
+                        <input type="date" formControlName="dueDate" class="input input-bordered input-sm w-full" />
+                      </div>
+                      <div class="col-span-1">
+                        <button type="button" class="btn btn-sm btn-error btn-ghost" (click)="removePaymentStage($index)">
+                          <fa-icon [icon]="faTrash"></fa-icon>
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+          <div class="form-control mb-4">
+            <label class="label cursor-pointer">
+              <span class="label-text font-medium">Add Expenses</span>
+              <input type="checkbox" class="toggle toggle-primary" [checked]="expenses.length > 0" (change)="expenses.length === 0 ? addExpense() : null" />
+            </label>
+          </div>
+
+          @if (expenses.length > 0) {
+            <div class="card bg-base-200 mb-4">
+              <div class="card-body p-4">
+                <div class="flex justify-between items-center mb-2">
+                  <h3 class="card-title text-lg">Expenses</h3>
+                  <button type="button" class="btn btn-sm btn-primary" (click)="addExpense()">
+                    <fa-icon [icon]="faPlus" class="mr-2"></fa-icon>
+                    Add Expense
+                  </button>
+                </div>
+
+                <div formArrayName="expenses">
+                  @for (expense of expenses.controls; track $index) {
+                    <div [formGroupName]="$index" class="grid grid-cols-12 gap-2 mb-2 items-end">
+                      <div class="col-span-5 form-control">
+                        <input type="text" formControlName="description" class="input input-bordered input-sm w-full" placeholder="Description" />
+                      </div>
+                      <div class="col-span-3 form-control">
+                        <input type="number" formControlName="amount" class="input input-bordered input-sm w-full" placeholder="Amount" min="0" step="0.01" (input)="updateExpenseTotals()" />
+                      </div>
+                      <div class="col-span-3 form-control">
+                        <input type="date" formControlName="date" class="input input-bordered input-sm w-full" />
+                      </div>
+                      <div class="col-span-1">
+                        <button type="button" class="btn btn-sm btn-error btn-ghost" (click)="removeExpense($index)">
+                          <fa-icon [icon]="faTrash"></fa-icon>
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">Subtotal</span>
+              </label>
+              <input type="number" formControlName="subtotal" class="input input-bordered w-full" readonly />
+            </div>
+
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">Tax (£)</span>
+              </label>
+              <input type="number" formControlName="tax" class="input input-bordered w-full" min="0" step="0.01" />
+            </div>
+          </div>
+
+          <div class="alert alert-info mb-4">
+            <div>
+              <strong>Total: {{ total | currency:'GBP':'symbol':'1.2-2' }}</strong>
+            </div>
+          </div>
+
+          <div class="form-control mb-6">
+            <label class="label">
+              <span class="label-text font-medium">Notes</span>
+            </label>
+            <textarea formControlName="notes" class="textarea textarea-bordered w-full" rows="3" placeholder="Additional notes..."></textarea>
+          </div>
+
+          <div class="flex gap-3">
+            <button type="submit" class="btn btn-primary flex-1" [disabled]="invoiceForm.invalid || saving()">
+              @if (saving()) {
+                <fa-icon [icon]="faSpinner" class="animate-spin mr-2"></fa-icon>
+                {{ mode() === 'create' ? 'Creating...' : 'Saving...' }}
+              } @else {
+                <fa-icon [icon]="faSave" class="mr-2"></fa-icon>
+                {{ mode() === 'create' ? 'Generate Invoice' : 'Save Changes' }}
+              }
+            </button>
+            <a [routerLink]="mode() === 'create' ? '/invoices' : ['/invoices', invoiceId()]" queryParamsHandling="preserve" class="btn btn-ghost">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

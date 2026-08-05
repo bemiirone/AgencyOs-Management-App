@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { InvoiceService } from './invoice.service';
-import { CreateInvoiceDto, UpdateInvoiceDto } from './dto/invoice.dto';
+import { CreateInvoiceDto, UpdateInvoiceDto, TimeAggregationQueryDto } from './dto/invoice.dto';
 import { InvoiceStatus } from './schemas/invoice.schema';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { TenantId } from '../../common/decorators/tenant-id.decorator';
@@ -54,6 +54,15 @@ export class InvoiceController {
     @Body('paymentMethodId') paymentMethodId: string,
   ) {
     return this.invoiceService.processPayment(id, tenantId, paymentMethodId);
+  }
+
+  @Post('aggregate-time')
+  @ApiOperation({ summary: 'Aggregate billable time entries for invoice generation' })
+  async aggregateTime(
+    @Body() query: TimeAggregationQueryDto,
+    @TenantId() tenantId: string,
+  ) {
+    return this.invoiceService.aggregateTime(query, tenantId);
   }
 
   @Delete(':id')

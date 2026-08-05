@@ -1,72 +1,271 @@
-import { IsNotEmpty, IsString, IsOptional, IsNumber, IsDateString, IsArray } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsNumber, IsDateString, IsArray, ValidateNested, IsEnum } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { InvoiceStatus } from '../schemas/invoice.schema';
+import { InvoiceStatus, BillingType } from '../schemas/invoice.schema';
+import { Type } from 'class-transformer';
+
+export class InvoiceLineItemDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  description: string;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty()
+  quantity: number;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty()
+  rate: number;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty()
+  amount: number;
+}
+
+export class PaymentStageDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty()
+  percentage: number;
+
+  @ApiProperty({ required: false })
+  @IsDateString()
+  @IsOptional()
+  dueDate?: string;
+}
+
+export class InvoiceExpenseDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  description: string;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty()
+  amount: number;
+
+  @ApiProperty({ required: false })
+  @IsDateString()
+  @IsOptional()
+  date?: string;
+}
+
+export class DateRangeDto {
+  @ApiProperty({ required: false })
+  @IsDateString()
+  @IsOptional()
+  startDate?: string;
+
+  @ApiProperty({ required: false })
+  @IsDateString()
+  @IsOptional()
+  endDate?: string;
+}
 
 export class CreateInvoiceDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  declare projectId: string;
+  projectId: string;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  declare clientId: string;
+  clientId: string;
 
   @ApiProperty()
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  declare amount: number;
+  clientName: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  clientEmail: string;
+
+  @ApiProperty({ enum: BillingType, default: BillingType.BUDGET })
+  @IsEnum(BillingType)
+  @IsOptional()
+  billingType?: BillingType;
+
+  @ApiProperty({ type: [InvoiceLineItemDto], required: false })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => InvoiceLineItemDto)
+  @IsOptional()
+  lineItems?: InvoiceLineItemDto[];
+
+  @ApiProperty({ type: [PaymentStageDto], required: false })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => PaymentStageDto)
+  @IsOptional()
+  paymentStages?: PaymentStageDto[];
+
+  @ApiProperty({ type: [InvoiceExpenseDto], required: false })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => InvoiceExpenseDto)
+  @IsOptional()
+  expenses?: InvoiceExpenseDto[];
+
+  @ApiProperty({ type: DateRangeDto, required: false })
+  @ValidateNested()
+  @Type(() => DateRangeDto)
+  @IsOptional()
+  dateRange?: DateRangeDto;
 
   @ApiProperty({ required: false })
   @IsNumber()
   @IsOptional()
-  declare tax?: number;
+  hourlyRate?: number;
+
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
+  dailyRate?: number;
+
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
+  totalHours?: number;
+
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
+  totalDays?: number;
+
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsNotEmpty()
+  subtotal: number;
+
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsNotEmpty()
+  amount: number;
+
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
+  tax?: number;
 
   @ApiProperty({ required: false })
   @IsDateString()
   @IsOptional()
-  declare dueDate?: string;
+  dueDate?: string;
 
   @ApiProperty({ type: [String], required: false })
   @IsArray()
   @IsOptional()
-  declare timeEntryIds?: string[];
+  timeEntryIds?: string[];
 
   @ApiProperty({ type: [String], required: false })
   @IsArray()
   @IsOptional()
-  declare taskIds?: string[];
+  taskIds?: string[];
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  declare notes?: string;
+  notes?: string;
 }
 
 export class UpdateInvoiceDto {
   @ApiProperty({ enum: InvoiceStatus, required: false })
   @IsString()
   @IsOptional()
-  declare status?: InvoiceStatus;
+  status?: InvoiceStatus;
+
+  @ApiProperty({ enum: BillingType, required: false })
+  @IsEnum(BillingType)
+  @IsOptional()
+  billingType?: BillingType;
+
+  @ApiProperty({ type: [InvoiceLineItemDto], required: false })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => InvoiceLineItemDto)
+  @IsOptional()
+  lineItems?: InvoiceLineItemDto[];
+
+  @ApiProperty({ type: [PaymentStageDto], required: false })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => PaymentStageDto)
+  @IsOptional()
+  paymentStages?: PaymentStageDto[];
+
+  @ApiProperty({ type: [InvoiceExpenseDto], required: false })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => InvoiceExpenseDto)
+  @IsOptional()
+  expenses?: InvoiceExpenseDto[];
 
   @ApiProperty({ required: false })
   @IsNumber()
   @IsOptional()
-  declare amount?: number;
+  subtotal?: number;
 
   @ApiProperty({ required: false })
   @IsNumber()
   @IsOptional()
-  declare tax?: number;
+  amount?: number;
+
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
+  tax?: number;
+
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
+  total?: number;
 
   @ApiProperty({ required: false })
   @IsDateString()
   @IsOptional()
-  declare dueDate?: string;
+  dueDate?: string;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  declare notes?: string;
+  notes?: string;
+}
+
+export class TimeAggregationQueryDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  projectId: string;
+
+  @ApiProperty()
+  @IsDateString()
+  @IsNotEmpty()
+  startDate: string;
+
+  @ApiProperty()
+  @IsDateString()
+  @IsNotEmpty()
+  endDate: string;
+
+  @ApiProperty({ enum: ['hourly', 'daily'] })
+  @IsEnum(['hourly', 'daily'])
+  @IsNotEmpty()
+  rateType: 'hourly' | 'daily';
+
+  @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty()
+  rate: number;
 }

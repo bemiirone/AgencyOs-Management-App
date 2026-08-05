@@ -59,6 +59,7 @@ export const API_CONFIG = {
     SEND: (id: string) => `/api/invoices/${id}/send`,
     PAY: (id: string) => `/api/invoices/${id}/pay`,
     DELETE: (id: string) => `/api/invoices/${id}`,
+    AGGREGATE_TIME: '/api/invoices/aggregate-time',
   },
   USERS: {
     LIST: '/api/users',

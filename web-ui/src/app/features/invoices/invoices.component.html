@@ -1,8 +1,113 @@
-<div class="container mx-auto px-4 py-8">
-  <div class="flex flex-col items-center justify-center min-h-[60vh] text-center">
-    <fa-icon [icon]="faFileInvoiceDollar" class="text-6xl text-base-content/30 mb-6"></fa-icon>
-    <h1 class="text-3xl font-bold mb-2">Invoices</h1>
-    <p class="text-base-content/60 text-lg mb-4">Invoice management is coming soon.</p>
-    <p class="text-base-content/40">We're working on this feature. Check back later!</p>
+<div class="p-6">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-base-content">Invoices</h1>
+      <p class="text-base-content/60 mt-1">Manage and track all invoices</p>
+    </div>
+    <button [routerLink]="['/invoices/create']" class="btn btn-primary">
+      <fa-icon [icon]="faPlus" class="mr-2"></fa-icon>
+      Generate Invoice
+    </button>
+  </div>
+
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <div class="flex flex-col sm:flex-row gap-4 mb-4">
+        <div class="form-control flex-1">
+          <div class="relative">
+            <fa-icon [icon]="faSearch" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              placeholder="Search invoices..."
+              class="input input-bordered w-full pl-10"
+            />
+          </div>
+        </div>
+        <div class="form-control sm:w-48">
+          <select
+            [(ngModel)]="statusFilter"
+            (ngModelChange)="onStatusFilterChange()"
+            class="select select-bordered w-full"
+          >
+            <option value="">All Statuses</option>
+            <option value="draft">Draft</option>
+            <option value="sent">Sent</option>
+            <option value="paid">Paid</option>
+            <option value="overdue">Overdue</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+      </div>
+
+      @if (loading()) {
+        <div class="flex justify-center py-8">
+          <fa-icon [icon]="faSpinner" class="animate-spin text-3xl text-primary"></fa-icon>
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Invoice #</th>
+                <th>Project</th>
+                <th>Client</th>
+                <th>Billing Type</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Due Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (invoice of filteredInvoices; track invoice._id) {
+                <tr class="hover">
+                  <td>
+                    <div class="font-bold">{{ invoice.invoiceNumber }}</div>
+                    <div class="text-sm text-base-content/50">{{ formatDate(invoice.createdAt) }}</div>
+                  </td>
+                  <td>{{ invoice.projectName || 'Unknown Project' }}</td>
+                  <td>{{ invoice.clientName }}</td>
+                  <td>
+                    <span class="badge badge-sm">{{ getBillingTypeLabel(invoice.billingType) }}</span>
+                  </td>
+                  <td class="font-medium">{{ formatCurrency(invoice.total) }}</td>
+                  <td>
+                    <span class="badge {{ getStatusClass(invoice.status) }} badge-sm gap-1">
+                      {{ getStatusLabel(invoice.status) }}
+                    </span>
+                  </td>
+                  <td>{{ formatDate(invoice.dueDate) }}</td>
+                  <td>
+                    <div class="flex gap-2">
+                      <a [routerLink]="['/invoices', invoice._id]" queryParamsHandling="preserve" class="btn btn-ghost btn-xs">
+                        <fa-icon [icon]="faEye"></fa-icon>
+                      </a>
+                      @if (invoice.status === 'draft') {
+                        <a [routerLink]="['/invoices', invoice._id, 'edit']" queryParamsHandling="preserve" class="btn btn-ghost btn-xs">
+                          <fa-icon [icon]="faEdit"></fa-icon>
+                        </a>
+                        <button class="btn btn-ghost btn-xs text-info" (click)="sendInvoice(invoice._id)">
+                          <fa-icon [icon]="faPaperPlane"></fa-icon>
+                        </button>
+                        <button class="btn btn-ghost btn-xs text-error" (click)="deleteInvoice(invoice._id)">
+                          <fa-icon [icon]="faTrash"></fa-icon>
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="8" class="text-center py-8 text-base-content/50">
+                    No invoices found
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
   </div>
 </div>

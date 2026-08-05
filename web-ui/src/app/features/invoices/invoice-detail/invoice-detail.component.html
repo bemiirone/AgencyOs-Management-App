@@ -1,0 +1,210 @@
+<div class="p-6">
+  <div class="mb-6 flex justify-between items-center">
+    <a routerLink="/invoices" queryParamsHandling="preserve" class="btn btn-ghost btn-sm gap-2">
+      <fa-icon [icon]="faArrowLeft"></fa-icon>
+      Back to Invoices
+    </a>
+    @if (invoice(); as inv) {
+      <div class="flex gap-2">
+        @if (inv.status === 'draft') {
+          <a [routerLink]="['/invoices', inv._id, 'edit']" queryParamsHandling="preserve" class="btn btn-primary btn-sm">
+            <fa-icon [icon]="faEdit" class="mr-2"></fa-icon>
+            Edit
+          </a>
+          <button class="btn btn-info btn-sm" (click)="sendInvoice()">
+            <fa-icon [icon]="faPaperPlane" class="mr-2"></fa-icon>
+            Send to Client
+          </button>
+        }
+        <button class="btn btn-ghost btn-sm" onclick="window.print()">
+          <fa-icon [icon]="faPrint" class="mr-2"></fa-icon>
+          Print
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center py-16">
+      <fa-icon [icon]="faSpinner" class="animate-spin text-4xl text-primary"></fa-icon>
+    </div>
+  } @else if (invoice(); as inv) {
+    <div class="card bg-base-100 shadow max-w-4xl">
+      <div class="card-body">
+        <div class="flex justify-between items-start mb-6">
+          <div>
+            <h2 class="card-title text-3xl">{{ inv.invoiceNumber }}</h2>
+            <p class="text-base-content/60 mt-1">Created: {{ formatDate(inv.createdAt) }}</p>
+          </div>
+          <span class="badge {{ getStatusClass(inv.status) }} badge-lg gap-1">
+            {{ getStatusLabel(inv.status) }}
+          </span>
+        </div>
+
+        <div class="divider">Invoice Details</div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 class="text-lg font-semibold mb-2">Project</h3>
+            <p class="text-base-content/70">{{ inv.projectName || 'Unknown Project' }}</p>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold mb-2">Billing Type</h3>
+            <p class="text-base-content/70">{{ getBillingTypeLabel(inv.billingType) }}</p>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold mb-2">Client</h3>
+            <p class="text-base-content/70">{{ inv.clientName }}</p>
+            <p class="text-base-content/50 text-sm">{{ inv.clientEmail }}</p>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold mb-2">Due Date</h3>
+            <p class="text-base-content/70">{{ formatDate(inv.dueDate) }}</p>
+          </div>
+        </div>
+
+        @if (inv.billingType === 'hourly' || inv.billingType === 'daily') {
+          <div class="divider">Time Aggregation</div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            @if (inv.dateRange) {
+              <div>
+                <h4 class="text-sm font-medium text-base-content/60">Date Range</h4>
+                <p>{{ formatDate(inv.dateRange.startDate) }} - {{ formatDate(inv.dateRange.endDate) }}</p>
+              </div>
+            }
+            @if (inv.billingType === 'hourly') {
+              <div>
+                <h4 class="text-sm font-medium text-base-content/60">Total Hours</h4>
+                <p>{{ inv.totalHours || 0 }} hours @ {{ formatCurrency(inv.hourlyRate || 0) }}/hr</p>
+              </div>
+            }
+            @if (inv.billingType === 'daily') {
+              <div>
+                <h4 class="text-sm font-medium text-base-content/60">Total Days</h4>
+                <p>{{ inv.totalDays || 0 }} days @ {{ formatCurrency(inv.dailyRate || 0) }}/day</p>
+              </div>
+            }
+          </div>
+        }
+
+        @if (inv.lineItems && inv.lineItems.length > 0) {
+          <div class="divider">Line Items</div>
+          <div class="overflow-x-auto">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>Quantity</th>
+                  <th>Rate</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of inv.lineItems; track $index) {
+                  <tr>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ formatCurrency(item.rate) }}</td>
+                    <td>{{ formatCurrency(item.amount) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+
+        @if (inv.paymentStages && inv.paymentStages.length > 0) {
+          <div class="divider">Payment Stages</div>
+          <div class="overflow-x-auto">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Stage</th>
+                  <th>Percentage</th>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (stage of inv.paymentStages; track $index) {
+                  <tr>
+                    <td>{{ stage.name }}</td>
+                    <td>{{ stage.percentage }}%</td>
+                    <td>{{ formatDate(stage.dueDate) }}</td>
+                    <td>
+                      <span class="badge {{ getStatusClass(stage.status) }} badge-sm">
+                        {{ getStatusLabel(stage.status) }}
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+
+        @if (inv.expenses && inv.expenses.length > 0) {
+          <div class="divider">Expenses</div>
+          <div class="overflow-x-auto">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>Amount</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (expense of inv.expenses; track $index) {
+                  <tr>
+                    <td>{{ expense.description }}</td>
+                    <td>{{ formatCurrency(expense.amount) }}</td>
+                    <td>{{ formatDate(expense.date) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+
+        <div class="divider">Summary</div>
+
+        <div class="flex justify-end">
+          <div class="w-64">
+            <div class="flex justify-between py-2">
+              <span class="text-base-content/70">Subtotal:</span>
+              <span class="font-medium">{{ formatCurrency(inv.subtotal) }}</span>
+            </div>
+            <div class="flex justify-between py-2">
+              <span class="text-base-content/70">Tax:</span>
+              <span class="font-medium">{{ formatCurrency(inv.tax || 0) }}</span>
+            </div>
+            <div class="divider my-1"></div>
+            <div class="flex justify-between py-2 text-lg font-bold">
+              <span>Total:</span>
+              <span>{{ formatCurrency(inv.total) }}</span>
+            </div>
+            @if (inv.status === 'paid') {
+              <div class="flex justify-between py-2 text-success">
+                <span>Paid:</span>
+                <span>{{ formatDate(inv.paidAt) }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        @if (inv.notes) {
+          <div class="divider">Notes</div>
+          <p class="text-base-content/70 whitespace-pre-wrap">{{ inv.notes }}</p>
+        }
+      </div>
+    </div>
+  } @else if (error()) {
+    <div class="alert alert-error">
+      <span>{{ error() }}</span>
+    </div>
+  }
+</div>

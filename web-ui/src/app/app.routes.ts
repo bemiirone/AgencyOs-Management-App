@@ -99,6 +99,27 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'invoices/create',
+        loadComponent: () =>
+          import('./features/invoices/invoice-form/invoice-form.component').then(
+            (m) => m.InvoiceFormComponent
+          ),
+      },
+      {
+        path: 'invoices/:id',
+        loadComponent: () =>
+          import('./features/invoices/invoice-detail/invoice-detail.component').then(
+            (m) => m.InvoiceDetailComponent
+          ),
+      },
+      {
+        path: 'invoices/:id/edit',
+        loadComponent: () =>
+          import('./features/invoices/invoice-form/invoice-form.component').then(
+            (m) => m.InvoiceFormComponent
+          ),
+      },
+      {
         path: 'admin/users',
         loadComponent: () =>
           import('./features/admin/users/user-admin.component').then(
