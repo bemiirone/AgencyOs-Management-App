@@ -25,6 +25,8 @@ export interface CreateInvoicePayload {
   dailyRate?: number;
   totalHours?: number;
   totalDays?: number;
+  manualHours?: number;
+  manualDays?: number;
   subtotal: number;
   amount: number;
   tax?: number;

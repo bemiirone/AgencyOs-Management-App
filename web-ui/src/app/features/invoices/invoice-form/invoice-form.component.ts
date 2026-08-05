@@ -30,6 +30,7 @@ export class InvoiceFormComponent implements OnInit {
   readonly invoiceId = signal('');
   readonly projects = signal<Project[]>([]);
   readonly aggregatingTime = signal(false);
+  readonly timeInputMode = signal<'fetch' | 'manual'>('fetch');
 
   readonly faArrowLeft = faArrowLeft;
   readonly faSpinner = faSpinner;
@@ -52,6 +53,9 @@ export class InvoiceFormComponent implements OnInit {
     dailyRate: [0],
     totalHours: [0],
     totalDays: [0],
+    manualHours: [0],
+    manualDays: [0],
+    workDayHours: [8],
     subtotal: [0, Validators.required],
     amount: [0, Validators.required],
     tax: [0],
@@ -79,12 +83,28 @@ export class InvoiceFormComponent implements OnInit {
     return this.billingType === 'manual';
   }
 
-  get showTimeAggregation(): boolean {
+  get showTimeSection(): boolean {
     return this.billingType === 'hourly' || this.billingType === 'daily';
+  }
+
+  get showTimeFetch(): boolean {
+    return this.showTimeSection && this.timeInputMode() === 'fetch';
+  }
+
+  get showTimeManual(): boolean {
+    return this.showTimeSection && this.timeInputMode() === 'manual';
   }
 
   get showProjectBudget(): boolean {
     return this.billingType === 'budget';
+  }
+
+  get showPaymentStagesToggle(): boolean {
+    return this.billingType === 'budget';
+  }
+
+  get showPaymentStages(): boolean {
+    return this.showPaymentStagesToggle && this.paymentStages.length > 0;
   }
 
   get subtotal(): number {
@@ -172,8 +192,37 @@ export class InvoiceFormComponent implements OnInit {
       }
     });
 
+    this.invoiceForm.get('billingType')?.valueChanges.subscribe((billingType) => {
+      if (billingType !== 'budget') {
+        this.clearPaymentStages();
+      }
+      if (billingType === 'hourly' || billingType === 'daily') {
+        this.timeInputMode.set('fetch');
+      }
+    });
+
     this.invoiceForm.get('tax')?.valueChanges.subscribe(() => {
       this.updateTotals();
+    });
+
+    this.invoiceForm.get('manualHours')?.valueChanges.subscribe(() => {
+      this.calculateManualAmount();
+    });
+
+    this.invoiceForm.get('manualDays')?.valueChanges.subscribe(() => {
+      this.calculateManualAmount();
+    });
+
+    this.invoiceForm.get('hourlyRate')?.valueChanges.subscribe(() => {
+      if (this.timeInputMode() === 'manual' && this.billingType === 'hourly') {
+        this.calculateManualAmount();
+      }
+    });
+
+    this.invoiceForm.get('dailyRate')?.valueChanges.subscribe(() => {
+      if (this.timeInputMode() === 'manual' && this.billingType === 'daily') {
+        this.calculateManualAmount();
+      }
     });
   }
 
@@ -208,6 +257,20 @@ export class InvoiceFormComponent implements OnInit {
     this.paymentStages.removeAt(index);
   }
 
+  clearPaymentStages(): void {
+    while (this.paymentStages.length) {
+      this.paymentStages.removeAt(0);
+    }
+  }
+
+  togglePaymentStages(checked: boolean): void {
+    if (checked && this.paymentStages.length === 0) {
+      this.addPaymentStage();
+    } else if (!checked) {
+      this.clearPaymentStages();
+    }
+  }
+
   addExpense(expense?: InvoiceExpense): void {
     this.expenses.push(
       this.fb.group({
@@ -221,6 +284,13 @@ export class InvoiceFormComponent implements OnInit {
 
   removeExpense(index: number): void {
     this.expenses.removeAt(index);
+    this.updateExpenseTotals();
+  }
+
+  clearExpenses(): void {
+    while (this.expenses.length) {
+      this.expenses.removeAt(0);
+    }
     this.updateExpenseTotals();
   }
 
@@ -256,6 +326,55 @@ export class InvoiceFormComponent implements OnInit {
     this.updateLineItemAmounts();
   }
 
+  onTimeInputModeChange(mode: 'fetch' | 'manual'): void {
+    this.timeInputMode.set(mode);
+    if (mode === 'manual') {
+      this.invoiceForm.patchValue({
+        totalHours: 0,
+        totalDays: 0,
+        amount: 0,
+        subtotal: 0,
+      });
+    }
+  }
+
+  roundToHalfHour(hours: number): number {
+    return Math.round(hours / 0.5) * 0.5;
+  }
+
+  roundToHalfDay(hours: number, workDayHours: number): number {
+    if (hours <= 0) return 0;
+    const halfDayHours = workDayHours / 2;
+    const halfDayUnits = hours / halfDayHours;
+    const roundedUnits = Math.round(halfDayUnits);
+    return roundedUnits * 0.5;
+  }
+
+  calculateManualAmount(): void {
+    if (this.billingType === 'hourly') {
+      const hours = this.invoiceForm.get('manualHours')?.value || 0;
+      const rate = this.invoiceForm.get('hourlyRate')?.value || 0;
+      const roundedHours = this.roundToHalfHour(hours);
+      const amount = roundedHours * rate;
+      this.invoiceForm.patchValue({
+        totalHours: roundedHours,
+        amount: Math.round(amount * 100) / 100,
+        subtotal: Math.round(amount * 100) / 100,
+      }, { emitEvent: false });
+    } else if (this.billingType === 'daily') {
+      const hours = this.invoiceForm.get('manualHours')?.value || 0;
+      const workDayHours = this.invoiceForm.get('workDayHours')?.value || 8;
+      const rate = this.invoiceForm.get('dailyRate')?.value || 0;
+      const roundedDays = this.roundToHalfDay(hours, workDayHours);
+      const amount = roundedDays * rate;
+      this.invoiceForm.patchValue({
+        totalDays: roundedDays,
+        amount: Math.round(amount * 100) / 100,
+        subtotal: Math.round(amount * 100) / 100,
+      }, { emitEvent: false });
+    }
+  }
+
   aggregateTime(): void {
     const projectId = this.invoiceForm.get('projectId')?.value;
     const startDate = this.invoiceForm.get('startDate')?.value;
@@ -287,11 +406,24 @@ export class InvoiceFormComponent implements OnInit {
       rate,
     }).subscribe({
       next: (result: TimeAggregationResult) => {
+        let roundedHours = result.totalHours;
+        let roundedDays = result.totalDays;
+        let amount = result.amount;
+
+        if (rateType === 'hourly') {
+          roundedHours = this.roundToHalfHour(result.totalHours);
+          amount = roundedHours * rate;
+        } else {
+          const workDayHours = this.invoiceForm.get('workDayHours')?.value || 8;
+          roundedDays = this.roundToHalfDay(result.totalHours, workDayHours);
+          amount = roundedDays * rate;
+        }
+
         this.invoiceForm.patchValue({
-          totalHours: result.totalHours,
-          totalDays: result.totalDays,
-          amount: result.amount,
-          subtotal: result.amount,
+          totalHours: roundedHours,
+          totalDays: roundedDays,
+          amount: Math.round(amount * 100) / 100,
+          subtotal: Math.round(amount * 100) / 100,
         });
         this.aggregatingTime.set(false);
       },
@@ -337,6 +469,10 @@ export class InvoiceFormComponent implements OnInit {
           startDate: new Date(formValue.startDate).toISOString(),
           endDate: new Date(formValue.endDate).toISOString(),
         };
+      }
+      if (this.timeInputMode() === 'manual') {
+        payload.manualHours = formValue.manualHours;
+        payload.manualDays = formValue.manualDays;
       }
     }
 

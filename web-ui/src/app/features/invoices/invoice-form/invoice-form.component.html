@@ -92,12 +92,30 @@
             </div>
           }
 
-          @if (showTimeAggregation) {
+          @if (showTimeSection) {
+            <div class="form-control mb-4">
+              <label class="label">
+                <span class="label-text font-medium">Time Input Method</span>
+              </label>
+              <div class="flex gap-4">
+                <label class="label cursor-pointer gap-2">
+                  <input type="radio" [checked]="timeInputMode() === 'fetch'" (change)="onTimeInputModeChange('fetch')" class="radio radio-primary" />
+                  <span class="label-text">Fetch Time Entries</span>
+                </label>
+                <label class="label cursor-pointer gap-2">
+                  <input type="radio" [checked]="timeInputMode() === 'manual'" (change)="onTimeInputModeChange('manual')" class="radio radio-primary" />
+                  <span class="label-text">Manual Input</span>
+                </label>
+              </div>
+            </div>
+          }
+
+          @if (showTimeFetch) {
             <div class="card bg-base-200 mb-4">
               <div class="card-body p-4">
                 <h3 class="card-title text-lg mb-2">
                   <fa-icon [icon]="faClock" class="mr-2"></fa-icon>
-                  Time Aggregation
+                  Fetch Time Entries
                 </h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -135,12 +153,12 @@
 
                 @if (billingType === 'hourly') {
                   <div class="mt-2 text-sm text-base-content/70">
-                    Total Hours: {{ invoiceForm.get('totalHours')?.value || 0 }}
+                    Total Hours (rounded): {{ invoiceForm.get('totalHours')?.value || 0 }}
                   </div>
                 }
                 @if (billingType === 'daily') {
                   <div class="mt-2 text-sm text-base-content/70">
-                    Total Days: {{ invoiceForm.get('totalDays')?.value || 0 }}
+                    Total Days (rounded): {{ invoiceForm.get('totalDays')?.value || 0 }}
                   </div>
                 }
               </div>
@@ -151,6 +169,68 @@
                 <span class="label-text font-medium">Calculated Amount</span>
               </label>
               <input type="number" formControlName="amount" class="input input-bordered w-full" min="0" step="0.01" />
+            </div>
+          }
+
+          @if (showTimeManual) {
+            <div class="card bg-base-200 mb-4">
+              <div class="card-body p-4">
+                <h3 class="card-title text-lg mb-2">
+                  <fa-icon [icon]="faClock" class="mr-2"></fa-icon>
+                  Manual Time Input
+                </h3>
+
+                @if (billingType === 'hourly') {
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-control">
+                      <label class="label">
+                        <span class="label-text">Hours Worked</span>
+                      </label>
+                      <input type="number" formControlName="manualHours" class="input input-bordered w-full" min="0" step="0.1" placeholder="e.g., 6.5" />
+                    </div>
+
+                    <div class="form-control">
+                      <label class="label">
+                        <span class="label-text">Hourly Rate (£)</span>
+                      </label>
+                      <input type="number" formControlName="hourlyRate" class="input input-bordered w-full" min="0" step="0.01" />
+                    </div>
+                  </div>
+
+                  <div class="mt-2 text-sm text-base-content/70">
+                    Rounded Hours: {{ invoiceForm.get('totalHours')?.value || 0 }} | Calculated: {{ invoiceForm.get('amount')?.value | currency:'GBP':'symbol':'1.2-2' }}
+                  </div>
+                }
+
+                @if (billingType === 'daily') {
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="form-control">
+                      <label class="label">
+                        <span class="label-text">Hours Worked</span>
+                      </label>
+                      <input type="number" formControlName="manualHours" class="input input-bordered w-full" min="0" step="0.1" placeholder="e.g., 11" />
+                    </div>
+
+                    <div class="form-control">
+                      <label class="label">
+                        <span class="label-text">Work Day Length (hours)</span>
+                      </label>
+                      <input type="number" formControlName="workDayHours" class="input input-bordered w-full" min="1" step="0.5" placeholder="e.g., 8" />
+                    </div>
+
+                    <div class="form-control">
+                      <label class="label">
+                        <span class="label-text">Daily Rate (£)</span>
+                      </label>
+                      <input type="number" formControlName="dailyRate" class="input input-bordered w-full" min="0" step="0.01" />
+                    </div>
+                  </div>
+
+                  <div class="mt-2 text-sm text-base-content/70">
+                    Rounded Days: {{ invoiceForm.get('totalDays')?.value || 0 }} | Calculated: {{ invoiceForm.get('amount')?.value | currency:'GBP':'symbol':'1.2-2' }}
+                  </div>
+                }
+              </div>
             </div>
           }
 
@@ -192,14 +272,16 @@
             </div>
           }
 
-          <div class="form-control mb-4">
-            <label class="label cursor-pointer">
-              <span class="label-text font-medium">Add Payment Stages</span>
-              <input type="checkbox" class="toggle toggle-primary" [checked]="paymentStages.length > 0" (change)="paymentStages.length === 0 ? addPaymentStage() : null" />
-            </label>
-          </div>
+          @if (showPaymentStagesToggle) {
+            <div class="form-control mb-4">
+              <label class="label cursor-pointer">
+                <span class="label-text font-medium">Add Payment Stages</span>
+                <input type="checkbox" class="toggle toggle-primary" [checked]="paymentStages.length > 0" (change)="togglePaymentStages($any($event.target).checked)" />
+              </label>
+            </div>
+          }
 
-          @if (paymentStages.length > 0) {
+          @if (showPaymentStages) {
             <div class="card bg-base-200 mb-4">
               <div class="card-body p-4">
                 <div class="flex justify-between items-center mb-2">
@@ -240,7 +322,7 @@
           <div class="form-control mb-4">
             <label class="label cursor-pointer">
               <span class="label-text font-medium">Add Expenses</span>
-              <input type="checkbox" class="toggle toggle-primary" [checked]="expenses.length > 0" (change)="expenses.length === 0 ? addExpense() : null" />
+              <input type="checkbox" class="toggle toggle-primary" [checked]="expenses.length > 0" (change)="expenses.length === 0 ? addExpense() : clearExpenses()" />
             </label>
           </div>
 
