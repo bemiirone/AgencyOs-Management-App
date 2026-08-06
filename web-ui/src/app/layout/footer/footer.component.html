@@ -1,0 +1,80 @@
+<footer class="bg-base-300 mt-auto">
+  <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      <div>
+        <h3 class="text-sm font-semibold uppercase tracking-wider text-base-content">
+          AgencyOS
+        </h3>
+        <p class="mt-4 text-sm text-base-content/70">
+          Manage your agency projects, tasks, time tracking, and invoicing in one place.
+        </p>
+        <div class="mt-6 flex gap-4">
+          <a href="#" class="text-base-content/60 hover:text-base-content transition-colors" aria-label="LinkedIn">
+            <fa-icon [icon]="faLinkedin" size="lg"></fa-icon>
+          </a>
+          <a href="#" class="text-base-content/60 hover:text-base-content transition-colors" aria-label="Twitter">
+            <fa-icon [icon]="faTwitter" size="lg"></fa-icon>
+          </a>
+          <a href="#" class="text-base-content/60 hover:text-base-content transition-colors" aria-label="GitHub">
+            <fa-icon [icon]="faGithub" size="lg"></fa-icon>
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-sm font-semibold uppercase tracking-wider text-base-content">
+          Platform
+        </h3>
+        <ul class="mt-4 space-y-3">
+          <li>
+            <a routerLink="/dashboard" class="text-sm text-base-content/70 hover:text-base-content transition-colors">
+              Dashboard
+            </a>
+          </li>
+          <li>
+            <a routerLink="/projects" class="text-sm text-base-content/70 hover:text-base-content transition-colors">
+              Projects
+            </a>
+          </li>
+          <li>
+            <a routerLink="/tasks" class="text-sm text-base-content/70 hover:text-base-content transition-colors">
+              Tasks
+            </a>
+          </li>
+          <li>
+            <a routerLink="/time" class="text-sm text-base-content/70 hover:text-base-content transition-colors">
+              Time Tracking
+            </a>
+          </li>
+          <li>
+            <a routerLink="/invoices" class="text-sm text-base-content/70 hover:text-base-content transition-colors">
+              Invoices
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="text-sm font-semibold uppercase tracking-wider text-base-content">
+          Resources
+        </h3>
+        <ul class="mt-4 space-y-3">
+          @for (page of pages(); track trackBySlug($index, page)) {
+            <li>
+              <a [routerLink]="['/pages', page.slug]" class="text-sm text-base-content/70 hover:text-base-content transition-colors">
+                {{ page.title }}
+              </a>
+            </li>
+          }
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="mt-10 border-t border-base-content/10 pt-8">
+      <p class="text-center text-sm text-base-content/60">
+        &copy; {{ currentYear }} AgencyOS. All rights reserved.
+      </p>
+    </div>
+  </div>
+</footer>

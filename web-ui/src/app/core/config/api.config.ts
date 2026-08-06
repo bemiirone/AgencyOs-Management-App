@@ -74,4 +74,8 @@ export const API_CONFIG = {
     LIST: '/api/notifications',
     MARK_READ: (id: string) => `/api/notifications/${id}/read`,
   },
+  PAGES: {
+    LIST: '/api/pages',
+    DETAIL: (slug: string) => `/api/pages/${slug}`,
+  },
 };

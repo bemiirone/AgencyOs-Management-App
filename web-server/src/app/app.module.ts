@@ -10,6 +10,7 @@ import { BillingModule } from '../modules/billing/billing.module';
 import { NotificationModule } from '../modules/notification/notification.module';
 import { UserModule } from '../modules/user/user.module';
 import { FaqModule } from '../modules/faq/faq.module';
+import { PageModule } from '../modules/page/page.module';
 import databaseConfig from '../config/database.config';
 import jwtConfig from '../config/jwt.config';
 import redisConfig from '../config/redis.config';
@@ -48,6 +49,7 @@ import sendgridConfig from '../config/sendgrid.config';
     NotificationModule,
     UserModule,
     FaqModule,
+    PageModule,
   ],
 })
 export class AppModule {}
