@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -9,26 +9,35 @@ import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
+
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(TenantMember.name) private tenantMemberModel: Model<TenantMember>,
   ) {}
 
   async findAll(tenantId: string) {
-    const memberships = await this.tenantMemberModel.find({ tenantId: new Types.ObjectId(tenantId) }).populate('userId').exec();
+    this.logger.log(`Finding users for tenantId: ${tenantId}`);
+    try {
+      const memberships = await this.tenantMemberModel.find({ tenantId: new Types.ObjectId(tenantId) }).populate('userId').exec();
+      this.logger.log(`Found ${memberships.length} memberships`);
 
-    return memberships.map((membership) => {
-      const user = membership.userId as unknown as User;
-      return {
-        id: user._id.toString(),
-        email: user.email,
-        name: user.name,
-        role: membership.role,
-        isActive: user.isActive,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-      };
-    });
+      return memberships.map((membership) => {
+        const user = membership.userId as unknown as User;
+        return {
+          id: user._id.toString(),
+          email: user.email,
+          name: user.name,
+          role: membership.role,
+          isActive: user.isActive,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        };
+      });
+    } catch (error) {
+      this.logger.error(`Failed to find users: ${error.message}`, error.stack);
+      throw error;
+    }
   }
 
   async findOne(userId: string, tenantId: string) {

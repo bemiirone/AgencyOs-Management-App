@@ -8,6 +8,7 @@ const COLLECTIONS = [
   'timeentries',
   'invoices',
   'notifications',
+  'faqs',
 ];
 
 export async function clearDatabase(connection: Connection): Promise<void> {

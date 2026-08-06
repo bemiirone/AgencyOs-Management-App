@@ -12,6 +12,7 @@ import {
   faCog,
   faBars,
   faBuilding,
+  faBook,
 } from '@fortawesome/free-solid-svg-icons';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -35,6 +36,7 @@ export class SidebarComponent implements OnInit {
   readonly faCog = faCog;
   readonly faBars = faBars;
   readonly faBuilding = faBuilding;
+  readonly faBook = faBook;
 
   readonly tenantName = signal('');
   readonly userRole = signal('');
@@ -51,6 +53,7 @@ export class SidebarComponent implements OnInit {
     { label: 'Time Tracking', icon: faClock, route: '/time' },
     { label: 'Invoices', icon: faFileInvoiceDollar, route: '/invoices' },
     { label: 'Team', icon: faUsers, route: '/admin/users' },
+    { label: 'Docs', icon: faBook, route: '/docs' },
     { label: 'Settings', icon: faCog, route: '/settings' },
   ];
 

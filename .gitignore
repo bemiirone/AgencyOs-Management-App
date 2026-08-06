@@ -48,6 +48,9 @@ Thumbs.db
 .nx/self-healing
 .nx/migrate-runs
 
+# Seed data
+web-server/src/seed/data/seed-data.ts
+
 # OpenCode
 .opencode
 
@@ -63,3 +66,4 @@ __screenshots__/
 fix-string-objectids.ts
 seed-task-createdby.ts
 ci.yml
+web-server/src/seed/seed-faqs.ts

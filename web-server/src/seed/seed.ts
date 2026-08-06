@@ -1,8 +1,12 @@
+import * as dotenv from 'dotenv';
+import * as path from 'path';
 import { NestFactory } from '@nestjs/core';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { SeedModule } from './seed.module';
+
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 import { clearDatabase, logSummary, logUser } from './data/seed-helpers';
 import {
   generateTenants,
@@ -11,6 +15,7 @@ import {
   generateTasks,
   generateTimeEntries,
   generateInvoices,
+  generateFaqs,
   DEFAULT_PASSWORD,
   SeededTenant,
   SeededUser,
@@ -25,6 +30,7 @@ import { Project } from '../modules/project/schemas/project.schema';
 import { Task } from '../modules/project/schemas/task.schema';
 import { TimeEntry } from '../modules/time/schemas/time-entry.schema';
 import { Invoice } from '../modules/billing/schemas/invoice.schema';
+import { Faq } from '../modules/faq/schemas/faq.schema';
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(SeedModule);
@@ -36,6 +42,7 @@ async function bootstrap() {
   const taskModel = app.get<Model<Task>>(getModelToken(Task.name));
   const timeEntryModel = app.get<Model<TimeEntry>>(getModelToken(TimeEntry.name));
   const invoiceModel = app.get<Model<Invoice>>(getModelToken(Invoice.name));
+  const faqModel = app.get<Model<Faq>>(getModelToken(Faq.name));
 
   const counts = {
     tenants: 0,
@@ -44,6 +51,7 @@ async function bootstrap() {
     tasks: 0,
     timeEntries: 0,
     invoices: 0,
+    faqs: 0,
   };
 
   try {
@@ -274,6 +282,15 @@ async function bootstrap() {
           }
         }
       }
+    }
+
+    console.log('\n📚 Creating FAQ entries...\n');
+
+    const faqs = generateFaqs();
+    for (const faqData of faqs) {
+      await faqModel.create(faqData);
+      counts.faqs++;
+      console.log(`   ✓ FAQ: ${faqData.title} (${faqData.items.length} questions)`);
     }
 
     logSummary(counts);

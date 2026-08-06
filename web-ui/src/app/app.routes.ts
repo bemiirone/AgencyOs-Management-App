@@ -133,6 +133,13 @@ export const routes: Routes = [
             (m) => m.ProfileSettingsComponent
           ),
       },
+      {
+        path: 'docs',
+        loadComponent: () =>
+          import('./features/docs/faq-page/faq-page.component').then(
+            (m) => m.FaqPageComponent
+          ),
+      },
     ],
   },
   {

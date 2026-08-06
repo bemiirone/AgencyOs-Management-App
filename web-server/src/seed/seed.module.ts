@@ -8,6 +8,7 @@ import { Project, ProjectSchema } from '../modules/project/schemas/project.schem
 import { Task, TaskSchema } from '../modules/project/schemas/task.schema';
 import { TimeEntry, TimeEntrySchema } from '../modules/time/schemas/time-entry.schema';
 import { Invoice, InvoiceSchema } from '../modules/billing/schemas/invoice.schema';
+import { Faq, FaqSchema } from '../modules/faq/schemas/faq.schema';
 import databaseConfig from '../config/database.config';
 
 @Module({
@@ -30,6 +31,7 @@ import databaseConfig from '../config/database.config';
       { name: Task.name, schema: TaskSchema },
       { name: TimeEntry.name, schema: TimeEntrySchema },
       { name: Invoice.name, schema: InvoiceSchema },
+      { name: Faq.name, schema: FaqSchema },
     ]),
   ],
   providers: [

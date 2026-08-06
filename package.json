@@ -2,7 +2,10 @@
   "name": "@org/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "seed": "ts-node --transpile-only -P web-server/tsconfig.app.json web-server/src/seed/seed.ts",
+    "seed:faqs": "ts-node --transpile-only -P web-server/tsconfig.app.json web-server/src/seed/seed-faqs.ts"
+  },
   "private": true,
   "devDependencies": {
     "@angular-devkit/core": "~22.0.4",

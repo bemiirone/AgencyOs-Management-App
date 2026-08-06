@@ -1,0 +1,55 @@
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+  <h1 class="text-3xl font-bold mb-8">Documentation & FAQ</h1>
+
+  @if (loading()) {
+    <div class="flex justify-center py-12">
+      <span class="loading loading-spinner loading-lg"></span>
+    </div>
+  } @else {
+    <div class="space-y-4">
+      @for (heading of faqHeadings(); track trackByHeadingId(i, heading); let i = $index) {
+        <div class="card bg-base-200">
+          <div class="card-body p-0">
+            <button
+              class="flex items-center justify-between w-full p-4 text-left hover:bg-base-300 transition-colors rounded-t-lg"
+              (click)="toggleHeading(heading._id)"
+            >
+              <h2 class="text-xl font-semibold">{{ heading.title }}</h2>
+              <fa-icon
+                [icon]="faChevronDown"
+                class="transition-transform duration-200"
+                [class.rotate-180]="isHeadingExpanded(heading._id)"
+              ></fa-icon>
+            </button>
+
+            @if (isHeadingExpanded(heading._id)) {
+              <div class="px-4 pb-4 space-y-2">
+                @for (item of heading.items; track trackByQuestionIndex(j); let j = $index) {
+                  <div class="bg-base-100 rounded-lg">
+                    <button
+                      class="flex items-center justify-between w-full p-3 text-left hover:bg-base-200 transition-colors rounded-lg"
+                      (click)="toggleQuestion(heading._id + '-' + j)"
+                    >
+                      <span class="font-medium">{{ item.question }}</span>
+                      <fa-icon
+                        [icon]="faChevronDown"
+                        class="transition-transform duration-200 text-sm"
+                        [class.rotate-180]="isQuestionExpanded(heading._id + '-' + j)"
+                      ></fa-icon>
+                    </button>
+
+                    @if (isQuestionExpanded(heading._id + '-' + j)) {
+                      <div class="px-3 pb-3 text-base-content/80">
+                        {{ item.answer }}
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
