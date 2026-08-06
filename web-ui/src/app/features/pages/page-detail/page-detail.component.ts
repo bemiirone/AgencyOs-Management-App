@@ -1,8 +1,9 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { switchMap } from 'rxjs/operators';
 import { HeaderComponent } from '../../../layout/header/header.component';
 import { SidebarComponent } from '../../../layout/sidebar/sidebar.component';
 import { FooterComponent } from '../../../layout/footer/footer.component';
@@ -25,24 +26,40 @@ export class PageDetailComponent implements OnInit {
 
   private readonly route = inject(ActivatedRoute);
   private readonly pageService = inject(PageService);
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
-    const slug = this.route.snapshot.paramMap.get('slug');
-    if (!slug) {
-      this.error.set('Page not found');
-      this.loading.set(false);
-      return;
-    }
+    const subscription = this.route.paramMap
+      .pipe(
+        switchMap((params) => {
+          const slug = params.get('slug');
+          if (!slug) {
+            this.error.set('Page not found');
+            this.loading.set(false);
+            return [];
+          }
 
-    this.pageService.getPageBySlug(slug).subscribe({
-      next: (data) => {
-        this.page.set(data);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.error.set('Failed to load page');
-        this.loading.set(false);
-      },
-    });
+          this.loading.set(true);
+          this.error.set(null);
+          return this.pageService.getPageBySlug(slug);
+        })
+      )
+      .subscribe({
+        next: (data) => {
+          if (data) {
+            this.page.set(data);
+            this.loading.set(false);
+          } else {
+            this.error.set('Page not found');
+            this.loading.set(false);
+          }
+        },
+        error: () => {
+          this.error.set('Failed to load page');
+          this.loading.set(false);
+        },
+      });
+
+    this.destroyRef.onDestroy(() => subscription.unsubscribe());
   }
 }

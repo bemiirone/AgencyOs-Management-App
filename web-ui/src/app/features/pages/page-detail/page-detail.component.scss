@@ -2,10 +2,10 @@
   display: block;
 }
 
-.prose :first-child {
-  margin-top: 0;
-}
-
-.prose :last-child {
-  margin-bottom: 0;
+::ng-deep {
+  .prose{
+    p {
+      margin-top: 0.5rem;
+    }
+  }
 }
