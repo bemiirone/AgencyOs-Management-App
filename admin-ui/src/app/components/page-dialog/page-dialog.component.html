@@ -1,0 +1,41 @@
+<h2 mat-dialog-title>{{ data.mode === 'create' ? 'Create Page' : 'Edit Page' }}</h2>
+
+<mat-dialog-content>
+  <form #pageForm="ngForm">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Title</mat-label>
+      <input matInput [(ngModel)]="title" name="title" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Slug</mat-label>
+      <input matInput [(ngModel)]="slug" name="slug" required placeholder="e.g., about-us" />
+    </mat-form-field>
+
+    <div class="editor-label">Content</div>
+    <quill-editor
+      [(ngModel)]="content"
+      name="content"
+      [modules]="editorModules"
+      placeholder="Start writing your page content..."
+    ></quill-editor>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Order</mat-label>
+        <input matInput type="number" [(ngModel)]="order" name="order" />
+      </mat-form-field>
+
+      <mat-slide-toggle [(ngModel)]="isPublished" name="isPublished">
+        Published
+      </mat-slide-toggle>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="save()" [disabled]="!title || !slug">
+    {{ data.mode === 'create' ? 'Create' : 'Save' }}
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,62 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Tenant Management</mat-card-title>
+    <mat-card-subtitle>Manage all workspaces in the system ({{ dataSource.data.length }} total)</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div *ngIf="isLoading" class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <div *ngIf="!isLoading && dataSource.data.length === 0" class="empty-state">
+      <mat-icon>business</mat-icon>
+      <p>No tenants found</p>
+    </div>
+
+    <table *ngIf="!isLoading" mat-table [dataSource]="dataSource" class="mat-elevation-z0">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let tenant">{{ tenant.name }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="slug">
+        <th mat-header-cell *matHeaderCellDef>Slug</th>
+        <td mat-cell *matCellDef="let tenant">
+          <code>{{ tenant.slug }}</code>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let tenant">
+          <mat-chip [color]="tenant.isActive ? 'primary' : ''" class="status-chip">
+            {{ tenant.isActive ? 'Active' : 'Inactive' }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="createdAt">
+        <th mat-header-cell *matHeaderCellDef>Created</th>
+        <td mat-cell *matCellDef="let tenant">{{ tenant.createdAt | date:'mediumDate' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let tenant">
+          <button mat-icon-button [matTooltip]="tenant.isActive ? 'Deactivate' : 'Activate'"
+                  (click)="toggleStatus(tenant)">
+            <mat-icon>{{ tenant.isActive ? 'pause_circle' : 'play_circle' }}</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" matTooltip="Delete"
+                  (click)="deleteTenant(tenant)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </mat-card-content>
+</mat-card>

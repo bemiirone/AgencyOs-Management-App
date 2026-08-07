@@ -1,0 +1,35 @@
+mat-dialog-content {
+  min-width: 500px;
+  padding: 16px 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.editor-label {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+  margin-bottom: 8px;
+}
+
+quill-editor {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.ql-container {
+  min-height: 200px;
+  font-size: 14px;
+}
+
+.ql-editor {
+  min-height: 200px;
+}

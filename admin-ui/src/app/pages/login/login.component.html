@@ -1,0 +1,29 @@
+<div class="login-container">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title>AgencyOS Admin</mat-card-title>
+      <mat-card-subtitle>Sign in to manage your workspace</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form (ngSubmit)="login()" #loginForm="ngForm">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" [(ngModel)]="email" name="email" required autocomplete="email" />
+          <mat-icon matPrefix>email</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <input matInput type="password" [(ngModel)]="password" name="password" required autocomplete="current-password" />
+          <mat-icon matPrefix>lock</mat-icon>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit" class="full-width" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Sign In</span>
+          <span *ngIf="isLoading">Signing in...</span>
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

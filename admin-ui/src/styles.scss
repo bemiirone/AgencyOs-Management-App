@@ -1,0 +1,32 @@
+@use '@angular/material' as mat;
+@import 'quill/dist/quill.snow.css';
+
+html {
+  @include mat.theme((
+    color: mat.$azure-palette,
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.ql-toolbar.ql-snow {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.ql-container.ql-snow {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}

@@ -1,0 +1,33 @@
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav mode="side" opened class="sidenav">
+    <div class="sidenav-header">
+      <h2>AgencyOS</h2>
+      <p>Admin Panel</p>
+    </div>
+
+    <mat-nav-list>
+      <a mat-list-item routerLink="/tenants" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: false}">
+        <mat-icon matListItemIcon>business</mat-icon>
+        <span matListItemTitle>Tenants</span>
+      </a>
+      <a mat-list-item routerLink="/pages" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: false}">
+        <mat-icon matListItemIcon>article</mat-icon>
+        <span matListItemTitle>Pages</span>
+      </a>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar color="primary">
+      <span class="toolbar-spacer"></span>
+      <span class="user-email">{{ authService.getCurrentUser()?.email }}</span>
+      <button mat-icon-button (click)="logout()" matTooltip="Logout">
+        <mat-icon>logout</mat-icon>
+      </button>
+    </mat-toolbar>
+
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

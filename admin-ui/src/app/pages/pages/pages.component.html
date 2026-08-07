@@ -1,0 +1,69 @@
+<mat-card>
+  <mat-card-header>
+    <div class="header-content">
+      <mat-card-title>Page Management</mat-card-title>
+      <mat-card-subtitle>Manage public-facing pages ({{ dataSource.data.length }} total)</mat-card-subtitle>
+    </div>
+    <button mat-raised-button color="primary" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      New Page
+    </button>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div *ngIf="isLoading" class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <div *ngIf="!isLoading && dataSource.data.length === 0" class="empty-state">
+      <mat-icon>article</mat-icon>
+      <p>No pages found</p>
+      <button mat-raised-button color="primary" (click)="openCreateDialog()">
+        Create your first page
+      </button>
+    </div>
+
+    <table *ngIf="!isLoading" mat-table [dataSource]="dataSource" class="mat-elevation-z0">
+      <ng-container matColumnDef="title">
+        <th mat-header-cell *matHeaderCellDef>Title</th>
+        <td mat-cell *matCellDef="let page">{{ page.title }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="slug">
+        <th mat-header-cell *matHeaderCellDef>Slug</th>
+        <td mat-cell *matCellDef="let page">
+          <code>{{ page.slug }}</code>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let page">
+          <mat-chip [color]="page.isPublished ? 'accent' : ''" class="status-chip">
+            {{ page.isPublished ? 'Published' : 'Draft' }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="order">
+        <th mat-header-cell *matHeaderCellDef>Order</th>
+        <td mat-cell *matCellDef="let page">{{ page.order }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let page">
+          <button mat-icon-button matTooltip="Edit" (click)="openEditDialog(page)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" matTooltip="Delete" (click)="deletePage(page)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </mat-card-content>
+</mat-card>

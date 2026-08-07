@@ -1,0 +1,61 @@
+.sidenav-container {
+  height: 100vh;
+}
+
+.sidenav {
+  width: 250px;
+  background: #1a1a2e;
+  color: white;
+}
+
+.sidenav-header {
+  padding: 24px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 4px 0 0;
+    font-size: 12px;
+    opacity: 0.7;
+  }
+}
+
+.mat-mdc-nav-list .mat-mdc-list-item {
+  color: rgba(255, 255, 255, 0.7);
+
+  &.active-link,
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+
+  .mat-mdc-list-item-title {
+    color: inherit;
+  }
+}
+
+mat-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.user-email {
+  margin-right: 16px;
+  font-size: 14px;
+}
+
+.content {
+  padding: 24px;
+  background: #f5f5f5;
+  min-height: calc(100vh - 64px);
+}
