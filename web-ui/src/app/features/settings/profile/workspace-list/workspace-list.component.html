@@ -5,7 +5,7 @@
     @if (workspaces().length > 0) {
       <div class="space-y-2">
         @for (ws of workspaces(); track ws.tenantId) {
-          <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+          <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg" [class.opacity-60]="ws.isActive === false">
             <div class="flex items-center gap-3">
               <fa-icon [icon]="faBuilding" class="text-base-content/40"></fa-icon>
               <div>
@@ -13,9 +13,17 @@
                 <p class="text-xs text-base-content/50">{{ ws.role | titlecase }}</p>
               </div>
             </div>
-            @if (ws.isLastUsed) {
-              <span class="badge badge-primary badge-sm">Current</span>
-            }
+            <div class="flex gap-2">
+              @if (ws.isActive === false) {
+                <span class="badge badge-error badge-sm gap-1">
+                  <fa-icon [icon]="faExclamationTriangle" class="text-xs"></fa-icon>
+                  Deactivated
+                </span>
+              }
+              @if (ws.isLastUsed) {
+                <span class="badge badge-primary badge-sm">Current</span>
+              }
+            </div>
           </div>
         }
       </div>

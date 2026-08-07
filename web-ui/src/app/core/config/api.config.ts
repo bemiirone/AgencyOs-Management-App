@@ -9,6 +9,7 @@ export const API_CONFIG = {
     SWITCH_WORKSPACE: '/api/auth/switch-workspace',
     JOIN_WORKSPACE: '/api/auth/join-workspace',
     SEARCH_WORKSPACES: (q: string) => `/api/auth/search-workspaces?q=${encodeURIComponent(q)}`,
+    LOOKUP_WORKSPACES: '/api/auth/lookup-workspaces',
   },
   PROJECTS: {
     LIST: (page?: number, limit?: number) => {

@@ -19,6 +19,7 @@ export interface WorkspaceInfo {
   tenantName: string;
   role: UserRole;
   isLastUsed: boolean;
+  isActive: boolean;
 }
 
 export interface LoginResponse {
@@ -116,12 +117,55 @@ export class AuthService {
       throw new UnauthorizedException('No active workspace found');
     }
 
+    // If tenantId is provided in login request
+    if (loginDto.tenantId) {
+      const membership = memberships.find(
+        (m) => (m.tenantId as unknown as Tenant)._id.toString() === loginDto.tenantId
+      );
+
+      if (!membership) {
+        throw new UnauthorizedException('No access to this workspace');
+      }
+
+      const tenantDoc = membership.tenantId as unknown as Tenant;
+      const tenantId = tenantDoc._id.toString();
+      const tenantName = tenantDoc.name || '';
+
+      if (tenantDoc.isActive === false) {
+        throw new UnauthorizedException(
+          `Workspace "${tenantName}" has been deactivated. Please contact your administrator.`
+        );
+      }
+
+      const role = membership.role;
+      const tokens = this.generateTokens(user._id.toString(), user.email, tenantId, role);
+
+      return {
+        user: {
+          id: user._id.toString(),
+          email: user.email,
+          name: user.name,
+          role,
+          tenantId,
+          tenantName,
+        },
+        ...tokens,
+      };
+    }
+
+    // If no tenantId provided, use existing logic
     if (memberships.length === 1) {
       const membership = memberships[0];
       const tenantDoc = membership.tenantId as unknown as Tenant;
       const tenantId = tenantDoc._id.toString();
       const tenantName = tenantDoc.name || '';
       const role = membership.role;
+
+      if (tenantDoc.isActive === false) {
+        throw new UnauthorizedException(
+          `Workspace "${tenantName}" has been deactivated. Please contact your administrator.`
+        );
+      }
 
       const tokens = this.generateTokens(user._id.toString(), user.email, tenantId, role);
 
@@ -145,6 +189,7 @@ export class AuthService {
         tenantName: tenantDoc.name || '',
         role: m.role,
         isLastUsed: false,
+        isActive: tenantDoc.isActive !== false,
       };
     });
 
@@ -184,6 +229,7 @@ export class AuthService {
         tenantName: tenantDoc.name || '',
         role: m.role,
         isLastUsed: false,
+        isActive: tenantDoc.isActive !== false,
       };
     });
   }
@@ -204,6 +250,12 @@ export class AuthService {
     const tenantId = tenantDoc._id.toString();
     const tenantName = tenantDoc.name || '';
     const role = membership.role;
+
+    if (tenantDoc.isActive === false) {
+      throw new UnauthorizedException(
+        `Workspace "${tenantName}" has been deactivated. Please contact your administrator.`
+      );
+    }
 
     const tokens = this.generateTokens(userId, user!.email, tenantId, role);
 
@@ -266,6 +318,7 @@ export class AuthService {
         { name: { $regex: query, $options: 'i' } },
         { slug: { $regex: query, $options: 'i' } },
       ],
+      isActive: true,
     }).limit(10);
 
     return tenants.map((t) => ({
@@ -273,6 +326,29 @@ export class AuthService {
       tenantName: t.name,
       slug: t.slug,
     }));
+  }
+
+  async lookupWorkspacesByEmail(email: string): Promise<WorkspaceInfo[]> {
+    const user = await this.userModel.findOne({ email });
+    if (!user) {
+      return [];
+    }
+
+    const memberships = await this.tenantMemberModel.find({
+      userId: user._id,
+      isActive: true,
+    }).populate('tenantId');
+
+    return memberships.map((m) => {
+      const tenantDoc = m.tenantId as unknown as Tenant;
+      return {
+        tenantId: tenantDoc._id.toString(),
+        tenantName: tenantDoc.name || '',
+        role: m.role,
+        isLastUsed: false,
+        isActive: tenantDoc.isActive !== false,
+      };
+    });
   }
 
   private generateTokens(userId: string, email: string, tenantId: string, role: UserRole) {

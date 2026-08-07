@@ -1,7 +1,7 @@
 import { Component, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faBuilding, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faBuilding, faPlus, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { Workspace } from '../../../../core/services/auth.service';
 import { JoinWorkspaceComponent } from './join-workspace/join-workspace.component';
 
@@ -19,6 +19,7 @@ export class WorkspaceListComponent {
 
   readonly faBuilding = faBuilding;
   readonly faPlus = faPlus;
+  readonly faExclamationTriangle = faExclamationTriangle;
 
   readonly showJoinDialog = signal(false);
 

@@ -11,6 +11,10 @@ interface RequestWithUser extends Request {
   user: { userId: string };
 }
 
+interface LookupWorkspacesDto {
+  email: string;
+}
+
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
@@ -60,5 +64,13 @@ export class AuthController {
   @ApiOperation({ summary: 'Search workspaces by name or slug' })
   async searchWorkspaces(@Query('q') q: string) {
     return this.authService.searchWorkspaces(q);
+  }
+
+  @Post('lookup-workspaces')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Lookup workspaces for a user by email' })
+  @ApiResponse({ status: 200, description: 'Workspaces found' })
+  async lookupWorkspaces(@Body() dto: LookupWorkspacesDto) {
+    return this.authService.lookupWorkspacesByEmail(dto.email);
   }
 }

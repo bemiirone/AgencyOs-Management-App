@@ -27,6 +27,7 @@
                 tabindex="0"
                 role="button"
                 class="px-3 py-2 hover:bg-base-200 cursor-pointer flex items-center gap-2"
+                [class.opacity-60]="workspace.isActive === false"
                 (click)="switchWorkspace(workspace)"
                 (keydown.enter)="switchWorkspace(workspace)"
               >
@@ -39,6 +40,12 @@
                   <p class="text-sm font-medium">{{ workspace.tenantName }}</p>
                   <p class="text-xs text-base-content/50">{{ workspace.role | titlecase }}</p>
                 </div>
+                @if (workspace.isActive === false) {
+                  <span class="badge badge-error badge-xs gap-1">
+                    <fa-icon [icon]="faExclamationTriangle" class="text-xs"></fa-icon>
+                    Deactivated
+                  </span>
+                }
               </div>
             }
           </div>

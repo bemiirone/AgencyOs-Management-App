@@ -2,10 +2,11 @@ import { Component, inject, signal, computed, output, OnInit, ChangeDetectionStr
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faBars, faBell, faUser, faSignOutAlt, faChevronDown, faCheck, faBuilding } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faBell, faUser, faSignOutAlt, faChevronDown, faCheck, faBuilding, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { AuthService, Workspace } from '../../core/services/auth.service';
 import { NotificationStore } from '../../stores/notification.store';
 import { Notification } from '../../shared/models/notification.model';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-header',
@@ -29,6 +30,9 @@ export class HeaderComponent implements OnInit {
   readonly faChevronDown = faChevronDown;
   readonly faCheck = faCheck;
   readonly faBuilding = faBuilding;
+  readonly faExclamationTriangle = faExclamationTriangle;
+
+  private readonly toast = inject(ToastService);
 
   readonly userName = signal('');
   readonly userRole = signal('');
@@ -95,6 +99,12 @@ export class HeaderComponent implements OnInit {
   }
 
   async switchWorkspace(workspace: Workspace) {
+    if (workspace.isActive === false) {
+      this.toast.warning(`Workspace "${workspace.tenantName}" is deactivated. Contact your administrator.`);
+      this.showWorkspaceDropdown.set(false);
+      return;
+    }
+
     this.showWorkspaceDropdown.set(false);
     await this.authService.switchWorkspace(workspace.tenantId);
     this.tenantName.set(workspace.tenantName);

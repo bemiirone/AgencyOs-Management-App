@@ -1,96 +1,170 @@
 <div class="min-h-screen bg-base-200 flex items-center justify-center p-4">
   <div class="card w-full max-w-md shadow-2xl bg-base-100">
     <div class="card-body">
-      <div class="text-center mb-6">
-        <h1 class="text-3xl font-bold text-primary">AgencyOS</h1>
-        <p class="text-base-content/60 mt-2">Sign in to your account</p>
-      </div>
-
-      @if (error()) {
-        <div class="alert alert-error mb-4">
-          <fa-icon [icon]="faSpinner" class="animate-spin"></fa-icon>
-          <span>{{ error() }}</span>
+      @if (stage() === 1) {
+        <div class="text-center mb-6">
+          <h1 class="text-3xl font-bold text-primary">AgencyOS</h1>
+          <p class="text-base-content/60 mt-2">Sign in to your account</p>
         </div>
-      }
 
-      <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
-        <div class="form-control mb-4">
-          <label for="login-email" class="label">
-            <span class="label-text font-medium">Email</span>
-          </label>
-          <div class="relative">
-            <fa-icon [icon]="faEnvelope" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
-            <input
-              id="login-email"
-              type="email"
-              [(ngModel)]="email"
-              name="email"
-              placeholder="you@example.com"
-              class="input input-bordered w-full pl-10"
-              required
-              email
-              #emailModel="ngModel"
-            />
+        @if (error()) {
+          <div class="alert alert-error mb-4">
+            <fa-icon [icon]="faSpinner" class="animate-spin"></fa-icon>
+            <span>{{ error() }}</span>
           </div>
-          @if (emailModel.invalid && emailModel.touched) {
-            <div class="label">
-              <span class="label-text-alt text-error">Please enter a valid email</span>
+        }
+
+        <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+          <div class="form-control mb-4">
+            <label for="login-email" class="label">
+              <span class="label-text font-medium">Email</span>
+            </label>
+            <div class="relative">
+              <fa-icon [icon]="faEnvelope" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
+              <input
+                id="login-email"
+                type="email"
+                [(ngModel)]="email"
+                name="email"
+                placeholder="you@example.com"
+                class="input input-bordered w-full pl-10"
+                required
+                email
+                #emailModel="ngModel"
+              />
             </div>
-          }
+            @if (emailModel.invalid && emailModel.touched) {
+              <div class="label">
+                <span class="label-text-alt text-error">Please enter a valid email</span>
+              </div>
+            }
+          </div>
+
+          <div class="form-control mb-6">
+            <label for="login-password" class="label">
+              <span class="label-text font-medium">Password</span>
+            </label>
+            <div class="relative">
+              <fa-icon [icon]="faLock" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
+              <input
+                id="login-password"
+                [type]="showPassword() ? 'text' : 'password'"
+                [(ngModel)]="password"
+                name="password"
+                placeholder="Enter your password"
+                class="input input-bordered w-full pl-10 pr-10"
+                required
+                minlength="6"
+                #passwordModel="ngModel"
+              />
+              <button
+                type="button"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content/70"
+                (click)="togglePasswordVisibility()"
+              >
+                <fa-icon [icon]="showPassword() ? faEyeSlash : faEye"></fa-icon>
+              </button>
+            </div>
+            @if (passwordModel.invalid && passwordModel.touched) {
+              <div class="label">
+                <span class="label-text-alt text-error">Password must be at least 6 characters</span>
+              </div>
+            }
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary w-full"
+            [disabled]="loginForm.invalid || loading()"
+          >
+            @if (loading()) {
+              <fa-icon [icon]="faSpinner" class="animate-spin mr-2"></fa-icon>
+              Signing in...
+            } @else {
+              Sign In
+            }
+          </button>
+        </form>
+
+        <div class="text-center mt-4">
+          <p class="text-base-content/60">
+            Don't have an account?
+            <a routerLink="/register" class="link link-primary">Register</a>
+          </p>
+        </div>
+      } @else {
+        <div class="text-center mb-6">
+          <h1 class="text-3xl font-bold text-primary">AgencyOS</h1>
+          <p class="text-base-content/60 mt-2">Select your workspace</p>
+          <p class="text-sm text-base-content/40 mt-1">Signed in as {{ email() }}</p>
         </div>
 
-        <div class="form-control mb-6">
-          <label for="login-password" class="label">
-            <span class="label-text font-medium">Password</span>
-          </label>
-          <div class="relative">
-            <fa-icon [icon]="faLock" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
-            <input
-              id="login-password"
-              [type]="showPassword() ? 'text' : 'password'"
-              [(ngModel)]="password"
-              name="password"
-              placeholder="Enter your password"
-              class="input input-bordered w-full pl-10 pr-10"
+        @if (error()) {
+          <div class="alert alert-error mb-4">
+            <fa-icon [icon]="faSpinner" class="animate-spin"></fa-icon>
+            <span>{{ error() }}</span>
+          </div>
+        }
+
+        <form (ngSubmit)="onSubmit()" #workspaceForm="ngForm">
+          <div class="form-control mb-6">
+            <label for="login-workspace" class="label">
+              <span class="label-text font-medium">Select Workspace</span>
+            </label>
+            <select
+              id="login-workspace"
+              [(ngModel)]="selectedWorkspaceId"
+              name="workspace"
+              class="select select-bordered w-full"
               required
-              minlength="6"
-              #passwordModel="ngModel"
-            />
-            <button
-              type="button"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content/70"
-              (click)="togglePasswordVisibility()"
             >
-              <fa-icon [icon]="showPassword() ? faEyeSlash : faEye"></fa-icon>
+              @for (workspace of workspacesFromLogin(); track workspace.tenantId) {
+                <option [value]="workspace.tenantId">
+                  {{ workspace.tenantName }}
+                </option>
+              }
+            </select>
+          </div>
+
+          <div class="flex gap-2">
+            <button type="button" class="btn btn-ghost flex-1" (click)="goBackToStage1()">
+              <fa-icon [icon]="faArrowLeft" class="mr-2"></fa-icon>
+              Back
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary flex-1"
+              [disabled]="workspaceForm.invalid || loading()"
+            >
+              @if (loading()) {
+                <fa-icon [icon]="faSpinner" class="animate-spin mr-2"></fa-icon>
+                Loading...
+              } @else {
+                Continue
+              }
             </button>
           </div>
-          @if (passwordModel.invalid && passwordModel.touched) {
-            <div class="label">
-              <span class="label-text-alt text-error">Password must be at least 6 characters</span>
-            </div>
-          }
-        </div>
-
-        <button
-          type="submit"
-          class="btn btn-primary w-full"
-          [disabled]="loginForm.invalid || loading()"
-        >
-          @if (loading()) {
-            <fa-icon [icon]="faSpinner" class="animate-spin mr-2"></fa-icon>
-            Signing in...
-          } @else {
-            Sign In
-          }
-        </button>
-      </form>
-
-      <div class="text-center mt-4">
-        <p class="text-base-content/60">
-          Don't have an account?
-          <a routerLink="/register" class="link link-primary">Register</a>
-        </p>
-      </div>
+        </form>
+      }
     </div>
   </div>
+
+  <app-modal
+    [visible]="showDeactivatedModal()"
+    title="Workspace Deactivated"
+    (dismissed)="closeDeactivatedModal()"
+  >
+    <div class="space-y-4">
+      <div class="alert alert-warning">
+        <fa-icon [icon]="faBuilding" class="text-xl"></fa-icon>
+        <div>
+          <p class="font-medium">The workspace "{{ deactivatedWorkspaceName() }}" has been deactivated.</p>
+          <p class="text-sm mt-1">Please contact your administrator to reactivate this workspace.</p>
+        </div>
+      </div>
+      <button class="btn btn-primary w-full" (click)="closeDeactivatedModal()">
+        Close
+      </button>
+    </div>
+  </app-modal>
 </div>

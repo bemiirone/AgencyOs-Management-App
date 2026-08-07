@@ -9,6 +9,7 @@ import { User } from '../../shared/models/user.model';
 interface LoginRequest {
   email: string;
   password: string;
+  tenantId?: string;
 }
 
 interface RegisterRequest {
@@ -31,6 +32,7 @@ export interface Workspace {
   tenantName: string;
   role: string;
   isLastUsed: boolean;
+  isActive: boolean;
 }
 
 @Injectable({
@@ -154,6 +156,25 @@ export class AuthService {
         `${API_CONFIG.baseUrl}${API_CONFIG.AUTH.SEARCH_WORKSPACES(query)}`
       )
     );
+  }
+
+  async lookupWorkspaces(email: string): Promise<Workspace[]> {
+    if (!email || email.trim().length === 0) {
+      return [];
+    }
+
+    const workspaces = await firstValueFrom(
+      this.http.post<Workspace[]>(`${API_CONFIG.baseUrl}${API_CONFIG.AUTH.LOOKUP_WORKSPACES}`, { email })
+    );
+
+    const lastWorkspace = this.storageService.getLastWorkspace();
+    const updated = workspaces.map((w) => ({
+      ...w,
+      isLastUsed: w.tenantId === lastWorkspace,
+    }));
+
+    this.workspaces.set(updated);
+    return updated;
   }
 
   isAuthenticated(): boolean {
