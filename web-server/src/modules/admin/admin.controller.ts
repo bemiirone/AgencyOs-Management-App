@@ -1,9 +1,52 @@
 import { Controller, Get, Post, Patch, Delete, Param, Body, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { IsString, IsOptional, IsNumber, IsArray, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 import { AdminService } from './admin.service';
 import { PageService } from '../page/page.service';
+import { FaqService } from '../faq/faq.service';
 import { AdminJwtAuthGuard } from '../../common/guards/admin-jwt-auth.guard';
 import { CreatePageDto, UpdatePageDto } from '../page/dto/page.dto';
+
+class FaqItemDto {
+  @IsString()
+  question: string;
+
+  @IsString()
+  answer: string;
+
+  @IsNumber()
+  order: number;
+}
+
+export class CreateFaqDto {
+  @IsString()
+  title: string;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => FaqItemDto)
+  items: FaqItemDto[];
+
+  @IsNumber()
+  order: number;
+}
+
+export class UpdateFaqDto {
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => FaqItemDto)
+  items?: FaqItemDto[];
+
+  @IsOptional()
+  @IsNumber()
+  order?: number;
+}
 
 @ApiTags('admin')
 @Controller('admin')
@@ -12,6 +55,7 @@ export class AdminController {
   constructor(
     private readonly adminService: AdminService,
     private readonly pageService: PageService,
+    private readonly faqService: FaqService,
   ) {}
 
   @Get('tenants')
@@ -57,5 +101,29 @@ export class AdminController {
   @ApiOperation({ summary: 'Delete a page' })
   async deletePage(@Param('id') id: string) {
     return this.pageService.delete(id);
+  }
+
+  @Get('faqs')
+  @ApiOperation({ summary: 'Get all FAQ groups (admin only)' })
+  async findAllFaqs() {
+    return this.faqService.findAll();
+  }
+
+  @Post('faqs')
+  @ApiOperation({ summary: 'Create an FAQ group' })
+  async createFaq(@Body() data: CreateFaqDto) {
+    return this.faqService.create(data);
+  }
+
+  @Patch('faqs/:id')
+  @ApiOperation({ summary: 'Update an FAQ group' })
+  async updateFaq(@Param('id') id: string, @Body() data: UpdateFaqDto) {
+    return this.faqService.update(id, data);
+  }
+
+  @Delete('faqs/:id')
+  @ApiOperation({ summary: 'Delete an FAQ group' })
+  async deleteFaq(@Param('id') id: string) {
+    return this.faqService.delete(id);
   }
 }

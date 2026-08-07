@@ -1,4 +1,4 @@
-<div class="container mx-auto px-4 py-8 max-w-4xl">
+<div class="container p-6 max-w-4xl">
   <h1 class="text-3xl font-bold mb-8">Documentation & FAQ</h1>
 
   @if (loading()) {
@@ -6,50 +6,109 @@
       <span class="loading loading-spinner loading-lg"></span>
     </div>
   } @else {
-    <div class="space-y-4">
-      @for (heading of faqHeadings(); track trackByHeadingId(i, heading); let i = $index) {
-        <div class="card bg-base-200">
-          <div class="card-body p-0">
-            <button
-              class="flex items-center justify-between w-full p-4 text-left hover:bg-base-300 transition-colors rounded-t-lg"
-              (click)="toggleHeading(heading._id)"
+    <!-- Search Card -->
+    <div class="card bg-base-200 mb-6">
+      <div class="card-body">
+        <div class="flex items-center gap-3">
+          <fa-icon [icon]="faSearch" class="text-base-content/50"></fa-icon>
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            placeholder="Search FAQs by topic, question, or answer..."
+            class="input input-bordered w-full bg-base-100"
+          />
+          @if (searchQuery()) {
+            <button 
+              class="btn btn-ghost btn-sm btn-circle"
+              (click)="clearSearch()"
+              aria-label="Clear search"
             >
-              <h2 class="text-xl font-semibold">{{ heading.title }}</h2>
-              <fa-icon
-                [icon]="faChevronDown"
-                class="transition-transform duration-200"
-                [class.rotate-180]="isHeadingExpanded(heading._id)"
-              ></fa-icon>
+              <fa-icon [icon]="faTimes"></fa-icon>
             </button>
+          }
+        </div>
+        @if (searchQuery()) {
+          <p class="text-sm text-base-content/60 mt-2">
+            {{ resultCount() }} {{ resultCount() === 1 ? 'result' : 'results' }} found
+          </p>
+        }
+      </div>
+    </div>
 
-            @if (isHeadingExpanded(heading._id)) {
-              <div class="px-4 pb-4 space-y-2">
-                @for (item of heading.items; track trackByQuestionIndex(j); let j = $index) {
-                  <div class="bg-base-100 rounded-lg">
-                    <button
-                      class="flex items-center justify-between w-full p-3 text-left hover:bg-base-200 transition-colors rounded-lg"
-                      (click)="toggleQuestion(heading._id + '-' + j)"
-                    >
-                      <span class="font-medium">{{ item.question }}</span>
-                      <fa-icon
-                        [icon]="faChevronDown"
-                        class="transition-transform duration-200 text-sm"
-                        [class.rotate-180]="isQuestionExpanded(heading._id + '-' + j)"
-                      ></fa-icon>
-                    </button>
+    <!-- Accordion Card -->
+    <div class="card bg-base-200">
+      <div class="card-body p-0">
+        @if (filteredFaqs().length === 0 && searchQuery()) {
+          <div class="p-8 text-center">
+            <p class="text-lg text-base-content/60">No FAQs match your search</p>
+            <button class="btn btn-ghost btn-sm mt-2" (click)="clearSearch()">
+              Clear search
+            </button>
+          </div>
+        } @else {
+          <div class="space-y-4">
+            @for (heading of filteredFaqs(); track trackByHeadingId(i, heading); let i = $index) {
+              <div class="bg-base-100 rounded-lg">
+                <button
+                  class="flex items-center justify-between w-full p-4 text-left hover:bg-base-300 transition-colors rounded-t-lg"
+                  (click)="toggleHeading(heading._id)"
+                >
+                  <h2 class="text-xl font-semibold">
+                    @if (searchQuery()) {
+                      <span [innerHTML]="highlightText(heading.title)"></span>
+                    } @else {
+                      {{ heading.title }}
+                    }
+                  </h2>
+                  <fa-icon
+                    [icon]="faChevronDown"
+                    class="transition-transform duration-200"
+                    [class.rotate-180]="isHeadingExpanded(heading._id)"
+                  ></fa-icon>
+                </button>
 
-                    @if (isQuestionExpanded(heading._id + '-' + j)) {
-                      <div class="px-3 pb-3 text-base-content/80">
-                        {{ item.answer }}
-                      </div>
+                @if (isHeadingExpanded(heading._id)) {
+                  <div class="px-4 pb-4 space-y-2">
+                    @for (item of heading.items; track trackByQuestionIndex(j); let j = $index) {
+                      @if (isItemVisible(item)) {
+                        <div class="bg-base-100 rounded-lg border border-base-300">
+                          <button
+                            class="flex items-center justify-between w-full p-3 text-left hover:bg-base-200 transition-colors rounded-lg"
+                            (click)="toggleQuestion(heading._id + '-' + j)"
+                          >
+                            <span class="font-medium">
+                              @if (searchQuery()) {
+                                <span [innerHTML]="highlightText(item.question)"></span>
+                              } @else {
+                                {{ item.question }}
+                              }
+                            </span>
+                            <fa-icon
+                              [icon]="faChevronDown"
+                              class="transition-transform duration-200 text-sm"
+                              [class.rotate-180]="isQuestionExpanded(heading._id + '-' + j)"
+                            ></fa-icon>
+                          </button>
+
+                          @if (isQuestionExpanded(heading._id + '-' + j)) {
+                            <div class="px-3 pb-3 text-base-content/80">
+                              @if (searchQuery()) {
+                                <div [innerHTML]="highlightText(item.answer)"></div>
+                              } @else {
+                                {{ item.answer }}
+                              }
+                            </div>
+                          }
+                        </div>
+                      }
                     }
                   </div>
                 }
               </div>
             }
           </div>
-        </div>
-      }
+        }
+      </div>
     </div>
   }
 </div>

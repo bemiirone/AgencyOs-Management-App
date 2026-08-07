@@ -4,6 +4,7 @@ import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { Tenant, TenantSchema } from '../tenant/schemas/tenant.schema';
 import { PageModule } from '../page/page.module';
+import { FaqModule } from '../faq/faq.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { PageModule } from '../page/page.module';
       { name: Tenant.name, schema: TenantSchema },
     ]),
     PageModule,
+    FaqModule,
   ],
   controllers: [AdminController],
   providers: [AdminService],

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Tenant } from '../models/tenant.model';
 import { Page, CreatePageRequest, UpdatePageRequest } from '../models/page.model';
+import { Faq, CreateFaqRequest, UpdateFaqRequest } from '../models/faq.model';
 
 @Injectable({ providedIn: 'root' })
 export class AdminApiService {
@@ -35,5 +36,21 @@ export class AdminApiService {
 
   deletePage(id: string): Observable<{ success: boolean }> {
     return this.http.delete<{ success: boolean }>(`${this.apiUrl}/pages/${id}`);
+  }
+
+  getFaqs(): Observable<Faq[]> {
+    return this.http.get<Faq[]>(`${this.apiUrl}/faqs`);
+  }
+
+  createFaq(data: CreateFaqRequest): Observable<Faq> {
+    return this.http.post<Faq>(`${this.apiUrl}/faqs`, data);
+  }
+
+  updateFaq(id: string, data: UpdateFaqRequest): Observable<Faq> {
+    return this.http.patch<Faq>(`${this.apiUrl}/faqs/${id}`, data);
+  }
+
+  deleteFaq(id: string): Observable<{ success: boolean }> {
+    return this.http.delete<{ success: boolean }>(`${this.apiUrl}/faqs/${id}`);
   }
 }
