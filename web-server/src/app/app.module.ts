@@ -11,8 +11,11 @@ import { NotificationModule } from '../modules/notification/notification.module'
 import { UserModule } from '../modules/user/user.module';
 import { FaqModule } from '../modules/faq/faq.module';
 import { PageModule } from '../modules/page/page.module';
+import { AdminAuthModule } from '../modules/admin-auth/admin-auth.module';
+import { AdminModule } from '../modules/admin/admin.module';
 import databaseConfig from '../config/database.config';
 import jwtConfig from '../config/jwt.config';
+import adminJwtConfig from '../config/admin-jwt.config';
 import redisConfig from '../config/redis.config';
 import stripeConfig from '../config/stripe.config';
 import sendgridConfig from '../config/sendgrid.config';
@@ -21,7 +24,7 @@ import sendgridConfig from '../config/sendgrid.config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, jwtConfig, redisConfig, stripeConfig, sendgridConfig],
+      load: [databaseConfig, jwtConfig, adminJwtConfig, redisConfig, stripeConfig, sendgridConfig],
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
@@ -50,6 +53,8 @@ import sendgridConfig from '../config/sendgrid.config';
     UserModule,
     FaqModule,
     PageModule,
+    AdminAuthModule,
+    AdminModule,
   ],
 })
 export class AppModule {}

@@ -8,6 +8,9 @@
     },
     {
       "path": "./web-server"
+    },
+    {
+      "path": "./admin-ui"
     }
   ],
   "compilerOptions": {}

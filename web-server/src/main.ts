@@ -29,7 +29,7 @@ async function bootstrap() {
     customCss: '.swagger-ui .topbar { display: none }',
   });
 
-  const corsOrigins = process.env.CORS_ORIGIN?.split(',') || ['http://localhost:4200'];
+  const corsOrigins = process.env.CORS_ORIGIN?.split(',') || ['http://localhost:4200', 'http://localhost:4201'];
   app.enableCors({
     origin: corsOrigins,
     credentials: true,
