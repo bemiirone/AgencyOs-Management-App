@@ -2,13 +2,14 @@ import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faChevronDown, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { FaqService, FaqHeading, FaqItem } from '../../../shared/services/faq.service';
+import { FaqService, FaqHeading } from '../../../shared/services/faq.service';
+import { SearchCardComponent } from '../../../shared/components/search-card/search-card.component';
+import { FaqAccordionComponent } from './components/faq-accordion/faq-accordion.component';
 
 @Component({
   selector: 'app-faq-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, FontAwesomeModule],
+  imports: [CommonModule, FormsModule, FontAwesomeModule, SearchCardComponent, FaqAccordionComponent],
   templateUrl: './faq-page.component.html',
   styleUrl: './faq-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,9 +20,6 @@ export class FaqPageComponent implements OnInit {
   readonly expandedHeadings = signal<Set<string>>(new Set());
   readonly expandedQuestions = signal<Set<string>>(new Set());
   readonly searchQuery = signal('');
-  readonly faChevronDown = faChevronDown;
-  readonly faSearch = faSearch;
-  readonly faTimes = faTimes;
 
   private readonly faqService = inject(FaqService);
 
@@ -79,7 +77,15 @@ export class FaqPageComponent implements OnInit {
     }
   }
 
-  toggleHeading(headingId: string): void {
+  onSearchChange(query: string): void {
+    this.searchQuery.set(query);
+  }
+
+  onClearSearch(): void {
+    this.searchQuery.set('');
+  }
+
+  onHeadingToggle(headingId: string): void {
     const expanded = new Set(this.expandedHeadings());
     if (expanded.has(headingId)) {
       expanded.delete(headingId);
@@ -89,7 +95,7 @@ export class FaqPageComponent implements OnInit {
     this.expandedHeadings.set(expanded);
   }
 
-  toggleQuestion(questionId: string): void {
+  onQuestionToggle(questionId: string): void {
     const expanded = new Set(this.expandedQuestions());
     if (expanded.has(questionId)) {
       expanded.delete(questionId);
@@ -97,40 +103,5 @@ export class FaqPageComponent implements OnInit {
       expanded.add(questionId);
     }
     this.expandedQuestions.set(expanded);
-  }
-
-  isHeadingExpanded(headingId: string): boolean {
-    return this.expandedHeadings().has(headingId);
-  }
-
-  isQuestionExpanded(questionId: string): boolean {
-    return this.expandedQuestions().has(questionId);
-  }
-
-  isItemVisible(item: FaqItem): boolean {
-    const query = this.searchQuery().toLowerCase().trim();
-    if (!query) return true;
-    return item.question.toLowerCase().includes(query) || 
-           item.answer.toLowerCase().includes(query);
-  }
-
-  clearSearch(): void {
-    this.searchQuery.set('');
-  }
-
-  highlightText(text: string): string {
-    const query = this.searchQuery().trim();
-    if (!query || !text) return text;
-    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(`(${escapedQuery})`, 'gi');
-    return text.replace(regex, '<mark class="bg-yellow-200 px-0.5 rounded">$1</mark>');
-  }
-
-  trackByHeadingId(_index: number, heading: FaqHeading): string {
-    return heading._id;
-  }
-
-  trackByQuestionIndex(index: number): number {
-    return index;
   }
 }

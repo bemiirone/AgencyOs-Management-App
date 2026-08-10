@@ -1,0 +1,28 @@
+<div class="card bg-base-200">
+  <div class="card-body">
+    <div class="flex items-center gap-3">
+      <fa-icon [icon]="icon()" class="text-base-content/50"></fa-icon>
+      <input
+        type="text"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="onSearchChange($event)"
+        [placeholder]="placeholder()"
+        class="input input-bordered w-full bg-base-100"
+      />
+      @if (searchQuery()) {
+        <button 
+          class="btn btn-ghost btn-sm btn-circle"
+          (click)="onClear()"
+          aria-label="Clear search"
+        >
+          <fa-icon [icon]="faTimes"></fa-icon>
+        </button>
+      }
+    </div>
+    @if (searchQuery()) {
+      <p class="text-sm text-base-content/60 mt-2">
+        {{ resultCount() }} {{ resultCount() === 1 ? 'result' : 'results' }} found
+      </p>
+    }
+  </div>
+</div>

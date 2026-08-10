@@ -1,0 +1,71 @@
+<div class="card bg-base-200">
+  <div class="card-body p-0">
+    @if (faqs().length === 0 && searchQuery()) {
+      <div class="p-8 text-center">
+        <p class="text-lg text-base-content/60">No FAQs match your search</p>
+      </div>
+    } @else {
+      <div class="space-y-4">
+        @for (heading of faqs(); track trackByHeadingId(i, heading); let i = $index) {
+          <div class="bg-base-100 rounded-lg">
+            <button
+              class="flex items-center justify-between w-full p-4 text-left hover:bg-base-300 transition-colors rounded-t-lg"
+              (click)="onHeadingToggle(heading._id)"
+            >
+              <h2 class="text-xl font-semibold">
+                @if (searchQuery()) {
+                  <span [innerHTML]="highlightText(heading.title)"></span>
+                } @else {
+                  {{ heading.title }}
+                }
+              </h2>
+              <fa-icon
+                [icon]="faChevronDown"
+                class="transition-transform duration-200"
+                [class.rotate-180]="isHeadingExpanded(heading._id)"
+              ></fa-icon>
+            </button>
+
+            @if (isHeadingExpanded(heading._id)) {
+              <div class="px-4 pb-4 space-y-2">
+                @for (item of heading.items; track trackByQuestionIndex(j); let j = $index) {
+                  @if (isItemVisible(item)) {
+                    <div class="bg-base-100 rounded-lg border border-base-300">
+                      <button
+                        class="flex items-center justify-between w-full p-3 text-left hover:bg-base-200 transition-colors rounded-lg"
+                        (click)="onQuestionToggle(heading._id + '-' + j)"
+                      >
+                        <span class="font-medium">
+                          @if (searchQuery()) {
+                            <span [innerHTML]="highlightText(item.question)"></span>
+                          } @else {
+                            {{ item.question }}
+                          }
+                        </span>
+                        <fa-icon
+                          [icon]="faChevronDown"
+                          class="transition-transform duration-200 text-sm"
+                          [class.rotate-180]="isQuestionExpanded(heading._id + '-' + j)"
+                        ></fa-icon>
+                      </button>
+
+                      @if (isQuestionExpanded(heading._id + '-' + j)) {
+                        <div class="px-3 pb-3 text-base-content/80">
+                          @if (searchQuery()) {
+                            <div [innerHTML]="highlightText(item.answer)"></div>
+                          } @else {
+                            {{ item.answer }}
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
