@@ -14,18 +14,14 @@
 
   <div class="card bg-base-100 shadow">
     <div class="card-body">
-      <div class="form-control mb-4">
-        <div class="relative">
-          <fa-icon [icon]="faSearch" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
-          <input
-            type="text"
-            [(ngModel)]="searchQuery"
-            (ngModelChange)="onSearchChange()"
-            placeholder="Search projects..."
-            class="input input-bordered w-full pl-10"
-          />
-        </div>
-      </div>
+      <app-search-card
+        [searchQuery]="searchQuery()"
+        [hasCount]="false"
+        variant="flat"
+        placeholder="Search projects..."
+        (searchChange)="onSearchQueryChange($event)"
+        (clear)="onClearSearch()"
+      />
 
       @if (loading()) {
         <div class="flex justify-center py-8">

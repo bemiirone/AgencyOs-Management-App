@@ -3,15 +3,16 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faPlus, faEye, faEdit, faTrash, faSearch, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEye, faEdit, faTrash, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { Project } from '../../../shared/models/project.model';
 import { ProjectStore } from '../../../stores/project.store';
 import { AuthService } from '../../../core/services/auth.service';
+import { SearchCardComponent } from '../../../shared/components/search-card/search-card.component';
 
 @Component({
   selector: 'app-project-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule],
+  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule, SearchCardComponent],
   templateUrl: './project-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./project-list.component.scss'],
@@ -34,7 +35,6 @@ export class ProjectListComponent implements OnInit {
   readonly faEye = faEye;
   readonly faEdit = faEdit;
   readonly faTrash = faTrash;
-  readonly faSearch = faSearch;
   readonly faSpinner = faSpinner;
 
   ngOnInit(): void {
@@ -60,9 +60,19 @@ export class ProjectListComponent implements OnInit {
     });
   }
 
-  onSearchChange(): void {
+  onFilterChange(): void {
     this.currentPage.set(1);
     this.updateQueryParams();
+  }
+
+  onSearchQueryChange(query: string): void {
+    this.searchQuery.set(query);
+    this.onFilterChange();
+  }
+
+  onClearSearch(): void {
+    this.searchQuery.set('');
+    this.onFilterChange();
   }
 
   onPageChange(page: number): void {

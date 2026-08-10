@@ -8,7 +8,6 @@ import {
   faEye,
   faEdit,
   faTrash,
-  faSearch,
   faSpinner,
   faFilter,
 } from '@fortawesome/free-solid-svg-icons';
@@ -17,11 +16,12 @@ import { Project } from '../../../shared/models/project.model';
 import { TaskStore } from '../../../stores/task.store';
 import { ProjectStore } from '../../../stores/project.store';
 import { UserStore } from '../../../stores/user.store';
+import { SearchCardComponent } from '../../../shared/components/search-card/search-card.component';
 
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule],
+  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule, SearchCardComponent],
   templateUrl: './task-list.component.html',
   styleUrl: './task-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,7 +49,6 @@ export class TaskListComponent implements OnInit {
   readonly faEye = faEye;
   readonly faEdit = faEdit;
   readonly faTrash = faTrash;
-  readonly faSearch = faSearch;
   readonly faSpinner = faSpinner;
   readonly faFilter = faFilter;
 
@@ -85,6 +84,16 @@ export class TaskListComponent implements OnInit {
   onFilterChange(): void {
     this.currentPage.set(1);
     this.updateQueryParams();
+  }
+
+  onSearchQueryChange(query: string): void {
+    this.searchQuery.set(query);
+    this.onFilterChange();
+  }
+
+  onClearSearch(): void {
+    this.searchQuery.set('');
+    this.onFilterChange();
   }
 
   onPageChange(page: number): void {

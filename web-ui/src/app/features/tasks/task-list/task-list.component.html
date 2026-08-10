@@ -12,19 +12,16 @@
 
   <div class="card bg-base-100 shadow">
     <div class="card-body">
-      <div class="flex flex-wrap gap-4 mb-4">
-        <div class="form-control flex-1 min-w-[200px]">
-          <div class="relative">
-            <fa-icon [icon]="faSearch" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
-            <input
-              type="text"
-              [(ngModel)]="searchQuery"
-              (ngModelChange)="onFilterChange()"
-              placeholder="Search tasks..."
-              class="input input-bordered w-full pl-10"
-            />
-          </div>
-        </div>
+      <app-search-card
+        [searchQuery]="searchQuery()"
+        [hasCount]="false"
+        variant="flat"
+        placeholder="Search tasks..."
+        (searchChange)="onSearchQueryChange($event)"
+        (clear)="onClearSearch()"
+      />
+
+      <div class="flex flex-wrap gap-4 mt-4">
         <div class="form-control sm:w-48">
           <select [(ngModel)]="projectFilter" (ngModelChange)="onFilterChange()" class="select select-bordered">
             <option value="">All Projects</option>

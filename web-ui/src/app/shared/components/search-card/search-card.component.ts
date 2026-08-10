@@ -18,6 +18,8 @@ export class SearchCardComponent {
   readonly searchQuery = input.required<string>();
   readonly resultCount = input<number>(0);
   readonly icon = input<IconDefinition>(faSearch);
+  readonly variant = input<'card' | 'flat'>('card');
+  readonly hasCount = input<boolean>(true);
 
   readonly searchChange = output<string>();
   readonly clear = output<void>();

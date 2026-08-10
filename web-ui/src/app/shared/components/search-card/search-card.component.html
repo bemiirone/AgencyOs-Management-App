@@ -1,17 +1,27 @@
-<div class="card bg-base-200">
-  <div class="card-body">
-    <div class="flex items-center gap-3">
-      <fa-icon [icon]="icon()" class="text-base-content/50"></fa-icon>
+@if (variant() === 'card') {
+  <div class="card bg-base-200">
+    <div class="card-body">
+      <ng-container *ngTemplateOutlet="cardContent"></ng-container>
+    </div>
+  </div>
+} @else {
+  <ng-container *ngTemplateOutlet="flatContent"></ng-container>
+}
+
+<ng-template #cardContent>
+  <div class="form-control">
+    <div class="relative">
+      <fa-icon [icon]="icon()" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
       <input
         type="text"
         [ngModel]="searchQuery()"
         (ngModelChange)="onSearchChange($event)"
         [placeholder]="placeholder()"
-        class="input input-bordered w-full bg-base-100"
+        class="input input-bordered w-full pl-10"
       />
       @if (searchQuery()) {
         <button 
-          class="btn btn-ghost btn-sm btn-circle"
+          class="btn btn-ghost btn-sm btn-circle absolute right-3 top-1/2 -translate-y-1/2"
           (click)="onClear()"
           aria-label="Clear search"
         >
@@ -19,10 +29,39 @@
         </button>
       }
     </div>
-    @if (searchQuery()) {
-      <p class="text-sm text-base-content/60 mt-2">
-        {{ resultCount() }} {{ resultCount() === 1 ? 'result' : 'results' }} found
-      </p>
-    }
   </div>
-</div>
+  @if (hasCount() && searchQuery()) {
+    <p class="text-sm text-base-content/60 mt-2">
+      {{ resultCount() }} {{ resultCount() === 1 ? 'result' : 'results' }} found
+    </p>
+  }
+</ng-template>
+
+<ng-template #flatContent>
+  <div class="form-control">
+    <div class="relative">
+      <fa-icon [icon]="icon()" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
+      <input
+        type="text"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="onSearchChange($event)"
+        [placeholder]="placeholder()"
+        class="input input-bordered w-full pl-10"
+      />
+      @if (searchQuery()) {
+        <button 
+          class="btn btn-ghost btn-sm btn-circle absolute right-3 top-1/2 -translate-y-1/2"
+          (click)="onClear()"
+          aria-label="Clear search"
+        >
+          <fa-icon [icon]="faTimes"></fa-icon>
+        </button>
+      }
+    </div>
+  </div>
+  @if (hasCount() && searchQuery()) {
+    <p class="text-sm text-base-content/60 mt-2">
+      {{ resultCount() }} {{ resultCount() === 1 ? 'result' : 'results' }} found
+    </p>
+  }
+</ng-template>
