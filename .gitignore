@@ -48,6 +48,10 @@ Thumbs.db
 .nx/self-healing
 .nx/migrate-runs
 
+# Local documentation notes
+*_NOTES.md
+FRONTEND_ARCHITECTURE_NOTES.md
+
 # Seed data
 web-server/src/seed/data/seed-data.ts
 

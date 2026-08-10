@@ -1,7 +1,6 @@
 import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { HttpClient } from '@angular/common/http';
 import { forkJoin, combineLatest } from 'rxjs';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import {
@@ -17,15 +16,17 @@ import {
   faFileAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import { AuthService } from '../../core/services/auth.service';
-import { API_CONFIG } from '../../core/config/api.config';
+import { ToastService } from '../../core/services/toast.service';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
-import { PaginatedResponse } from '../../shared/models/paginated-response.model';
 import { RecentActivityComponent } from './recent-activity/recent-activity.component';
 import { TeamMembersComponent } from './team-members/team-members.component';
 import { UpcomingTasksComponent } from './upcoming-tasks/upcoming-tasks.component';
 import { ChartCardComponent } from '../../shared/components/chart-card/chart-card.component';
 import { Activity, TeamMember, DashboardStats, StatItem } from './dashboard.models';
-import { ToastService } from '../../core/services/toast.service';
+import { ProjectStore } from '../../stores/project.store';
+import { TaskStore } from '../../stores/task.store';
+import { TimeEntryStore } from '../../stores/time-entry.store';
+import { InvoiceStore } from '../../stores/invoice.store';
 import { UserStore } from '../../stores/user.store';
 import { Project } from '../../shared/models/project.model';
 import { Task } from '../../shared/models/task.model';
@@ -43,9 +44,12 @@ import type { ApexOptions } from 'apexcharts';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardComponent implements OnInit {
-  private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
   private readonly toast = inject(ToastService);
+  private readonly projectStore = inject(ProjectStore);
+  private readonly taskStore = inject(TaskStore);
+  private readonly timeEntryStore = inject(TimeEntryStore);
+  private readonly invoiceStore = inject(InvoiceStore);
   private readonly userStore = inject(UserStore);
 
   readonly faProjectDiagram = faProjectDiagram;
@@ -112,10 +116,10 @@ export class DashboardComponent implements OnInit {
     this.loading.set(true);
 
     const dashboardData$ = forkJoin({
-      projects: this.http.get<PaginatedResponse<Project>>(API_CONFIG.PROJECTS.LIST(1, 100)),
-      tasks: this.http.get<PaginatedResponse<Task>>(API_CONFIG.TASKS.LIST(1, 100)),
-      timeEntries: this.http.get<TimeEntry[]>(API_CONFIG.TIME_ENTRIES.LIST),
-      invoices: this.http.get<Invoice[]>(API_CONFIG.INVOICES.LIST),
+      projects: this.projectStore.loadAllProjects(),
+      tasks: this.taskStore.loadAllTasks(),
+      timeEntries: this.timeEntryStore.loadEntries(),
+      invoices: this.invoiceStore.loadInvoices(),
     });
 
     const users$ = this.userStore.loadUsers();
