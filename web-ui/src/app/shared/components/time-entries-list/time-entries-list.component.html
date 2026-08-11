@@ -1,0 +1,27 @@
+@if (showEmptyState() && displayEntries.length === 0) {
+  <div class="text-center py-6 text-base-content/40">
+    <p class="text-sm">No time entries yet</p>
+  </div>
+} @else {
+  <div class="mt-4 space-y-2">
+    @for (entry of displayEntries; track entry._id) {
+      <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+        <div class="flex-1">
+          <p class="font-medium text-sm">{{ entry.description || 'No description' }}</p>
+          @if (showTaskRef() && entry.taskId) {
+            <p class="text-xs text-base-content/50">Task #{{ entry.taskId.slice(-6) }}</p>
+          }
+          <p class="text-xs text-base-content/50 mt-1">{{ formatDate(entry.startTime) }}</p>
+        </div>
+        <div class="flex items-center gap-3">
+          @if (showBillable() && entry.isBillable) {
+            <span class="badge badge-success badge-sm">Billable</span>
+          }
+          <span class="font-mono text-sm font-medium">
+            {{ formatDuration(entry.duration) }}
+          </span>
+        </div>
+      </div>
+    }
+  </div>
+}

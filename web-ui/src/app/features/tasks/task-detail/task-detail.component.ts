@@ -23,6 +23,7 @@ import { UserStore } from '../../../stores/user.store';
 import { TimeEntryStore } from '../../../stores/time-entry.store';
 import { TimeEntry } from '../../../shared/models/time-entry.model';
 import { StatCardComponent } from '../../../shared/components/stat-card/stat-card.component';
+import { TimeEntriesListComponent } from '../../../shared/components/time-entries-list/time-entries-list.component';
 import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
 interface StatConfig {
@@ -38,7 +39,7 @@ interface StatConfig {
 @Component({
   selector: 'app-task-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule, StatCardComponent],
+  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule, StatCardComponent, TimeEntriesListComponent],
   templateUrl: './task-detail.component.html',
   styleUrl: './task-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
