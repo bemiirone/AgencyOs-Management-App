@@ -22,11 +22,23 @@ import { ProjectStore } from '../../../stores/project.store';
 import { UserStore } from '../../../stores/user.store';
 import { TimeEntryStore } from '../../../stores/time-entry.store';
 import { TimeEntry } from '../../../shared/models/time-entry.model';
+import { StatCardComponent } from '../../../shared/components/stat-card/stat-card.component';
+import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
+
+interface StatConfig {
+  icon: IconDefinition;
+  title: string;
+  colorClass: string;
+  formKey?: 'status' | 'priority' | 'dueDate';
+  options?: { value: string; label: string }[];
+  isDate?: boolean;
+  readonly?: boolean;
+}
 
 @Component({
   selector: 'app-task-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule],
+  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule, StatCardComponent],
   templateUrl: './task-detail.component.html',
   styleUrl: './task-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,6 +68,46 @@ export class TaskDetailComponent implements OnInit {
   readonly faTrash = faTrash;
   readonly faClock = faClock;
   readonly faListUl = faListUl;
+
+  readonly stats: StatConfig[] = [
+    {
+      icon: faFlag,
+      title: 'Status',
+      colorClass: 'text-primary',
+      formKey: 'status',
+      options: [
+        { value: 'todo', label: 'To Do' },
+        { value: 'in_progress', label: 'In Progress' },
+        { value: 'in_review', label: 'In Review' },
+        { value: 'done', label: 'Done' },
+      ],
+    },
+    {
+      icon: faFlag,
+      title: 'Priority',
+      colorClass: 'text-secondary',
+      formKey: 'priority',
+      options: [
+        { value: 'low', label: 'Low' },
+        { value: 'medium', label: 'Medium' },
+        { value: 'high', label: 'High' },
+        { value: 'urgent', label: 'Urgent' },
+      ],
+    },
+    {
+      icon: faCalendar,
+      title: 'Due Date',
+      colorClass: 'text-accent',
+      formKey: 'dueDate',
+      isDate: true,
+    },
+    {
+      icon: faClock,
+      title: 'Time Logged',
+      colorClass: 'text-info',
+      readonly: true,
+    },
+  ];
 
   editForm = {
     title: '',

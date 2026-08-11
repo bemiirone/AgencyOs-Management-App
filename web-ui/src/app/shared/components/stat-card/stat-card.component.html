@@ -3,6 +3,5 @@
     <fa-icon [icon]="icon()" size="2x"></fa-icon>
   </div>
   <div class="stat-title">{{ title() }}</div>
-  <div class="stat-value" [class]="colorClass()">{{ value() }}</div>
-  <div class="stat-desc">{{ description() }}</div>
+  <ng-content></ng-content>
 </div>

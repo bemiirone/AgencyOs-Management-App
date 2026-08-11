@@ -13,8 +13,8 @@ import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 })
 export class StatCardComponent {
   icon = input.required<IconDefinition>();
-  value = input.required<number>();
+  value = input<number>();
   title = input.required<string>();
-  description = input.required<string>();
-  colorClass = input.required<string>();
+  description = input<string>();
+  colorClass = input<string>();
 }

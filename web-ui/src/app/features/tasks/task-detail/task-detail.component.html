@@ -48,71 +48,51 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      <div class="stat bg-base-100 shadow rounded-box">
-        <div class="stat-figure text-primary">
-          <fa-icon [icon]="faFlag"></fa-icon>
-        </div>
-        <div class="stat-title">Status</div>
-        @if (!editing()) {
-          <div class="stat-value text-lg">
-            <span class="badge {{ getStatusBadgeClass(task()!.status) }} badge-lg">
-              {{ getStatusLabel(task()!.status) }}
-            </span>
-          </div>
-        } @else {
-          <select [(ngModel)]="editForm.status" class="select select-bordered select-sm mt-2">
-            <option value="todo">To Do</option>
-            <option value="in_progress">In Progress</option>
-            <option value="in_review">In Review</option>
-            <option value="done">Done</option>
-          </select>
-        }
-      </div>
-
-      <div class="stat bg-base-100 shadow rounded-box">
-        <div class="stat-figure text-secondary">
-          <fa-icon [icon]="faFlag"></fa-icon>
-        </div>
-        <div class="stat-title">Priority</div>
-        @if (!editing()) {
-          <div class="stat-value text-lg">
-            <span class="badge {{ getPriorityBadgeClass(task()!.priority) }} badge-lg">
-              {{ getPriorityLabel(task()!.priority) }}
-            </span>
-          </div>
-        } @else {
-          <select [(ngModel)]="editForm.priority" class="select select-bordered select-sm mt-2">
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-            <option value="urgent">Urgent</option>
-          </select>
-        }
-      </div>
-
-      <div class="stat bg-base-100 shadow rounded-box">
-        <div class="stat-figure text-accent">
-          <fa-icon [icon]="faCalendar"></fa-icon>
-        </div>
-        <div class="stat-title">Due Date</div>
-        @if (!editing()) {
-          <div class="stat-value text-secondary text-lg">{{ formatDate(task()!.dueDate) }}</div>
-        } @else {
-          <input
-            type="date"
-            [(ngModel)]="editForm.dueDate"
-            class="input input-bordered input-sm mt-2"
-          />
-        }
-      </div>
-
-      <div class="stat bg-base-100 shadow rounded-box">
-        <div class="stat-figure text-info">
-          <fa-icon [icon]="faClock"></fa-icon>
-        </div>
-        <div class="stat-title">Time Logged</div>
-        <div class="stat-value text-info text-lg">{{ getTotalTimeFormatted() }}</div>
-      </div>
+      @for (stat of stats; track stat.title) {
+        <app-stat-card [icon]="stat.icon" [title]="stat.title" [colorClass]="stat.colorClass">
+          @if (!editing()) {
+            @if (stat.readonly) {
+              <div class="stat-value" [class]="stat.colorClass">{{ getTotalTimeFormatted() }}</div>
+            } @else if (stat.isDate) {
+              <div class="stat-value text-secondary text-lg">{{ formatDate(task()!.dueDate) }}</div>
+            } @else if (stat.formKey === 'status') {
+              <div class="stat-value text-lg">
+                <span class="badge {{ getStatusBadgeClass(task()!.status) }} badge-lg">
+                  {{ getStatusLabel(task()!.status) }}
+                </span>
+              </div>
+            } @else if (stat.formKey === 'priority') {
+              <div class="stat-value text-lg">
+                <span class="badge {{ getPriorityBadgeClass(task()!.priority) }} badge-lg">
+                  {{ getPriorityLabel(task()!.priority) }}
+                </span>
+              </div>
+            }
+          } @else {
+            @if (stat.readonly) {
+              <div class="stat-value" [class]="stat.colorClass">{{ getTotalTimeFormatted() }}</div>
+            } @else if (stat.isDate && stat.formKey === 'dueDate') {
+              <input
+                type="date"
+                [(ngModel)]="editForm.dueDate"
+                class="input input-bordered input-sm mt-2"
+              />
+            } @else if (stat.formKey === 'status') {
+              <select [(ngModel)]="editForm.status" class="select select-bordered select-sm mt-2">
+                @for (opt of stat.options; track opt.value) {
+                  <option [value]="opt.value">{{ opt.label }}</option>
+                }
+              </select>
+            } @else if (stat.formKey === 'priority') {
+              <select [(ngModel)]="editForm.priority" class="select select-bordered select-sm mt-2">
+                @for (opt of stat.options; track opt.value) {
+                  <option [value]="opt.value">{{ opt.label }}</option>
+                }
+              </select>
+            }
+          }
+        </app-stat-card>
+      }
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
