@@ -10,11 +10,12 @@ import { TimeEntryStore } from '../../../stores/time-entry.store';
 import { Task } from '../../../shared/models/task.model';
 import { TimeEntry } from '../../../shared/models/time-entry.model';
 import { AuthService } from '../../../core/services/auth.service';
+import { TimeEntriesListComponent } from '../../../shared/components/time-entries-list/time-entries-list.component';
 
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, FontAwesomeModule],
+  imports: [CommonModule, RouterLink, FontAwesomeModule, TimeEntriesListComponent],
   templateUrl: './project-detail.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./project-detail.component.scss'],

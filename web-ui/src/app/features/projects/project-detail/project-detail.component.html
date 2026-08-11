@@ -93,28 +93,13 @@
             <fa-icon [icon]="faClock" class="text-primary"></fa-icon>
             Recent Time Entries
           </h2>
-          @if (timeEntries().length > 0) {
-            <div class="mt-4 space-y-3">
-              @for (entry of timeEntries().slice(0, 5); track entry._id) {
-                <div class="p-3 bg-base-200 rounded-lg">
-                  <div class="flex justify-between items-start">
-                    <div>
-                      <p class="font-medium text-sm">{{ entry.description || 'No description' }}</p>
-                      @if (entry.taskId) {
-                        <p class="text-xs text-base-content/50">Task #{{ entry.taskId.slice(-6) }}</p>
-                      }
-                    </div>
-                    <span class="text-xs font-mono">{{ timeEntryStore.formatDuration(entry.duration) }}</span>
-                  </div>
-                  <p class="text-xs text-base-content/40 mt-1">{{ formatDate(entry.startTime) }}</p>
-                </div>
-              }
-            </div>
-          } @else {
-            <div class="text-center py-6 text-base-content/40">
-              <p class="text-sm">No time entries yet</p>
-            </div>
-          }
+          <app-time-entries-list 
+            [entries]="timeEntries()" 
+            [limit]="5"
+            [showBillable]="false"
+            [showTaskRef]="true"
+            [showEmptyState]="true"
+          />
         </div>
       </div>
     </div>
