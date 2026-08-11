@@ -2,7 +2,7 @@ import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@ang
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faArrowLeft, faCalendar, faUser, faDollarSign, faClock, faSpinner, faEdit, faTasks, faCheckCircle, faHourglassHalf, faTrash, faPlay } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faCalendar, faUser, faDollarSign, faClock, faSpinner, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Project } from '../../../shared/models/project.model';
 import { ProjectStore } from '../../../stores/project.store';
 import { TaskStore } from '../../../stores/task.store';
@@ -11,11 +11,12 @@ import { Task } from '../../../shared/models/task.model';
 import { TimeEntry } from '../../../shared/models/time-entry.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { TimeEntriesListComponent } from '../../../shared/components/time-entries-list/time-entries-list.component';
+import { TaskListCardComponent } from '../../../shared/components/task-list-card/task-list-card.component';
 
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, FontAwesomeModule, TimeEntriesListComponent],
+  imports: [CommonModule, RouterLink, FontAwesomeModule, TimeEntriesListComponent, TaskListCardComponent],
   templateUrl: './project-detail.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./project-detail.component.scss'],
@@ -41,11 +42,7 @@ export class ProjectDetailComponent implements OnInit {
   readonly faClock = faClock;
   readonly faSpinner = faSpinner;
   readonly faEdit = faEdit;
-  readonly faTasks = faTasks;
-  readonly faCheckCircle = faCheckCircle;
-  readonly faHourglassHalf = faHourglassHalf;
   readonly faTrash = faTrash;
-  readonly faPlay = faPlay;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -119,36 +116,6 @@ export class ProjectDetailComponent implements OnInit {
     return labels[status] || status;
   }
 
-  getTaskStatusClass(status: string): string {
-    const classes: Record<string, string> = {
-      todo: 'badge-ghost',
-      in_progress: 'badge-warning',
-      in_review: 'badge-info',
-      done: 'badge-success',
-    };
-    return classes[status] || 'badge-ghost';
-  }
-
-  getTaskStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-      todo: 'To Do',
-      in_progress: 'In Progress',
-      in_review: 'In Review',
-      done: 'Done',
-    };
-    return labels[status] || status;
-  }
-
-  getTaskPriorityClass(priority: string): string {
-    const classes: Record<string, string> = {
-      low: 'text-base-content/40',
-      medium: 'text-info',
-      high: 'text-warning',
-      urgent: 'text-error',
-    };
-    return classes[priority] || 'text-base-content/40';
-  }
-
   deleteProject(): void {
     const id = this.project()?._id;
     if (!id) return;
@@ -186,9 +153,5 @@ export class ProjectDetailComponent implements OnInit {
       return `${hours}h ${minutes}m`;
     }
     return `${minutes}m`;
-  }
-
-  getTaskTimeEntries(taskId: string): TimeEntry[] {
-    return this.timeEntries().filter((e) => e.taskId === taskId).slice(0, 3);
   }
 }

@@ -1,0 +1,73 @@
+<div class="card bg-base-100 shadow mt-6">
+  <div class="card-body">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="card-title">
+        <fa-icon [icon]="faTasks" class="text-secondary"></fa-icon>
+        Tasks ({{ tasks().length }})
+      </h2>
+      @if (showAddButton()) {
+        <a [routerLink]="addTaskRoute()" class="btn btn-sm btn-primary" (click)="onAddTask()">
+          <fa-icon [icon]="faPlay" class="mr-1"></fa-icon>
+          Add Task
+        </a>
+      }
+    </div>
+
+    @if (tasks().length > 0) {
+      <div class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Task</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th>Due Date</th>
+              <th>Time Logged</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (task of tasks(); track task._id) {
+              <tr class="hover">
+                <td>
+                  <a [routerLink]="['/tasks', task._id]" class="font-medium link link-hover link-primary">
+                    {{ task.title }}
+                  </a>
+                </td>
+                <td>
+                  <span class="badge {{ getTaskStatusClass(task.status) }} badge-sm">
+                    {{ getTaskStatusLabel(task.status) }}
+                  </span>
+                </td>
+                <td>
+                  <span class="text-sm {{ getTaskPriorityClass(task.priority) }}">
+                    {{ task.priority }}
+                  </span>
+                </td>
+                <td class="text-sm">{{ formatDate(task.dueDate) }}</td>
+                <td class="text-sm font-mono">
+                  {{ formatDuration(getTaskTimeEntries(task._id).reduce((sum, e) => sum + e.duration, 0)) }}
+                </td>
+                <td>
+                  <div class="flex gap-1">
+                    <a [routerLink]="['/tasks', task._id]" class="btn btn-ghost btn-xs">
+                      <fa-icon [icon]="faHourglassHalf"></fa-icon>
+                    </a>
+                    <button class="btn btn-ghost btn-xs text-error" (click)="onDeleteTask(task._id)">
+                      <fa-icon [icon]="faTrash"></fa-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="text-center py-8 text-base-content/40">
+        <fa-icon [icon]="faTasks" class="text-3xl mb-2"></fa-icon>
+        <p class="text-sm">No tasks yet. Add one to get started.</p>
+      </div>
+    }
+  </div>
+</div>
