@@ -12,11 +12,12 @@ import { TimeEntry } from '../../../shared/models/time-entry.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { TimeEntriesListComponent } from '../../../shared/components/time-entries-list/time-entries-list.component';
 import { TaskListCardComponent } from '../../../shared/components/task-list-card/task-list-card.component';
+import { ContentCardComponent } from '../../../shared/components/content-card/content-card.component';
 
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, FontAwesomeModule, TimeEntriesListComponent, TaskListCardComponent],
+  imports: [CommonModule, RouterLink, FontAwesomeModule, TimeEntriesListComponent, TaskListCardComponent, ContentCardComponent],
   templateUrl: './project-detail.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./project-detail.component.scss'],

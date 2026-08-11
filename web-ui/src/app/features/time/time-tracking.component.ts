@@ -10,6 +10,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { TimeEntry } from '../../shared/models/time-entry.model';
 import { Project } from '../../shared/models/project.model';
 import { Task } from '../../shared/models/task.model';
+import { ContentCardComponent } from '../../shared/components/content-card/content-card.component';
 
 interface GroupedEntries {
   date: Date;
@@ -28,7 +29,7 @@ interface CreateTimeEntryPayload {
 @Component({
   selector: 'app-time-tracking',
   standalone: true,
-  imports: [CommonModule, FormsModule, FontAwesomeModule],
+  imports: [CommonModule, FormsModule, FontAwesomeModule, ContentCardComponent],
   templateUrl: './time-tracking.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

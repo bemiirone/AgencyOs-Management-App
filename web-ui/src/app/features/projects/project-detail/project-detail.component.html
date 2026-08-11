@@ -87,21 +87,15 @@
         </div>
       </div>
 
-      <div class="card bg-base-100 shadow">
-        <div class="card-body">
-          <h2 class="card-title">
-            <fa-icon [icon]="faClock" class="text-primary"></fa-icon>
-            Recent Time Entries
-          </h2>
-          <app-time-entries-list 
+      <app-content-card title="Recent Time Entries" [icon]="faClock">
+        <app-time-entries-list 
             [entries]="timeEntries()" 
             [limit]="5"
             [showBillable]="false"
             [showTaskRef]="true"
             [showEmptyState]="true"
           />
-        </div>
-      </div>
+      </app-content-card>
     </div>
 
     <app-task-list-card

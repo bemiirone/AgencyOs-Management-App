@@ -10,11 +10,12 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { Task } from '../../../shared/models/task.model';
 import { Project } from '../../../shared/models/project.model';
+import { ContentCardComponent } from '../../../shared/components/content-card/content-card.component';
 
 @Component({
   selector: 'app-upcoming-tasks',
   standalone: true,
-  imports: [CommonModule, RouterLink, FontAwesomeModule],
+  imports: [CommonModule, RouterLink, FontAwesomeModule, ContentCardComponent],
   templateUrl: './upcoming-tasks.component.html',
 })
 export class UpcomingTasksComponent {

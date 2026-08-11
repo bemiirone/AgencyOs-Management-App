@@ -4,4 +4,10 @@
   </div>
   <div class="stat-title">{{ title() }}</div>
   <ng-content></ng-content>
+  @if (value() !== undefined) {
+    <div class="stat-value" [class]="colorClass()">{{ value() }}</div>
+  }
+  @if (description()) {
+    <div class="stat-desc">{{ description() }}</div>
+  }
 </div>

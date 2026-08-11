@@ -12,9 +12,8 @@
     }
   </div>
 
-  <div class="card bg-base-100 shadow">
-    <div class="card-body">
-      <app-search-card
+  <app-content-card>
+    <app-search-card
         [searchQuery]="searchQuery()"
         [hasCount]="false"
         variant="flat"
@@ -116,6 +115,5 @@
           </div>
         }
       }
-    </div>
-  </div>
+    </app-content-card>
 </div>

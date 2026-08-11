@@ -7,11 +7,12 @@ import { faPlus, faEye, faEdit, faTrash, faSearch, faSpinner, faPaperPlane } fro
 import { Invoice } from '../../shared/models/invoice.model';
 import { InvoiceStore } from '../../stores/invoice.store';
 import { ProjectStore } from '../../stores/project.store';
+import { ContentCardComponent } from '../../shared/components/content-card/content-card.component';
 
 @Component({
   selector: 'app-invoices',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule],
+  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule, ContentCardComponent],
   templateUrl: './invoices.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

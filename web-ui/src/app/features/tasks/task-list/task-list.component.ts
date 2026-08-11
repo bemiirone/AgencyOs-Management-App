@@ -17,11 +17,12 @@ import { TaskStore } from '../../../stores/task.store';
 import { ProjectStore } from '../../../stores/project.store';
 import { UserStore } from '../../../stores/user.store';
 import { SearchCardComponent } from '../../../shared/components/search-card/search-card.component';
+import { ContentCardComponent } from '../../../shared/components/content-card/content-card.component';
 
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule, SearchCardComponent],
+  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule, SearchCardComponent, ContentCardComponent],
   templateUrl: './task-list.component.html',
   styleUrl: './task-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

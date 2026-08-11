@@ -8,11 +8,12 @@ import { Project } from '../../../shared/models/project.model';
 import { ProjectStore } from '../../../stores/project.store';
 import { AuthService } from '../../../core/services/auth.service';
 import { SearchCardComponent } from '../../../shared/components/search-card/search-card.component';
+import { ContentCardComponent } from '../../../shared/components/content-card/content-card.component';
 
 @Component({
   selector: 'app-project-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule, SearchCardComponent],
+  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule, SearchCardComponent, ContentCardComponent],
   templateUrl: './project-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./project-list.component.scss'],
