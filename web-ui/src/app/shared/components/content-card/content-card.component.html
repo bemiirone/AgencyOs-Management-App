@@ -1,0 +1,13 @@
+<div class="card bg-base-100 shadow" [class]="cardClass()">
+  <div class="card-body" [class]="cardBodyClass()">
+    @if (title()) {
+      <h2 class="card-title" [class]="titleClass()">
+        @if (icon()) {
+          <fa-icon [icon]="icon()"></fa-icon>
+        }
+        {{ title() }}
+      </h2>
+    }
+    <ng-content></ng-content>
+  </div>
+</div>
