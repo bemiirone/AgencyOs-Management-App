@@ -7,6 +7,8 @@ export interface Notification {
   status: 'pending' | 'sent' | 'failed';
   sentAt?: Date;
   error?: string;
+  entityType?: 'project' | 'task';
+  entityId?: string;
   createdAt: Date;
   updatedAt: Date;
 }

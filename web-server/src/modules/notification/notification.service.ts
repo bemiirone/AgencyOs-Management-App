@@ -23,6 +23,8 @@ export class NotificationService {
     title: string,
     message: string,
     type: NotificationType = NotificationType.WEBSOCKET,
+    entityType?: 'project' | 'task',
+    entityId?: string,
   ) {
     const notification = await this.notificationModel.create({
       userId,
@@ -30,6 +32,8 @@ export class NotificationService {
       title,
       message,
       type,
+      entityType,
+      entityId,
     });
 
     if (type === NotificationType.EMAIL || type === NotificationType.BOTH) {

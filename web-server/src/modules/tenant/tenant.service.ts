@@ -31,6 +31,10 @@ export class TenantService {
     }).exec();
   }
 
+  async findAllActive() {
+    return this.tenantModel.find({ isActive: true }).exec();
+  }
+
   async findOne(id: string, tenantId: string) {
     const tenant = await this.tenantModel.findOne({ _id: id, tenantId }).exec();
 

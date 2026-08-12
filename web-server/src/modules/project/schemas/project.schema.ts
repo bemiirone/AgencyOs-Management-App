@@ -44,6 +44,9 @@ export class Project extends BaseDocument {
 
   @Prop()
   declare budget: number;
+
+  @Prop()
+  declare lastDueDateReminderSent: Date;
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);

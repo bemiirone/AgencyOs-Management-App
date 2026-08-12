@@ -1,0 +1,26 @@
+import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
+import { MongooseModule } from '@nestjs/mongoose';
+import { DueDateSchedulerService } from './due-date-scheduler.service';
+import { DueDateCheckerService } from './due-date-checker.service';
+import { SchedulerController } from './scheduler.controller';
+import { Project, ProjectSchema } from '../project/schemas/project.schema';
+import { Task, TaskSchema } from '../project/schemas/task.schema';
+import { NotificationModule } from '../notification/notification.module';
+import { TenantModule } from '../tenant/tenant.module';
+
+@Module({
+  imports: [
+    ScheduleModule.forRoot(),
+    MongooseModule.forFeature([
+      { name: Project.name, schema: ProjectSchema },
+      { name: Task.name, schema: TaskSchema },
+    ]),
+    NotificationModule,
+    TenantModule,
+  ],
+  controllers: [SchedulerController],
+  providers: [DueDateSchedulerService, DueDateCheckerService],
+  exports: [DueDateCheckerService],
+})
+export class SchedulerModule {}

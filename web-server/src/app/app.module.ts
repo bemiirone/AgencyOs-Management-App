@@ -13,6 +13,7 @@ import { FaqModule } from '../modules/faq/faq.module';
 import { PageModule } from '../modules/page/page.module';
 import { AdminAuthModule } from '../modules/admin-auth/admin-auth.module';
 import { AdminModule } from '../modules/admin/admin.module';
+import { SchedulerModule } from '../modules/scheduler/scheduler.module';
 import databaseConfig from '../config/database.config';
 import jwtConfig from '../config/jwt.config';
 import adminJwtConfig from '../config/admin-jwt.config';
@@ -55,6 +56,7 @@ import sendgridConfig from '../config/sendgrid.config';
     PageModule,
     AdminAuthModule,
     AdminModule,
+    SchedulerModule,
   ],
 })
 export class AppModule {}

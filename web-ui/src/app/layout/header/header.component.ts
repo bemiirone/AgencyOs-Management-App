@@ -2,7 +2,7 @@ import { Component, inject, signal, computed, output, OnInit, ChangeDetectionStr
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faBars, faBell, faUser, faSignOutAlt, faChevronDown, faCheck, faBuilding, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faBell, faUser, faSignOutAlt, faChevronDown, faCheck, faBuilding, faExclamationTriangle, faSyncAlt } from '@fortawesome/free-solid-svg-icons';
 import { AuthService, Workspace } from '../../core/services/auth.service';
 import { NotificationStore } from '../../stores/notification.store';
 import { Notification } from '../../shared/models/notification.model';
@@ -31,6 +31,7 @@ export class HeaderComponent implements OnInit {
   readonly faCheck = faCheck;
   readonly faBuilding = faBuilding;
   readonly faExclamationTriangle = faExclamationTriangle;
+  readonly faSyncAlt = faSyncAlt;
 
   private readonly toast = inject(ToastService);
 
@@ -81,6 +82,16 @@ export class HeaderComponent implements OnInit {
         this.unreadCount.set(this.notificationStore.unreadCount());
       },
       error: (err) => console.error('Failed to mark notification as read:', err),
+    });
+  }
+
+  refreshNotifications(): void {
+    this.notificationStore.loadNotifications().subscribe({
+      next: (notifications) => {
+        this.notifications.set(notifications);
+        this.unreadCount.set(this.notificationStore.unreadCount());
+      },
+      error: (err) => console.error('Failed to refresh notifications:', err),
     });
   }
 

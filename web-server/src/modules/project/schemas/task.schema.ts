@@ -47,6 +47,9 @@ export class Task extends BaseDocument {
 
   @Prop({ type: Types.ObjectId, ref: 'User' })
   declare createdBy: string;
+
+  @Prop()
+  declare lastDueDateReminderSent: Date;
 }
 
 export const TaskSchema = SchemaFactory.createForClass(Task);

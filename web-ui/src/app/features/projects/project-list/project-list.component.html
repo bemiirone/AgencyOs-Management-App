@@ -44,7 +44,9 @@
                 <tr class="hover">
                   <td>
                     <div>
-                      <div class="font-bold">{{ project.name }}</div>
+                      <a [routerLink]="['/projects', project._id]" queryParamsHandling="preserve" class="font-bold link link-hover link-primary">
+                        {{ project.name }}
+                      </a>
                       @if (project.description) {
                         <div class="text-sm text-base-content/50">{{ project.description | slice:0:50 }}{{ project.description.length > 50 ? '...' : '' }}</div>
                       }

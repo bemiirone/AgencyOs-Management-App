@@ -64,8 +64,11 @@
       </button>
       @if (showNotifications()) {
         <div tabindex="0" class="dropdown-content mt-3 z-[1] p-2 shadow menu menu-sm bg-base-100 rounded-box w-80 max-h-96 overflow-y-auto">
-          <div class="px-3 py-2 border-b border-base-200">
+          <div class="px-3 py-2 border-b border-base-200 flex items-center justify-between">
             <h3 class="font-semibold text-sm">Notifications</h3>
+            <button class="btn btn-ghost btn-xs btn-circle" (click)="refreshNotifications()" title="Refresh">
+              <fa-icon [icon]="faSyncAlt" class="text-xs"></fa-icon>
+            </button>
           </div>
           @if (notifications().length > 0) {
             @for (notification of notifications().slice(0, 10); track notification._id) {

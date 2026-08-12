@@ -35,6 +35,12 @@ export class Notification extends BaseDocument {
 
   @Prop()
   declare error: string;
+
+  @Prop()
+  declare entityType: 'project' | 'task';
+
+  @Prop()
+  declare entityId: string;
 }
 
 export const NotificationSchema = SchemaFactory.createForClass(Notification);
