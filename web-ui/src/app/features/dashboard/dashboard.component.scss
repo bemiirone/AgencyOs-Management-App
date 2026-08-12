@@ -1,3 +1,8 @@
 :host {
   display: block;
 }
+::ng-deep apx-chart {
+ .apexcharts-legend-marker {
+    margin-right: 5px;
+  }
+}
