@@ -115,4 +115,14 @@
         }
       }
     </app-content-card>
+
+  <app-confirm-dialog
+    #deleteProjectDialog
+    title="Delete Project"
+    [message]="'Are you sure you want to delete \'' + (projects().find(p => p._id === pendingDeleteProjectId())?.name || 'this project') + '\'? This action cannot be undone.'"
+    confirmText="Delete"
+    cancelText="Cancel"
+    variant="error"
+    (confirmed)="confirmDeleteProject()"
+  />
 </div>

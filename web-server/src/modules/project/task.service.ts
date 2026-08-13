@@ -2,12 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Task, TaskStatus } from './schemas/task.schema';
+import { Project, ProjectStatus } from './schemas/project.schema';
 import { CreateTaskDto, UpdateTaskDto } from './dto/task.dto';
 
 @Injectable()
 export class TaskService {
   constructor(
     @InjectModel(Task.name) private taskModel: Model<Task>,
+    @InjectModel(Project.name) private projectModel: Model<Project>,
   ) {}
 
   async create(createTaskDto: CreateTaskDto, tenantId: string) {
@@ -68,20 +70,53 @@ export class TaskService {
       throw new NotFoundException('Task not found');
     }
 
+    if (updateTaskDto.status === TaskStatus.DONE) {
+      await this.checkAndAutoCompleteProject(task.projectId, tenantId);
+    }
+
     return task;
   }
 
   async remove(id: string, tenantId: string) {
+    const task = await this.taskModel.findOne({ _id: id, tenantId }).exec();
+    
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+
     const result = await this.taskModel.deleteOne({ _id: id, tenantId }).exec();
 
     if (result.deletedCount === 0) {
       throw new NotFoundException('Task not found');
     }
 
+    await this.checkAndAutoCompleteProject(task.projectId, tenantId);
+
     return { success: true };
   }
 
   async updateStatus(id: string, tenantId: string, status: TaskStatus) {
     return this.update(id, tenantId, { status });
+  }
+
+  private async checkAndAutoCompleteProject(projectId: string, tenantId: string) {
+    const remainingTasks = await this.taskModel.countDocuments({
+      projectId,
+      tenantId,
+      status: { $ne: TaskStatus.DONE },
+    });
+
+    if (remainingTasks === 0) {
+      const project = await this.projectModel.findOne({ _id: projectId, tenantId }).exec();
+      
+      if (project && project.status === ProjectStatus.ACTIVE) {
+        await this.projectModel.updateOne(
+          { _id: projectId, tenantId },
+          { $set: { status: ProjectStatus.COMPLETED } },
+        ).exec();
+        
+        console.log(`Project "${project.name}" auto-completed: all tasks are done`);
+      }
+    }
   }
 }

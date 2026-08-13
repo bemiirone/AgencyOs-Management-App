@@ -2,11 +2,15 @@ import { Component, signal, inject, OnInit, ChangeDetectionStrategy } from '@ang
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowLeft, faSpinner, faSave } from '@fortawesome/free-solid-svg-icons';
 import { ProjectStore } from '../../../stores/project.store';
+import { ToastService } from '../../../core/services/toast.service';
 import { Project } from '../../../shared/models/project.model';
 import { CreateProjectPayload, UpdateProjectPayload } from '../project.models';
+import { API_CONFIG } from '../../../core/config/api.config';
 
 @Component({
   selector: 'app-project-form',
@@ -19,6 +23,8 @@ export class ProjectFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly projectStore = inject(ProjectStore);
+  private readonly toast = inject(ToastService);
+  private readonly http = inject(HttpClient);
   private readonly fb = inject(FormBuilder);
 
   readonly mode = signal<'create' | 'edit'>('create');
@@ -94,8 +100,13 @@ export class ProjectFormComponent implements OnInit {
     this.projectForm.get('clientEmail')?.updateValueAndValidity();
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     if (this.projectForm.invalid) return;
+
+    if (this.mode() === 'edit' && this.projectForm.get('status')?.value === 'completed') {
+      const canComplete = await this.validateProjectCompletion();
+      if (!canComplete) return;
+    }
 
     this.saving.set(true);
     this.error.set('');
@@ -151,6 +162,30 @@ export class ProjectFormComponent implements OnInit {
           this.saving.set(false);
         },
       });
+    }
+  }
+
+  private async validateProjectCompletion(): Promise<boolean> {
+    try {
+      const projectId = this.projectId();
+      const response: any = await firstValueFrom(
+        this.http.get(API_CONFIG.TASKS.BY_PROJECT(projectId)),
+      );
+
+      const tasks = response.data || response;
+      const incompleteTasks = tasks.filter((task: any) => task.status !== 'done');
+
+      if (incompleteTasks.length > 0) {
+        const message = `Cannot complete project: ${incompleteTasks.length} task(s) are still incomplete`;
+        this.error.set(message);
+        this.toast.error(message);
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      console.error('Failed to validate project completion:', err);
+      return true;
     }
   }
 }

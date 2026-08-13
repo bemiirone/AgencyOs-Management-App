@@ -103,5 +103,25 @@
       [timeEntries]="timeEntries()"
       (deleteTask)="deleteTask($event)"
     />
+
+  <app-confirm-dialog
+    #deleteProjectDialog
+    title="Delete Project"
+    [message]="'Are you sure you want to delete \'' + (project()?.name || 'this project') + '\'? This action cannot be undone.'"
+    confirmText="Delete"
+    cancelText="Cancel"
+    variant="error"
+    (confirmed)="confirmDeleteProject()"
+  />
+
+  <app-confirm-dialog
+    #deleteTaskDialog
+    title="Delete Task"
+    [message]="'Are you sure you want to delete \'' + (tasks().find(t => t._id === pendingDeleteTaskId())?.title || 'this task') + '\'? This action cannot be undone.'"
+    confirmText="Delete"
+    cancelText="Cancel"
+    variant="error"
+    (confirmed)="confirmDeleteTask()"
+  />
   }
 </div>

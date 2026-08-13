@@ -178,4 +178,14 @@
         }
       }
     </app-content-card>
+
+  <app-confirm-dialog
+    #deleteTaskDialog
+    title="Delete Task"
+    [message]="'Are you sure you want to delete \'' + (tasks().find(t => t._id === pendingDeleteTaskId())?.title || 'this task') + '\'? This action cannot be undone.'"
+    confirmText="Delete"
+    cancelText="Cancel"
+    variant="error"
+    (confirmed)="confirmDeleteTask()"
+  />
 </div>

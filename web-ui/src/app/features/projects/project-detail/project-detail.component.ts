@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -13,11 +13,12 @@ import { AuthService } from '../../../core/services/auth.service';
 import { TimeEntriesListComponent } from '../../../shared/components/time-entries-list/time-entries-list.component';
 import { TaskListCardComponent } from '../../../shared/components/task-list-card/task-list-card.component';
 import { ContentCardComponent } from '../../../shared/components/content-card/content-card.component';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, FontAwesomeModule, TimeEntriesListComponent, TaskListCardComponent, ContentCardComponent],
+  imports: [CommonModule, RouterLink, FontAwesomeModule, TimeEntriesListComponent, TaskListCardComponent, ContentCardComponent, ConfirmDialogComponent],
   templateUrl: './project-detail.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./project-detail.component.scss'],
@@ -30,11 +31,15 @@ export class ProjectDetailComponent implements OnInit {
   readonly timeEntryStore = inject(TimeEntryStore);
   private readonly authService = inject(AuthService);
 
+  @ViewChild('deleteProjectDialog') deleteProjectDialog!: ConfirmDialogComponent;
+  @ViewChild('deleteTaskDialog') deleteTaskDialog!: ConfirmDialogComponent;
+
   readonly project = signal<Project | null>(null);
   readonly tasks = signal<Task[]>([]);
   readonly timeEntries = signal<TimeEntry[]>([]);
   readonly loading = signal(false);
   readonly isAdmin = signal(this.authService.isAdmin());
+  readonly pendingDeleteTaskId = signal('');
 
   readonly faArrowLeft = faArrowLeft;
   readonly faCalendar = faCalendar;
@@ -118,28 +123,34 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   deleteProject(): void {
+    this.deleteProjectDialog.open();
+  }
+
+  confirmDeleteProject(): void {
     const id = this.project()?._id;
     if (!id) return;
     
-    if (confirm('Are you sure you want to delete this project?')) {
-      this.projectStore.deleteProject(id).subscribe({
-        next: () => {
-          this.router.navigate(['/projects'], { queryParamsHandling: 'preserve' });
-        },
-        error: (err) => console.error('Failed to delete project:', err),
-      });
-    }
+    this.projectStore.deleteProject(id).subscribe({
+      next: () => {
+        this.router.navigate(['/projects'], { queryParamsHandling: 'preserve' });
+      },
+      error: (err) => console.error('Failed to delete project:', err),
+    });
   }
 
   deleteTask(id: string): void {
-    if (confirm('Are you sure you want to delete this task?')) {
-      this.taskStore.deleteTask(id).subscribe({
-        next: () => {
-          this.tasks.update((tasks) => tasks.filter((t) => t._id !== id));
-        },
-        error: (err) => console.error('Failed to delete task:', err),
-      });
-    }
+    this.pendingDeleteTaskId.set(id);
+    this.deleteTaskDialog.open();
+  }
+
+  confirmDeleteTask(): void {
+    const id = this.pendingDeleteTaskId();
+    this.taskStore.deleteTask(id).subscribe({
+      next: () => {
+        this.tasks.update((tasks) => tasks.filter((t) => t._id !== id));
+      },
+      error: (err) => console.error('Failed to delete task:', err),
+    });
   }
 
   getTotalTimeSeconds(): number {

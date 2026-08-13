@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, OnInit, inject, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
@@ -17,11 +17,12 @@ import { ProjectStore } from '../../../stores/project.store';
 import { UserStore } from '../../../stores/user.store';
 import { SearchCardComponent } from '../../../shared/components/search-card/search-card.component';
 import { ContentCardComponent } from '../../../shared/components/content-card/content-card.component';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule, SearchCardComponent, ContentCardComponent],
+  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule, SearchCardComponent, ContentCardComponent, ConfirmDialogComponent],
   templateUrl: './task-list.component.html',
   styleUrl: './task-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,6 +35,8 @@ export class TaskListComponent implements OnInit {
   private readonly router = inject(Router);
   readonly Math = Math;
 
+  @ViewChild('deleteTaskDialog') deleteTaskDialog!: ConfirmDialogComponent;
+
   readonly tasks = signal<Task[]>([]);
   readonly projects = signal<Project[]>([]);
   readonly loading = signal(false);
@@ -43,6 +46,7 @@ export class TaskListComponent implements OnInit {
   readonly projectFilter = signal<string>('');
   readonly assigneeFilter = signal<string>('');
   readonly currentPage = signal(1);
+  readonly pendingDeleteTaskId = signal('');
   readonly pageSize = 10;
 
   readonly faPlus = faPlus;
@@ -234,14 +238,18 @@ export class TaskListComponent implements OnInit {
   }
 
   deleteTask(id: string): void {
-    if (confirm('Are you sure you want to delete this task?')) {
-      this.taskStore.deleteTask(id).subscribe({
-        next: () => {
-          this.tasks.update((tasks) => tasks.filter((t) => t._id !== id));
-        },
-        error: (err) => console.error('Failed to delete task:', err),
-      });
-    }
+    this.pendingDeleteTaskId.set(id);
+    this.deleteTaskDialog.open();
+  }
+
+  confirmDeleteTask(): void {
+    const id = this.pendingDeleteTaskId();
+    this.taskStore.deleteTask(id).subscribe({
+      next: () => {
+        this.tasks.update((tasks) => tasks.filter((t) => t._id !== id));
+      },
+      error: (err) => console.error('Failed to delete task:', err),
+    });
   }
 
   getUserName(userId: string, fallback: string = 'Unknown'): string {
