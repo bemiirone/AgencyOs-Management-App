@@ -33,6 +33,9 @@ import { Invoice } from '../modules/billing/schemas/invoice.schema';
 import { Faq } from '../modules/faq/schemas/faq.schema';
 
 async function bootstrap() {
+  const args = process.argv.slice(2);
+  const freshMode = args.includes('--fresh');
+
   const app = await NestFactory.createApplicationContext(SeedModule);
   const connection = app.get<Connection>('DATABASE_CONNECTION');
 
@@ -57,7 +60,10 @@ async function bootstrap() {
   try {
     console.log('🌱 Starting database seed...\n');
 
-    await clearDatabase(connection);
+    if (freshMode) {
+      console.log('🔥 Fresh mode: clearing all data without confirmation\n');
+    }
+    await clearDatabase(connection, freshMode);
 
     console.log('📦 Generating seed data...\n');
 

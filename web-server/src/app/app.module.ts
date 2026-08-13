@@ -14,6 +14,7 @@ import { PageModule } from '../modules/page/page.module';
 import { AdminAuthModule } from '../modules/admin-auth/admin-auth.module';
 import { AdminModule } from '../modules/admin/admin.module';
 import { SchedulerModule } from '../modules/scheduler/scheduler.module';
+import { NotificationSettingsModule } from '../modules/notification-settings/notification-settings.module';
 import databaseConfig from '../config/database.config';
 import jwtConfig from '../config/jwt.config';
 import adminJwtConfig from '../config/admin-jwt.config';
@@ -57,6 +58,7 @@ import sendgridConfig from '../config/sendgrid.config';
     AdminAuthModule,
     AdminModule,
     SchedulerModule,
+    NotificationSettingsModule,
   ],
 })
 export class AppModule {}

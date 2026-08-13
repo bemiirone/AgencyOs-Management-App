@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faPlus, faEye, faEdit, faTrash, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEdit, faTrash, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { Project } from '../../../shared/models/project.model';
 import { ProjectStore } from '../../../stores/project.store';
 import { AuthService } from '../../../core/services/auth.service';
@@ -33,7 +33,6 @@ export class ProjectListComponent implements OnInit {
   readonly pageSize = 10;
 
   readonly faPlus = faPlus;
-  readonly faEye = faEye;
   readonly faEdit = faEdit;
   readonly faTrash = faTrash;
   readonly faSpinner = faSpinner;

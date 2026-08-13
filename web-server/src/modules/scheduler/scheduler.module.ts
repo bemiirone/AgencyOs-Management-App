@@ -8,6 +8,7 @@ import { Project, ProjectSchema } from '../project/schemas/project.schema';
 import { Task, TaskSchema } from '../project/schemas/task.schema';
 import { NotificationModule } from '../notification/notification.module';
 import { TenantModule } from '../tenant/tenant.module';
+import { NotificationSettingsModule } from '../notification-settings/notification-settings.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { TenantModule } from '../tenant/tenant.module';
     ]),
     NotificationModule,
     TenantModule,
+    NotificationSettingsModule,
   ],
   controllers: [SchedulerController],
   providers: [DueDateSchedulerService, DueDateCheckerService],

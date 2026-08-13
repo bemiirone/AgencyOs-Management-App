@@ -82,6 +82,27 @@
           "cwd": "{workspaceRoot}"
         }
       },
+      "seed:fresh": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx ts-node --project web-server/tsconfig.seed.json -r tsconfig-paths/register web-server/src/seed/seed.ts --fresh",
+          "cwd": "{workspaceRoot}"
+        }
+      },
+      "seed:admin": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx ts-node --project web-server/tsconfig.seed.json -r tsconfig-paths/register web-server/src/seed/seed-admin.ts",
+          "cwd": "{workspaceRoot}"
+        }
+      },
+      "seed:faqs": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "npx ts-node --project web-server/tsconfig.seed.json -r tsconfig-paths/register web-server/src/seed/seed-faqs.ts",
+          "cwd": "{workspaceRoot}"
+        }
+      },
       "migrate": {
         "executor": "nx:run-commands",
         "options": {

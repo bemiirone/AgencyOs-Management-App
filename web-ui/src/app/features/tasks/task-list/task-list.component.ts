@@ -5,7 +5,6 @@ import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faPlus,
-  faEye,
   faEdit,
   faTrash,
   faSpinner,
@@ -47,7 +46,6 @@ export class TaskListComponent implements OnInit {
   readonly pageSize = 10;
 
   readonly faPlus = faPlus;
-  readonly faEye = faEye;
   readonly faEdit = faEdit;
   readonly faTrash = faTrash;
   readonly faSpinner = faSpinner;

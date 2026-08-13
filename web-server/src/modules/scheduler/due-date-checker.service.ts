@@ -6,6 +6,7 @@ import { Task, TaskStatus } from '../project/schemas/task.schema';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationType } from '../notification/schemas/notification.schema';
 import { TenantService } from '../tenant/tenant.service';
+import { NotificationSettingsService } from '../notification-settings/notification-settings.service';
 
 @Injectable()
 export class DueDateCheckerService {
@@ -16,31 +17,42 @@ export class DueDateCheckerService {
     @InjectModel(Task.name) private taskModel: Model<Task>,
     private notificationService: NotificationService,
     private tenantService: TenantService,
+    private settingsService: NotificationSettingsService,
   ) {}
 
   async checkAllDueDates() {
     this.logger.log('Starting due date reminder check');
+
+    const settings = await this.settingsService.getSettings();
+
+    if (!settings.enabled) {
+      this.logger.log('Notifications are globally disabled, skipping check');
+      await this.settingsService.updateLastRun('skipped_disabled', 0);
+      return 0;
+    }
 
     const tenants = await this.tenantService.findAllActive();
     let notificationsCreated = 0;
 
     for (const tenant of tenants) {
       const tenantId = tenant._id.toString();
-      const count = await this.checkTenant(tenantId);
+      const count = await this.checkTenant(tenantId, settings);
       notificationsCreated += count;
     }
 
     this.logger.log(`Due date reminder check complete. Created ${notificationsCreated} notifications`);
+    await this.settingsService.updateLastRun('completed', notificationsCreated);
+    return notificationsCreated;
   }
 
-  private async checkTenant(tenantId: string): Promise<number> {
+  private async checkTenant(tenantId: string, settings: any): Promise<number> {
     let count = 0;
-    count += await this.checkProjects(tenantId);
-    count += await this.checkTasks(tenantId);
+    count += await this.checkProjects(tenantId, settings);
+    count += await this.checkTasks(tenantId, settings);
     return count;
   }
 
-  private async checkProjects(tenantId: string): Promise<number> {
+  private async checkProjects(tenantId: string, settings: any): Promise<number> {
     let count = 0;
     const now = new Date();
     const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -64,11 +76,11 @@ export class DueDateCheckerService {
         project.status === ProjectStatus.ACTIVE &&
         (!lastReminder || lastReminder < now);
 
-      if (isDueSoon) {
-        await this.notifyProjectRecipients(project, tenantId, 'due_soon');
+      if (isDueSoon && settings.projectDueSoon?.enabled) {
+        await this.notifyProjectRecipients(project, tenantId, 'due_soon', settings.projectDueSoon);
         count++;
-      } else if (isOverdue) {
-        await this.notifyProjectRecipients(project, tenantId, 'overdue');
+      } else if (isOverdue && settings.projectOverdue?.enabled) {
+        await this.notifyProjectRecipients(project, tenantId, 'overdue', settings.projectOverdue);
         count++;
       }
     }
@@ -76,7 +88,7 @@ export class DueDateCheckerService {
     return count;
   }
 
-  private async checkTasks(tenantId: string): Promise<number> {
+  private async checkTasks(tenantId: string, settings: any): Promise<number> {
     let count = 0;
     const now = new Date();
     const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -100,11 +112,11 @@ export class DueDateCheckerService {
         task.status !== TaskStatus.DONE &&
         (!lastReminder || lastReminder < now);
 
-      if (isDueSoon) {
-        await this.notifyTaskRecipients(task, tenantId, 'due_soon');
+      if (isDueSoon && settings.taskDueSoon?.enabled) {
+        await this.notifyTaskRecipients(task, tenantId, 'due_soon', settings.taskDueSoon);
         count++;
-      } else if (isOverdue) {
-        await this.notifyTaskRecipients(task, tenantId, 'overdue');
+      } else if (isOverdue && settings.taskOverdue?.enabled) {
+        await this.notifyTaskRecipients(task, tenantId, 'overdue', settings.taskOverdue);
         count++;
       }
     }
@@ -112,10 +124,15 @@ export class DueDateCheckerService {
     return count;
   }
 
+  private resolveTemplate(template: string, variables: Record<string, string>): string {
+    return template.replace(/\{\{(\w+)\}\}/g, (_, key) => variables[key] || `{{${key}}}`);
+  }
+
   private async notifyProjectRecipients(
     project: Project,
     tenantId: string,
-    type: 'due_soon' | 'overdue',
+    _type: 'due_soon' | 'overdue',
+    config: { titleTemplate: string; messageTemplate: string },
   ) {
     const recipients = new Set<string>();
     if (project.ownerId) recipients.add(project.ownerId.toString());
@@ -123,13 +140,9 @@ export class DueDateCheckerService {
       recipients.add(memberId);
     }
 
-    const title = type === 'due_soon'
-      ? `Project "${project.name}" due in less than a week`
-      : `Project "${project.name}" is overdue`;
-
-    const message = type === 'due_soon'
-      ? `The project "${project.name}" has a deadline approaching. Please review progress.`
-      : `The project "${project.name}" has exceeded its deadline. Immediate attention required.`;
+    const variables = { name: project.name };
+    const title = this.resolveTemplate(config.titleTemplate, variables);
+    const message = this.resolveTemplate(config.messageTemplate, variables);
 
     for (const userId of recipients) {
       await this.notificationService.createNotification(
@@ -151,7 +164,8 @@ export class DueDateCheckerService {
   private async notifyTaskRecipients(
     task: Task,
     tenantId: string,
-    type: 'due_soon' | 'overdue',
+    _type: 'due_soon' | 'overdue',
+    config: { titleTemplate: string; messageTemplate: string },
   ) {
     const recipients = new Set<string>();
     if (task.createdBy) recipients.add(task.createdBy.toString());
@@ -159,13 +173,9 @@ export class DueDateCheckerService {
       recipients.add(assigneeId);
     }
 
-    const title = type === 'due_soon'
-      ? `Task "${task.title}" due in less than a week`
-      : `Task "${task.title}" is overdue`;
-
-    const message = type === 'due_soon'
-      ? `The task "${task.title}" has a deadline approaching.`
-      : `The task "${task.title}" has exceeded its deadline.`;
+    const variables = { title: task.title };
+    const title = this.resolveTemplate(config.titleTemplate, variables);
+    const message = this.resolveTemplate(config.messageTemplate, variables);
 
     for (const userId of recipients) {
       await this.notificationService.createNotification(

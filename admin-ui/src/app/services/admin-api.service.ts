@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { Tenant } from '../models/tenant.model';
 import { Page, CreatePageRequest, UpdatePageRequest } from '../models/page.model';
 import { Faq, CreateFaqRequest, UpdateFaqRequest } from '../models/faq.model';
+import { NotificationSettings } from '../models/notification-settings.model';
 
 @Injectable({ providedIn: 'root' })
 export class AdminApiService {
@@ -52,5 +53,13 @@ export class AdminApiService {
 
   deleteFaq(id: string): Observable<{ success: boolean }> {
     return this.http.delete<{ success: boolean }>(`${this.apiUrl}/faqs/${id}`);
+  }
+
+  getNotificationSettings(): Observable<NotificationSettings> {
+    return this.http.get<NotificationSettings>(`${this.apiUrl}/notification-settings`);
+  }
+
+  updateNotificationSettings(data: Partial<NotificationSettings>): Observable<NotificationSettings> {
+    return this.http.put<NotificationSettings>(`${this.apiUrl}/notification-settings`, data);
   }
 }

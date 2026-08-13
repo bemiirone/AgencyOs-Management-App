@@ -60,11 +60,8 @@
                   <td>{{ project.clientName || 'Unknown' }}</td>
                   <td class="font-medium">{{ formatCurrency(project.budget) }}</td>
                   <td>{{ formatDate(project.endDate) }}</td>
-                  <td>
+                   <td>
                     <div class="flex gap-2">
-                      <a [routerLink]="['/projects', project._id]" queryParamsHandling="preserve" class="btn btn-ghost btn-xs">
-                        <fa-icon [icon]="faEye"></fa-icon>
-                      </a>
                       @if (isAdmin()) {
                         <a [routerLink]="['/projects', project._id, 'edit']" queryParamsHandling="preserve" class="btn btn-ghost btn-xs">
                           <fa-icon [icon]="faEdit"></fa-icon>

@@ -1,4 +1,5 @@
 import { Connection } from 'mongoose';
+import * as readline from 'readline';
 
 const COLLECTIONS = [
   'users',
@@ -11,7 +12,17 @@ const COLLECTIONS = [
   'faqs',
 ];
 
-export async function clearDatabase(connection: Connection): Promise<void> {
+export async function clearDatabase(connection: Connection, force = false): Promise<void> {
+  if (!force) {
+    const confirmed = await promptConfirm(
+      '⚠️  This will DELETE ALL existing data. Are you sure? (yes/no): ',
+    );
+    if (confirmed !== 'yes') {
+      console.log('❌ Database clear cancelled. Use --fresh flag to skip this prompt.\n');
+      process.exit(0);
+    }
+  }
+
   console.log('🧹 Clearing existing data...');
 
   for (const collection of COLLECTIONS) {
@@ -24,6 +35,20 @@ export async function clearDatabase(connection: Connection): Promise<void> {
   }
 
   console.log('✅ Database cleared\n');
+}
+
+function promptConfirm(question: string): Promise<string> {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  return new Promise((resolve) => {
+    rl.question(question, (answer) => {
+      rl.close();
+      resolve(answer.trim().toLowerCase());
+    });
+  });
 }
 
 export function logSummary(data: Record<string, number>): void {
