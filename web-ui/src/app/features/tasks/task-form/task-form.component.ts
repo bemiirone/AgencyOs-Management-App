@@ -57,7 +57,7 @@ export class TaskFormComponent implements OnInit {
     status: ['todo'],
     priority: ['medium'],
     dueDate: [''],
-    assigneeId: [''],
+    assigneeId: ['unassigned'],
   });
 
   get titleControl() { return this.taskForm.get('title'); }
@@ -86,7 +86,7 @@ export class TaskFormComponent implements OnInit {
             status: task.status,
             priority: task.priority,
             dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '',
-            assigneeId: task.assigneeIds?.[0] || '',
+            assigneeId: task.assigneeIds?.[0] || 'unassigned',
           });
           this.loading.set(false);
         },
@@ -123,7 +123,7 @@ export class TaskFormComponent implements OnInit {
         status: formValue.status,
         priority: formValue.priority,
         createdBy: this.authService.getUserId()!,
-        assigneeIds: formValue.assigneeId ? [formValue.assigneeId] : [],
+        assigneeIds: formValue.assigneeId?.trim() && formValue.assigneeId !== 'unassigned' ? [formValue.assigneeId] : undefined,
       };
 
       if (formValue.dueDate) {
@@ -148,7 +148,7 @@ export class TaskFormComponent implements OnInit {
         projectId: formValue.projectId,
         status: formValue.status,
         priority: formValue.priority,
-        assigneeIds: formValue.assigneeId ? [formValue.assigneeId] : [],
+        assigneeIds: formValue.assigneeId?.trim() && formValue.assigneeId !== 'unassigned' ? [formValue.assigneeId] : undefined,
       };
 
       if (formValue.dueDate) {
