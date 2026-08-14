@@ -60,6 +60,12 @@ export class TaskService {
   }
 
   async update(id: string, tenantId: string, updateTaskDto: UpdateTaskDto) {
+    const existingTask = await this.taskModel.findOne({ _id: id, tenantId }).exec();
+
+    if (!existingTask) {
+      throw new NotFoundException('Task not found');
+    }
+
     const task = await this.taskModel.findOneAndUpdate(
       { _id: id, tenantId },
       { $set: updateTaskDto },
@@ -72,6 +78,10 @@ export class TaskService {
 
     if (updateTaskDto.status === TaskStatus.DONE) {
       await this.checkAndAutoCompleteProject(task.projectId, tenantId);
+    }
+
+    if (existingTask.status === TaskStatus.DONE && updateTaskDto.status !== TaskStatus.DONE) {
+      await this.revertProjectToOnHold(task.projectId, tenantId);
     }
 
     return task;
@@ -117,6 +127,19 @@ export class TaskService {
         
         console.log(`Project "${project.name}" auto-completed: all tasks are done`);
       }
+    }
+  }
+
+  private async revertProjectToOnHold(projectId: string, tenantId: string) {
+    const project = await this.projectModel.findOne({ _id: projectId, tenantId }).exec();
+    
+    if (project && project.status === ProjectStatus.COMPLETED) {
+      await this.projectModel.updateOne(
+        { _id: projectId, tenantId },
+        { $set: { status: ProjectStatus.ON_HOLD } },
+      ).exec();
+      
+      console.log(`Project "${project.name}" reverted to on_hold: task moved from done`);
     }
   }
 }
