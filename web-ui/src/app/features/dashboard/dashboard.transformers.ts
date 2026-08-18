@@ -79,6 +79,7 @@ export function buildActivities(
   });
 
   return [...projectActivities, ...taskActivities, ...invoiceActivities]
+    .filter((a) => !isNaN(a.timestamp))
     .sort((a, b) => b.timestamp - a.timestamp)
     .slice(0, 6)
     .map(({ timestamp: _ts, ...activity }) => activity);
