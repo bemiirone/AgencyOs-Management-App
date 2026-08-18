@@ -38,21 +38,31 @@ export function buildActivities(
   tasks: Task[],
   icons: { project: IconDefinition; task: IconDefinition }
 ): Activity[] {
-  const projectActivities = projects.slice(0, 3).map((p) => ({
-    icon: icons.project,
-    color: 'bg-primary' as const,
-    message: `Project "${p.name}" created`,
-    time: timeAgo(p.createdAt),
-    timestamp: toTimestamp(p.createdAt),
-  }));
+  const projectActivities = projects.slice(0, 3).map((p) => {
+    const date = resolveDate(p.createdAt, p.updatedAt);
+    const label = resolveLabel(p.createdAt, p.updatedAt);
+    return {
+      icon: icons.project,
+      color: 'bg-primary' as const,
+      message: `Project "${p.name}"`,
+      label,
+      time: timeAgo(date),
+      timestamp: toTimestamp(date),
+    };
+  });
 
-  const taskActivities = tasks.slice(0, 3).map((t) => ({
-    icon: icons.task,
-    color: 'bg-secondary' as const,
-    message: `Task "${t.title}" created`,
-    time: timeAgo(t.createdAt),
-    timestamp: toTimestamp(t.createdAt),
-  }));
+  const taskActivities = tasks.slice(0, 3).map((t) => {
+    const date = resolveDate(t.createdAt, t.updatedAt);
+    const label = resolveLabel(t.createdAt, t.updatedAt);
+    return {
+      icon: icons.task,
+      color: 'bg-secondary' as const,
+      message: `Task "${t.title}"`,
+      label,
+      time: timeAgo(date),
+      timestamp: toTimestamp(date),
+    };
+  });
 
   return [...projectActivities, ...taskActivities]
     .sort((a, b) => b.timestamp - a.timestamp)
@@ -75,7 +85,10 @@ export function mapTeamMembers(
 }
 
 function timeAgo(date: string | Date): string {
-  const diffMs = Date.now() - toTimestamp(date);
+  const ts = toTimestamp(date);
+  if (isNaN(ts)) return 'Unknown';
+
+  const diffMs = Date.now() - ts;
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
@@ -86,7 +99,20 @@ function timeAgo(date: string | Date): string {
 }
 
 function toTimestamp(date: string | Date): number {
-  return date instanceof Date ? date.getTime() : new Date(date).getTime();
+  if (!date) return NaN;
+  const ts = date instanceof Date ? date.getTime() : new Date(date).getTime();
+  return ts;
+}
+
+function resolveDate(createdAt: string | Date | undefined, updatedAt: string | Date | undefined): string | Date {
+  return createdAt || updatedAt || '';
+}
+
+function resolveLabel(createdAt: string | Date | undefined, updatedAt: string | Date | undefined): 'Created' | 'Updated' {
+  if (!createdAt) return 'Created';
+  if (!updatedAt) return 'Created';
+  if (new Date(createdAt).getTime() === new Date(updatedAt).getTime()) return 'Created';
+  return 'Updated';
 }
 
 function getInitials(name: string): string {

@@ -4,6 +4,7 @@ export interface Activity {
   icon: IconDefinition;
   color: string;
   message: string;
+  label: 'Created' | 'Updated';
   time: string;
 }
 
