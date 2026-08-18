@@ -264,18 +264,26 @@ describe('UserAdminComponent', () => {
   });
 
   describe('deactivateUser()', () => {
-    it('should call softDelete when confirmed', () => {
-      vi.stubGlobal('confirm', () => true);
-      component.deactivateUser({ id: 'user-123', name: 'Test', email: '', role: '', isActive: true, createdAt: '', updatedAt: '' });
+    it('should set pending user signals', () => {
+      const user = { id: 'user-123', name: 'Test User', email: '', role: '', isActive: true, createdAt: '', updatedAt: '' };
+      component.pendingUserId.set(user.id);
+      component.pendingUserName.set(user.name);
+      expect(component.pendingUserId()).toBe('user-123');
+      expect(component.pendingUserName()).toBe('Test User');
+    });
+  });
+
+  describe('onConfirmDeactivate()', () => {
+    it('should call softDelete with pending user id', () => {
+      component.pendingUserId.set('user-123');
+      component.onConfirmDeactivate();
       expect(storeMock.softDelete).toHaveBeenCalledWith('user-123');
-      vi.unstubAllGlobals();
     });
 
-    it('should not call softDelete when not confirmed', () => {
-      vi.stubGlobal('confirm', () => false);
-      component.deactivateUser({ id: 'user-123', name: 'Test', email: '', role: '', isActive: true, createdAt: '', updatedAt: '' });
+    it('should not call softDelete when no pending user', () => {
+      component.pendingUserId.set(null);
+      component.onConfirmDeactivate();
       expect(storeMock.softDelete).not.toHaveBeenCalled();
-      vi.unstubAllGlobals();
     });
   });
 

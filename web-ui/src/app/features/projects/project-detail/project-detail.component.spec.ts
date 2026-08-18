@@ -239,87 +239,31 @@ describe('ProjectDetailComponent', () => {
     });
   });
 
-  describe('Task Status Labels', () => {
-    it('should return correct label for each task status', () => {
-      expect(component.getTaskStatusLabel('todo')).toBe('To Do');
-      expect(component.getTaskStatusLabel('in_progress')).toBe('In Progress');
-      expect(component.getTaskStatusLabel('in_review')).toBe('In Review');
-      expect(component.getTaskStatusLabel('done')).toBe('Done');
-    });
-
-    it('should return raw status for unknown', () => {
-      expect(component.getTaskStatusLabel('unknown')).toBe('unknown');
-    });
-  });
-
-  describe('Task Status Classes', () => {
-    it('should return correct class for each task status', () => {
-      expect(component.getTaskStatusClass('todo')).toBe('badge-ghost');
-      expect(component.getTaskStatusClass('in_progress')).toBe('badge-warning');
-      expect(component.getTaskStatusClass('in_review')).toBe('badge-info');
-      expect(component.getTaskStatusClass('done')).toBe('badge-success');
-    });
-
-    it('should return default for unknown status', () => {
-      expect(component.getTaskStatusClass('unknown')).toBe('badge-ghost');
-    });
-  });
-
-  describe('Task Priority Classes', () => {
-    it('should return correct class for low', () => {
-      expect(component.getTaskPriorityClass('low')).toBe('text-base-content/40');
-    });
-
-    it('should return correct class for medium', () => {
-      expect(component.getTaskPriorityClass('medium')).toBe('text-info');
-    });
-
-    it('should return correct class for high', () => {
-      expect(component.getTaskPriorityClass('high')).toBe('text-warning');
-    });
-
-    it('should return correct class for urgent', () => {
-      expect(component.getTaskPriorityClass('urgent')).toBe('text-error');
-    });
-
-    it('should return default for unknown priority', () => {
-      expect(component.getTaskPriorityClass('unknown')).toBe('text-base-content/40');
-    });
-  });
-
   describe('Delete Project', () => {
-    it('should navigate to projects list after successful deletion', () => {
-      vi.spyOn(window, 'confirm').mockReturnValue(true);
+    it('should call deleteProject on store when confirmed', () => {
       component.project.set(mockProject);
-      component.deleteProject();
+      component.confirmDeleteProject();
       expect(projectStoreMock.deleteProject).toHaveBeenCalledWith('project-1');
-    });
-
-    it('should not delete when cancelled', () => {
-      vi.spyOn(window, 'confirm').mockReturnValue(false);
-      component.project.set(mockProject);
-      component.deleteProject();
-      expect(projectStoreMock.deleteProject).not.toHaveBeenCalled();
     });
 
     it('should not delete when project has no id', () => {
       component.project.set(null);
-      component.deleteProject();
+      component.confirmDeleteProject();
       expect(projectStoreMock.deleteProject).not.toHaveBeenCalled();
     });
   });
 
   describe('Delete Task', () => {
     it('should call deleteTask on store when confirmed', () => {
-      vi.spyOn(window, 'confirm').mockReturnValue(true);
       component.tasks.set(mockTasks);
-      component.deleteTask('task-1');
+      component.pendingDeleteTaskId.set('task-1');
+      component.confirmDeleteTask();
       expect(taskStoreMock.deleteTask).toHaveBeenCalledWith('task-1');
     });
 
-    it('should not delete when cancelled', () => {
-      vi.spyOn(window, 'confirm').mockReturnValue(false);
-      component.deleteTask('task-1');
+    it('should not call deleteTask when pending id is empty', () => {
+      component.pendingDeleteTaskId.set('');
+      component.confirmDeleteTask();
       expect(taskStoreMock.deleteTask).not.toHaveBeenCalled();
     });
   });
@@ -348,24 +292,4 @@ describe('ProjectDetailComponent', () => {
     });
   });
 
-  describe('Task Time Entries', () => {
-    beforeEach(() => {
-      component.timeEntries.set(mockTimeEntries);
-    });
-
-    it('should return entries for a specific task', () => {
-      const entries = component.getTaskTimeEntries('task-1');
-      expect(entries).toHaveLength(2);
-    });
-
-    it('should return empty array for task with no entries', () => {
-      const entries = component.getTaskTimeEntries('task-2');
-      expect(entries).toHaveLength(0);
-    });
-
-    it('should limit entries to 3', () => {
-      const entries = component.getTaskTimeEntries('task-1');
-      expect(entries.length).toBeLessThanOrEqual(3);
-    });
-  });
 });

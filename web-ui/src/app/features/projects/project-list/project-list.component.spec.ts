@@ -207,16 +207,16 @@ describe('ProjectListComponent', () => {
   });
 
   describe('Delete Project', () => {
-    it('should call deleteProject on store and remove from list', () => {
-      vi.spyOn(window, 'confirm').mockReturnValue(true);
+    it('should call deleteProject on store when confirmed', () => {
       component.projects.set(mockProjects);
-      component.deleteProject('project-1');
+      component.pendingDeleteProjectId.set('project-1');
+      component.confirmDeleteProject();
       expect(projectStoreMock.deleteProject).toHaveBeenCalledWith('project-1');
     });
 
-    it('should not call deleteProject when cancelled', () => {
-      vi.spyOn(window, 'confirm').mockReturnValue(false);
-      component.deleteProject('project-1');
+    it('should not call deleteProject when pending id is empty', () => {
+      component.pendingDeleteProjectId.set('');
+      component.confirmDeleteProject();
       expect(projectStoreMock.deleteProject).not.toHaveBeenCalled();
     });
   });

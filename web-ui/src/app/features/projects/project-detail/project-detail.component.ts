@@ -145,6 +145,8 @@ export class ProjectDetailComponent implements OnInit {
 
   confirmDeleteTask(): void {
     const id = this.pendingDeleteTaskId();
+    if (!id) return;
+
     this.taskStore.deleteTask(id).subscribe({
       next: () => {
         this.tasks.update((tasks) => tasks.filter((t) => t._id !== id));

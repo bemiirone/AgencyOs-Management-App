@@ -182,6 +182,8 @@ export class ProjectListComponent implements OnInit {
 
   confirmDeleteProject(): void {
     const id = this.pendingDeleteProjectId();
+    if (!id) return;
+
     this.projectStore.deleteProject(id).subscribe({
       next: () => {
         this.projects.update((projects) => projects.filter((p) => p._id !== id));

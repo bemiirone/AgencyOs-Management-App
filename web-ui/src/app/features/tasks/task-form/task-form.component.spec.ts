@@ -125,7 +125,7 @@ describe('TaskFormComponent', () => {
       expect(component.taskForm.get('status')?.value).toBe('todo');
       expect(component.taskForm.get('priority')?.value).toBe('medium');
       expect(component.taskForm.get('dueDate')?.value).toBe('');
-      expect(component.taskForm.get('assigneeId')?.value).toBe('');
+      expect(component.taskForm.get('assigneeId')?.value).toBe('unassigned');
     });
 
     it('should load projects on init', () => {
@@ -180,13 +180,13 @@ describe('TaskFormComponent', () => {
       );
     });
 
-    it('should submit task with empty assigneeIds when no assignee', () => {
+    it('should submit task with undefined assigneeIds when no assignee', () => {
       component.taskForm.patchValue({ title: 'Test Task', projectId: 'project-1', assigneeId: '' });
       component.onSubmit();
 
       expect(taskStoreMock.createTask).toHaveBeenCalledWith(
         expect.objectContaining({
-          assigneeIds: [],
+          assigneeIds: undefined,
         })
       );
     });
@@ -357,7 +357,7 @@ describe('TaskFormComponent', () => {
       component2.ngOnInit();
 
       expect(component2.taskForm.get('description')?.value).toBe('');
-      expect(component2.taskForm.get('assigneeId')?.value).toBe('');
+      expect(component2.taskForm.get('assigneeId')?.value).toBe('unassigned');
       expect(component2.taskForm.get('dueDate')?.value).toBe('');
     });
 
