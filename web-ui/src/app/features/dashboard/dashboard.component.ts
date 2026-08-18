@@ -80,9 +80,10 @@ export class DashboardComponent implements OnInit {
   );
 
   readonly activities = computed<Activity[]>(() =>
-    buildActivities(this.projects(), this.tasks(), {
+    buildActivities(this.projects(), this.tasks(), this.invoices(), {
       project: faPlus,
       task: faTasks,
+      invoice: faFileInvoiceDollar,
     })
   );
 

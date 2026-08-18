@@ -36,7 +36,8 @@ export function computeStats(
 export function buildActivities(
   projects: Project[],
   tasks: Task[],
-  icons: { project: IconDefinition; task: IconDefinition }
+  invoices: Invoice[],
+  icons: { project: IconDefinition; task: IconDefinition; invoice: IconDefinition }
 ): Activity[] {
   const projectActivities = projects.slice(0, 3).map((p) => {
     const date = resolveDate(p.createdAt, p.updatedAt);
@@ -64,7 +65,20 @@ export function buildActivities(
     };
   });
 
-  return [...projectActivities, ...taskActivities]
+  const invoiceActivities = invoices.slice(0, 3).map((inv) => {
+    const date = resolveDate(inv.createdAt, inv.updatedAt);
+    const label = resolveLabel(inv.createdAt, inv.updatedAt);
+    return {
+      icon: icons.invoice,
+      color: 'bg-info' as const,
+      message: `Invoice "${inv.invoiceNumber}"`,
+      label,
+      time: timeAgo(date),
+      timestamp: toTimestamp(date),
+    };
+  });
+
+  return [...projectActivities, ...taskActivities, ...invoiceActivities]
     .sort((a, b) => b.timestamp - a.timestamp)
     .slice(0, 6)
     .map(({ timestamp: _ts, ...activity }) => activity);
@@ -104,11 +118,17 @@ function toTimestamp(date: string | Date): number {
   return ts;
 }
 
-function resolveDate(createdAt: string | Date | undefined, updatedAt: string | Date | undefined): string | Date {
+function resolveDate(
+  createdAt: string | Date | undefined,
+  updatedAt: string | Date | undefined
+): string | Date {
   return createdAt || updatedAt || '';
 }
 
-function resolveLabel(createdAt: string | Date | undefined, updatedAt: string | Date | undefined): 'Created' | 'Updated' {
+function resolveLabel(
+  createdAt: string | Date | undefined,
+  updatedAt: string | Date | undefined
+): 'Created' | 'Updated' {
   if (!createdAt) return 'Created';
   if (!updatedAt) return 'Created';
   if (new Date(createdAt).getTime() === new Date(updatedAt).getTime()) return 'Created';

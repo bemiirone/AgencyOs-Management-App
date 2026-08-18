@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { computeStats, buildActivities, mapTeamMembers } from './dashboard.transformers';
-import { faPlus, faTasks } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTasks, faFileInvoiceDollar } from '@fortawesome/free-solid-svg-icons';
+
+const icons = { project: faPlus, task: faTasks, invoice: faFileInvoiceDollar };
 
 describe('computeStats', () => {
   it('should return zero stats for empty arrays', () => {
@@ -58,7 +60,7 @@ describe('buildActivities', () => {
     const projects = [{ name: 'Alpha', createdAt: now }];
     const tasks = [{ title: 'Fix bug', createdAt: now }];
 
-    const result = buildActivities(projects as any, tasks as any, { project: faPlus, task: faTasks });
+    const result = buildActivities(projects as any, tasks as any, [], icons);
     expect(result).toHaveLength(2);
     expect(result[0].message).toContain('Alpha');
     expect(result[1].message).toContain('Fix bug');
@@ -71,7 +73,7 @@ describe('buildActivities', () => {
     ];
     const tasks: any[] = [];
 
-    const result = buildActivities(projects as any, tasks, { project: faPlus, task: faTasks });
+    const result = buildActivities(projects as any, tasks, [], icons);
     expect(result[0].message).toContain('Recent');
     expect(result[1].message).toContain('Old');
   });
@@ -86,26 +88,53 @@ describe('buildActivities', () => {
       createdAt: new Date(now.getTime() - i * 1000),
     }));
 
-    const result = buildActivities(projects as any, tasks as any, { project: faPlus, task: faTasks });
+    const result = buildActivities(projects as any, tasks as any, [], icons);
     expect(result).toHaveLength(6);
   });
 
   it('should display "Just now" for recent items', () => {
     const projects = [{ name: 'New', createdAt: now }];
-    const result = buildActivities(projects as any, [], { project: faPlus, task: faTasks });
+    const result = buildActivities(projects as any, [], [], icons);
     expect(result[0].time).toBe('Just now');
   });
 
   it('should display hours for items less than a day old', () => {
     const projects = [{ name: 'Recent', createdAt: oneHourAgo }];
-    const result = buildActivities(projects as any, [], { project: faPlus, task: faTasks });
+    const result = buildActivities(projects as any, [], [], icons);
     expect(result[0].time).toBe('1h ago');
   });
 
   it('should display days for older items', () => {
     const projects = [{ name: 'Old', createdAt: twoDaysAgo }];
-    const result = buildActivities(projects as any, [], { project: faPlus, task: faTasks });
+    const result = buildActivities(projects as any, [], [], icons);
     expect(result[0].time).toBe('2d ago');
+  });
+
+  it('should include invoice activities', () => {
+    const invoices = [
+      { invoiceNumber: 'INV-2026-00001', createdAt: now, updatedAt: now },
+    ];
+    const result = buildActivities([], [], invoices as any, icons);
+    expect(result).toHaveLength(1);
+    expect(result[0].message).toContain('INV-2026-00001');
+    expect(result[0].label).toBe('Created');
+  });
+
+  it('should show Updated label when createdAt differs from updatedAt', () => {
+    const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+    const invoices = [
+      { invoiceNumber: 'INV-2026-00002', createdAt: now, updatedAt: oneHourLater },
+    ];
+    const result = buildActivities([], [], invoices as any, icons);
+    expect(result[0].label).toBe('Updated');
+  });
+
+  it('should show Created label when createdAt is missing but updatedAt exists', () => {
+    const invoices = [
+      { invoiceNumber: 'INV-2026-00003', updatedAt: oneHourAgo },
+    ];
+    const result = buildActivities([], [], invoices as any, icons);
+    expect(result[0].label).toBe('Created');
   });
 });
 
