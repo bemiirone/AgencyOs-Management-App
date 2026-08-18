@@ -11,9 +11,15 @@
             <fa-icon [icon]="faEdit" class="mr-2"></fa-icon>
             Edit
           </a>
-          <button class="btn btn-info btn-sm" (click)="sendInvoice()">
+          <button class="btn btn-info btn-sm" (click)="openSendConfirm()">
             <fa-icon [icon]="faPaperPlane" class="mr-2"></fa-icon>
             Send to Client
+          </button>
+        }
+        @if (inv.status === 'sent') {
+          <button class="btn btn-success btn-sm" (click)="openMarkPaidConfirm()">
+            <fa-icon [icon]="faCheck" class="mr-2"></fa-icon>
+            Mark as Paid
           </button>
         }
         <button class="btn btn-ghost btn-sm" onclick="window.print()">
@@ -208,3 +214,19 @@
     </div>
   }
 </div>
+
+<app-confirm-dialog
+  #confirmDialog
+  message="Are you sure you want to send this invoice to the client?"
+  confirmText="Send"
+  variant="info"
+  (confirmed)="sendInvoice()"
+/>
+
+<app-confirm-dialog
+  #markPaidDialog
+  message="Are you sure you want to mark this invoice as paid?"
+  confirmText="Mark as Paid"
+  variant="success"
+  (confirmed)="markAsPaid()"
+/>

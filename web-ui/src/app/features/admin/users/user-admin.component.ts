@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserStore, UserWithRole } from '../../../stores/user.store';
@@ -6,11 +6,12 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { ToastService } from '../../../core/services/toast.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-user-admin',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, FontAwesomeModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, FontAwesomeModule, ConfirmDialogComponent],
   templateUrl: './user-admin.component.html',
   styleUrl: './user-admin.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,6 +33,10 @@ export class UserAdminComponent implements OnInit {
   readonly showPassword = signal(false);
 
   readonly isAdmin = computed(() => this.authService.getUserRole() === 'admin');
+
+  @ViewChild('confirmDialog') confirmDialog!: ConfirmDialogComponent;
+  readonly pendingUserId = signal<string | null>(null);
+  readonly pendingUserName = signal('');
 
   readonly createUserForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
@@ -99,10 +104,18 @@ export class UserAdminComponent implements OnInit {
     });
   }
 
-  deactivateUser(user: UserWithRole) {
-    if (confirm(`Are you sure you want to deactivate ${user.name}?`)) {
-      this.store.softDelete(user.id).subscribe();
-    }
+  deactivateUser(user: UserWithRole): void {
+    this.pendingUserId.set(user.id);
+    this.pendingUserName.set(user.name);
+    this.confirmDialog.open();
+  }
+
+  onConfirmDeactivate(): void {
+    const id = this.pendingUserId();
+    if (!id) return;
+    this.store.softDelete(id).subscribe();
+    this.pendingUserId.set(null);
+    this.pendingUserName.set('');
   }
 
   reactivateUser(user: UserWithRole) {

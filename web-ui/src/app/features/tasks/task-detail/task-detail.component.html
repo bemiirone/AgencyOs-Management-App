@@ -30,7 +30,7 @@
             <fa-icon [icon]="faEdit" class="mr-2"></fa-icon>
             Edit
           </button>
-          <button class="btn btn-error" (click)="deleteTask()">
+          <button class="btn btn-error" (click)="openDeleteConfirm()">
             <fa-icon [icon]="faTrash" class="mr-2"></fa-icon>
             Delete
           </button>
@@ -189,3 +189,10 @@
     }
   }
 </div>
+
+<app-confirm-dialog
+  #confirmDialog
+  message="Are you sure you want to delete this task?"
+  confirmText="Delete"
+  (confirmed)="deleteTask()"
+/>

@@ -198,3 +198,10 @@
     </div>
   </div>
 </div>
+
+<app-confirm-dialog
+  #confirmDialog
+  [message]="'Are you sure you want to deactivate ' + pendingUserName() + '?'"
+  confirmText="Deactivate"
+  (confirmed)="onConfirmDeactivate()"
+/>

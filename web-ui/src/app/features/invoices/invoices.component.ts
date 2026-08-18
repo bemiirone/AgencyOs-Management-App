@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, OnInit, inject, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
@@ -8,11 +8,12 @@ import { Invoice } from '../../shared/models/invoice.model';
 import { InvoiceStore } from '../../stores/invoice.store';
 import { ProjectStore } from '../../stores/project.store';
 import { ContentCardComponent } from '../../shared/components/content-card/content-card.component';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-invoices',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule, ContentCardComponent],
+  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule, ContentCardComponent, ConfirmDialogComponent],
   templateUrl: './invoices.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -34,6 +35,10 @@ export class InvoicesComponent implements OnInit {
   readonly faSearch = faSearch;
   readonly faSpinner = faSpinner;
   readonly faPaperPlane = faPaperPlane;
+
+  @ViewChild('confirmDialog') confirmDialog!: ConfirmDialogComponent;
+  readonly pendingInvoiceId = signal<string | null>(null);
+  pendingAction: 'delete' | 'send' | null = null;
 
   ngOnInit(): void {
     const status = this.route.snapshot.queryParams['status'] || '';
@@ -110,25 +115,33 @@ export class InvoicesComponent implements OnInit {
   }
 
   deleteInvoice(id: string): void {
-    if (confirm('Are you sure you want to delete this invoice?')) {
-      this.invoiceStore.deleteInvoice(id).subscribe({
-        next: () => {
-          this.invoices.update((invoices) => invoices.filter((i) => i._id !== id));
-        },
-        error: (err: unknown) => console.error('Failed to delete invoice:', err),
-      });
-    }
+    this.pendingInvoiceId.set(id);
+    this.pendingAction = 'delete';
+    this.confirmDialog.open();
   }
 
   sendInvoice(id: string): void {
-    if (confirm('Are you sure you want to send this invoice to the client?')) {
+    this.pendingInvoiceId.set(id);
+    this.pendingAction = 'send';
+    this.confirmDialog.open();
+  }
+
+  onConfirm(): void {
+    const id = this.pendingInvoiceId();
+    if (!id) return;
+    if (this.pendingAction === 'delete') {
+      this.invoiceStore.deleteInvoice(id).subscribe({
+        next: () => this.invoices.update((invoices) => invoices.filter((i) => i._id !== id)),
+        error: (err: unknown) => console.error('Failed to delete invoice:', err),
+      });
+    } else if (this.pendingAction === 'send') {
       this.invoiceStore.sendInvoice(id).subscribe({
-        next: () => {
-          this.loadInvoices();
-        },
+        next: () => this.loadInvoices(),
         error: (err: unknown) => console.error('Failed to send invoice:', err),
       });
     }
+    this.pendingInvoiceId.set(null);
+    this.pendingAction = null;
   }
 
   get filteredInvoices(): Invoice[] {

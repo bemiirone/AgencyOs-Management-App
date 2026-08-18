@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, OnInit, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -25,6 +25,7 @@ import { TimeEntry } from '../../../shared/models/time-entry.model';
 import { StatCardComponent } from '../../../shared/components/stat-card/stat-card.component';
 import { TimeEntriesListComponent } from '../../../shared/components/time-entries-list/time-entries-list.component';
 import { ContentCardComponent } from '../../../shared/components/content-card/content-card.component';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
 interface StatConfig {
@@ -40,7 +41,7 @@ interface StatConfig {
 @Component({
   selector: 'app-task-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule, StatCardComponent, TimeEntriesListComponent, ContentCardComponent],
+  imports: [CommonModule, FormsModule, RouterLink, FontAwesomeModule, StatCardComponent, TimeEntriesListComponent, ContentCardComponent, ConfirmDialogComponent],
   templateUrl: './task-detail.component.html',
   styleUrl: './task-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -70,6 +71,8 @@ export class TaskDetailComponent implements OnInit {
   readonly faTrash = faTrash;
   readonly faClock = faClock;
   readonly faListUl = faListUl;
+
+  @ViewChild('confirmDialog') confirmDialog!: ConfirmDialogComponent;
 
   readonly stats: StatConfig[] = [
     {
@@ -205,18 +208,20 @@ export class TaskDetailComponent implements OnInit {
     this.editing.set(false);
   }
 
+  openDeleteConfirm(): void {
+    this.confirmDialog.open();
+  }
+
   deleteTask(): void {
     const id = this.task()?._id;
     if (!id) return;
 
-    if (confirm('Are you sure you want to delete this task?')) {
-      this.taskStore.deleteTask(id).subscribe({
-        next: () => {
-          this.router.navigate(['/tasks'], { queryParamsHandling: 'preserve' });
-        },
-        error: (err) => console.error('Failed to delete task:', err),
-      });
-    }
+    this.taskStore.deleteTask(id).subscribe({
+      next: () => {
+        this.router.navigate(['/tasks'], { queryParamsHandling: 'preserve' });
+      },
+      error: (err) => console.error('Failed to delete task:', err),
+    });
   }
 
   formatDate(date: string | Date | undefined): string {

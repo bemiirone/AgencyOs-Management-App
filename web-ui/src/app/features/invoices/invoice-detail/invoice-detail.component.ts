@@ -1,15 +1,16 @@
-import { Component, signal, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, inject, OnInit, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faArrowLeft, faSpinner, faEdit, faPaperPlane, faPrint } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faSpinner, faEdit, faPaperPlane, faPrint, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { InvoiceStore } from '../../../stores/invoice.store';
 import { Invoice } from '../../../shared/models/invoice.model';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-invoice-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, FontAwesomeModule],
+  imports: [CommonModule, RouterLink, FontAwesomeModule, ConfirmDialogComponent],
   templateUrl: './invoice-detail.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -26,6 +27,10 @@ export class InvoiceDetailComponent implements OnInit {
   readonly faEdit = faEdit;
   readonly faPaperPlane = faPaperPlane;
   readonly faPrint = faPrint;
+  readonly faCheck = faCheck;
+
+  @ViewChild('confirmDialog') confirmDialog!: ConfirmDialogComponent;
+  @ViewChild('markPaidDialog') markPaidDialog!: ConfirmDialogComponent;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -85,17 +90,35 @@ export class InvoiceDetailComponent implements OnInit {
     return new Date(date).toLocaleDateString('en-GB');
   }
 
+  openSendConfirm(): void {
+    this.confirmDialog.open();
+  }
+
   sendInvoice(): void {
     const id = this.invoice()?._id;
     if (!id) return;
 
-    if (confirm('Are you sure you want to send this invoice to the client?')) {
-      this.invoiceStore.sendInvoice(id).subscribe({
-        next: (invoice) => {
-          this.invoice.set(invoice);
-        },
-        error: (err) => console.error('Failed to send invoice:', err),
-      });
-    }
+    this.invoiceStore.sendInvoice(id).subscribe({
+      next: (invoice) => {
+        this.invoice.set(invoice);
+      },
+      error: (err) => console.error('Failed to send invoice:', err),
+    });
+  }
+
+  openMarkPaidConfirm(): void {
+    this.markPaidDialog.open();
+  }
+
+  markAsPaid(): void {
+    const id = this.invoice()?._id;
+    if (!id) return;
+
+    this.invoiceStore.payInvoice(id).subscribe({
+      next: (invoice) => {
+        this.invoice.set(invoice);
+      },
+      error: (err) => console.error('Failed to mark invoice as paid:', err),
+    });
   }
 }

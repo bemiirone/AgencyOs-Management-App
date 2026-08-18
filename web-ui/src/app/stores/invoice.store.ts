@@ -170,6 +170,7 @@ export class InvoiceStore {
         this._invoices.update((invoices) =>
           invoices.map((i) => (i._id === id ? invoice : i))
         );
+        this._selectedInvoice.set(invoice);
         this._isLoading.set(false);
         this.toast.success('Invoice sent successfully');
       }),
@@ -177,6 +178,28 @@ export class InvoiceStore {
         this._error.set(error.error?.message || 'Failed to send invoice');
         this._isLoading.set(false);
         this.toast.error('Failed to send invoice');
+        return throwError(() => error);
+      })
+    );
+  }
+
+  payInvoice(id: string) {
+    this._isLoading.set(true);
+    this._error.set(null);
+
+    return this.http.post<Invoice>(API_CONFIG.INVOICES.PAY(id), {}).pipe(
+      tap((invoice: Invoice) => {
+        this._invoices.update((invoices) =>
+          invoices.map((i) => (i._id === id ? invoice : i))
+        );
+        this._selectedInvoice.set(invoice);
+        this._isLoading.set(false);
+        this.toast.success('Invoice marked as paid');
+      }),
+      catchError((error: ErrorResponse) => {
+        this._error.set(error.error?.message || 'Failed to mark invoice as paid');
+        this._isLoading.set(false);
+        this.toast.error('Failed to mark invoice as paid');
         return throwError(() => error);
       })
     );
