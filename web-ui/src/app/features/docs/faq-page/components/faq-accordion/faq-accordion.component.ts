@@ -2,6 +2,7 @@ import { Component, input, output, ChangeDetectionStrategy } from '@angular/core
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { FaqHeading, FaqItem } from '../../../../../shared/services/faq.service';
 
 @Component({
@@ -23,6 +24,8 @@ export class FaqAccordionComponent {
 
   readonly faChevronDown = faChevronDown;
 
+  constructor(private sanitizer: DomSanitizer) { }
+
   onHeadingToggle(headingId: string): void {
     this.headingToggle.emit(headingId);
   }
@@ -42,16 +45,21 @@ export class FaqAccordionComponent {
   isItemVisible(item: FaqItem): boolean {
     const query = this.searchQuery().toLowerCase().trim();
     if (!query) return true;
-    return item.question.toLowerCase().includes(query) || 
-           item.answer.toLowerCase().includes(query);
+    return item.question.toLowerCase().includes(query) ||
+      item.answer.toLowerCase().includes(query);
   }
 
-  highlightText(text: string): string {
+  highlightText(text: string): SafeHtml {
     const query = this.searchQuery().trim();
-    if (!query || !text) return text;
+    if (!query || !text) return this.sanitizer.bypassSecurityTrustHtml(text);
     const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(`(${escapedQuery})`, 'gi');
-    return text.replace(regex, '<mark class="bg-yellow-200 px-0.5 rounded">$1</mark>');
+    const highlighted = text.replace(regex, '<mark class="bg-yellow-200 px-0.5 rounded">$1</mark>');
+    return this.sanitizer.bypassSecurityTrustHtml(highlighted);
+  }
+
+  sanitizeHtml(html: string): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
   trackByHeadingId(_index: number, heading: FaqHeading): string {

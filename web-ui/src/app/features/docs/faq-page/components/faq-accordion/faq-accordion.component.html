@@ -6,7 +6,11 @@
       </div>
     } @else {
       <div class="space-y-4">
-        @for (heading of faqs(); track trackByHeadingId(i, heading); let i = $index) {
+        @for (
+          heading of faqs();
+          track trackByHeadingId(i, heading);
+          let i = $index
+        ) {
           <div class="bg-base-100 rounded-lg">
             <button
               class="flex items-center justify-between w-full p-4 text-left hover:bg-base-300 transition-colors rounded-t-lg"
@@ -28,7 +32,11 @@
 
             @if (isHeadingExpanded(heading._id)) {
               <div class="px-4 pb-4 space-y-2">
-                @for (item of heading.items; track trackByQuestionIndex(j); let j = $index) {
+                @for (
+                  item of heading.items;
+                  track trackByQuestionIndex(j);
+                  let j = $index
+                ) {
                   @if (isItemVisible(item)) {
                     <div class="bg-base-100 rounded-lg border border-base-300">
                       <button
@@ -37,7 +45,9 @@
                       >
                         <span class="font-medium">
                           @if (searchQuery()) {
-                            <span [innerHTML]="highlightText(item.question)"></span>
+                            <span
+                              [innerHTML]="highlightText(item.question)"
+                            ></span>
                           } @else {
                             {{ item.question }}
                           }
@@ -45,7 +55,9 @@
                         <fa-icon
                           [icon]="faChevronDown"
                           class="transition-transform duration-200 text-sm"
-                          [class.rotate-180]="isQuestionExpanded(heading._id + '-' + j)"
+                          [class.rotate-180]="
+                            isQuestionExpanded(heading._id + '-' + j)
+                          "
                         ></fa-icon>
                       </button>
 
@@ -54,7 +66,7 @@
                           @if (searchQuery()) {
                             <div [innerHTML]="highlightText(item.answer)"></div>
                           } @else {
-                            {{ item.answer }}
+                            <div [innerHTML]="sanitizeHtml(item.answer)"></div>
                           }
                         </div>
                       }
