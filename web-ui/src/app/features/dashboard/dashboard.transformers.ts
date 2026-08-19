@@ -45,7 +45,7 @@ export function buildActivities(
     return {
       icon: icons.project,
       color: 'bg-primary' as const,
-      message: `Project "${p.name}"`,
+      message: `Project '${p.name}'`,
       label,
       time: timeAgo(date),
       timestamp: toTimestamp(date),
@@ -58,7 +58,7 @@ export function buildActivities(
     return {
       icon: icons.task,
       color: 'bg-secondary' as const,
-      message: `Task "${t.title}"`,
+      message: `Task '${t.title}'`,
       label,
       time: timeAgo(date),
       timestamp: toTimestamp(date),
@@ -71,7 +71,7 @@ export function buildActivities(
     return {
       icon: icons.invoice,
       color: 'bg-info' as const,
-      message: `Invoice "${inv.invoiceNumber}"`,
+      message: `Invoice '${inv.invoiceNumber}'`,
       label,
       time: timeAgo(date),
       timestamp: toTimestamp(date),
