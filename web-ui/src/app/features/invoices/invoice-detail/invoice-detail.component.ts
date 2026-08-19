@@ -81,7 +81,8 @@ export class InvoiceDetailComponent implements OnInit {
     return labels[type] || type;
   }
 
-  formatCurrency(amount: number): string {
+  formatCurrency(amount: number | undefined): string {
+    if (amount === undefined) return '£0.00';
     return `£${amount.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 
