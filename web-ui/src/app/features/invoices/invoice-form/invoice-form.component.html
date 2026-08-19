@@ -24,9 +24,9 @@
         <form [formGroup]="invoiceForm" (ngSubmit)="onSubmit()">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div class="form-control">
-              <label class="label">
+              <div class="label">
                 <span class="label-text font-medium">Project</span>
-              </label>
+              </div>
               <select formControlName="projectId" class="select select-bordered w-full">
                 <option value="">Select Project</option>
                 @for (project of projects(); track project._id) {
@@ -36,9 +36,9 @@
             </div>
 
             <div class="form-control">
-              <label class="label">
+              <div class="label">
                 <span class="label-text font-medium">Task (Optional)</span>
-              </label>
+              </div>
               <select formControlName="taskId" class="select select-bordered w-full">
                 <option value="">All project tasks</option>
                 @for (task of tasks(); track task._id) {
@@ -49,32 +49,32 @@
           </div>
 
           <div class="form-control mb-4">
-            <label class="label">
+            <div class="label">
               <span class="label-text font-medium">Due Date</span>
-            </label>
+            </div>
             <input type="date" formControlName="dueDate" class="input input-bordered w-full" />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div class="form-control">
-              <label class="label">
+              <div class="label">
                 <span class="label-text font-medium">Client Name</span>
-              </label>
+              </div>
               <input type="text" formControlName="clientName" class="input input-bordered w-full" placeholder="Client name" />
             </div>
 
             <div class="form-control">
-              <label class="label">
+              <div class="label">
                 <span class="label-text font-medium">Client Email</span>
-              </label>
+              </div>
               <input type="email" formControlName="clientEmail" class="input input-bordered w-full" placeholder="client@example.com" />
             </div>
           </div>
 
           <div class="form-control mb-4">
-            <label class="label">
+            <div class="label">
               <span class="label-text font-medium">Billing Type</span>
-            </label>
+            </div>
             <div class="flex gap-4">
               <label class="label cursor-pointer gap-2">
                 <input type="radio" formControlName="billingType" value="budget" class="radio radio-primary" />
@@ -97,18 +97,18 @@
 
           @if (showProjectBudget) {
             <div class="form-control mb-4">
-              <label class="label">
+              <div class="label">
                 <span class="label-text font-medium">Amount (from Project Budget)</span>
-              </label>
+              </div>
               <input type="number" formControlName="amount" class="input input-bordered w-full" min="0" step="0.01" />
             </div>
           }
 
           @if (showTimeSection) {
             <div class="form-control mb-4">
-              <label class="label">
+              <div class="label">
                 <span class="label-text font-medium">Time Input Method</span>
-              </label>
+              </div>
               <div class="flex gap-4">
                 <label class="label cursor-pointer gap-2">
                   <input type="radio" [checked]="timeInputMode() === 'fetch'" (change)="onTimeInputModeChange('fetch')" class="radio radio-primary" />
@@ -132,23 +132,23 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   <div class="form-control">
-                    <label class="label">
+                    <div class="label">
                       <span class="label-text">Start Date</span>
-                    </label>
+                    </div>
                     <input type="date" formControlName="startDate" class="input input-bordered w-full" />
                   </div>
 
                   <div class="form-control">
-                    <label class="label">
+                    <div class="label">
                       <span class="label-text">End Date</span>
-                    </label>
+                    </div>
                     <input type="date" formControlName="endDate" class="input input-bordered w-full" />
                   </div>
 
                   <div class="form-control">
-                    <label class="label">
+                    <div class="label">
                       <span class="label-text">{{ billingType === 'hourly' ? 'Hourly Rate (£)' : 'Daily Rate (£)' }}</span>
-                    </label>
+                    </div>
                     <input type="number" [formControlName]="billingType === 'hourly' ? 'hourlyRate' : 'dailyRate'" class="input input-bordered w-full" min="0" step="0.01" />
                   </div>
                 </div>
@@ -177,9 +177,9 @@
             </div>
 
             <div class="form-control mb-4">
-              <label class="label">
+              <div class="label">
                 <span class="label-text font-medium">Calculated Amount</span>
-              </label>
+              </div>
               <input type="number" formControlName="amount" class="input input-bordered w-full" min="0" step="0.01" />
             </div>
           }
@@ -195,16 +195,16 @@
                 @if (billingType === 'hourly') {
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-control">
-                      <label class="label">
+                      <div class="label">
                         <span class="label-text">Hours Worked</span>
-                      </label>
+                      </div>
                       <input type="number" formControlName="manualHours" class="input input-bordered w-full" min="0" step="0.1" placeholder="e.g., 6.5" />
                     </div>
 
                     <div class="form-control">
-                      <label class="label">
+                      <div class="label">
                         <span class="label-text">Hourly Rate (£)</span>
-                      </label>
+                      </div>
                       <input type="number" formControlName="hourlyRate" class="input input-bordered w-full" min="0" step="0.01" />
                     </div>
                   </div>
@@ -217,23 +217,23 @@
                 @if (billingType === 'daily') {
                   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="form-control">
-                      <label class="label">
+                      <div class="label">
                         <span class="label-text">Hours Worked</span>
-                      </label>
+                      </div>
                       <input type="number" formControlName="manualHours" class="input input-bordered w-full" min="0" step="0.1" placeholder="e.g., 11" />
                     </div>
 
                     <div class="form-control">
-                      <label class="label">
+                      <div class="label">
                         <span class="label-text">Work Day Length (hours)</span>
-                      </label>
+                      </div>
                       <input type="number" formControlName="workDayHours" class="input input-bordered w-full" min="1" step="0.5" placeholder="e.g., 8" />
                     </div>
 
                     <div class="form-control">
-                      <label class="label">
+                      <div class="label">
                         <span class="label-text">Daily Rate (£)</span>
-                      </label>
+                      </div>
                       <input type="number" formControlName="dailyRate" class="input input-bordered w-full" min="0" step="0.01" />
                     </div>
                   </div>
@@ -328,16 +328,16 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div class="form-control">
-              <label class="label">
+              <div class="label">
                 <span class="label-text font-medium">Subtotal</span>
-              </label>
+              </div>
               <input type="number" formControlName="subtotal" class="input input-bordered w-full" readonly />
             </div>
 
             <div class="form-control">
-              <label class="label">
+              <div class="label">
                 <span class="label-text font-medium">Tax (£)</span>
-              </label>
+              </div>
               <input type="number" formControlName="tax" class="input input-bordered w-full" min="0" step="0.01" />
             </div>
           </div>
@@ -349,9 +349,9 @@
           </div>
 
           <div class="form-control mb-6">
-            <label class="label">
+            <div class="label">
               <span class="label-text font-medium">Notes</span>
-            </label>
+            </div>
             <textarea formControlName="notes" class="textarea textarea-bordered w-full" rows="3" placeholder="Additional notes..."></textarea>
           </div>
 
