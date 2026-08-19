@@ -1,7 +1,8 @@
-import { Component, signal, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, inject, OnInit, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowLeft, faSpinner, faSave, faPlus, faTrash, faClock } from '@fortawesome/free-solid-svg-icons';
 import { InvoiceStore, CreateInvoicePayload, UpdateInvoicePayload } from '../../../stores/invoice.store';
@@ -25,6 +26,7 @@ export class InvoiceFormComponent implements OnInit {
   private readonly projectStore = inject(ProjectStore);
   private readonly taskStore = inject(TaskStore);
   private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly mode = signal<'create' | 'edit'>('create');
   readonly loading = signal(false);
@@ -111,6 +113,12 @@ export class InvoiceFormComponent implements OnInit {
     return this.subtotal + this.tax;
   }
 
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    this.loadInitialData(id);
+    this.setupFormSubscriptions();
+  }
+
   loadInvoiceData(id: string): void {
     this.mode.set('edit');
     this.invoiceId.set(id);
@@ -163,9 +171,7 @@ export class InvoiceFormComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-
+  private loadInitialData(id: string | null): void {
     this.projectStore.loadAllProjects().subscribe({
       next: (response) => {
         this.projects.set(response.data);
@@ -181,59 +187,65 @@ export class InvoiceFormComponent implements OnInit {
       },
       error: (err) => console.error('Failed to load projects:', err),
     });
+  }
 
-    this.invoiceForm.get('projectId')?.valueChanges.subscribe((projectId) => {
-      if (projectId) {
-        const project = this.projects().find((p) => p._id === projectId);
-        if (project) {
-          this.invoiceForm.patchValue({
-            clientName: project.clientName || '',
-            clientEmail: project.clientEmail || '',
-            amount: project.budget || 0,
-            subtotal: project.budget || 0,
-          });
+  private setupFormSubscriptions(): void {
+    this.invoiceForm.get('projectId')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((projectId: string) => {
+        if (projectId) {
+          const project = this.projects().find((p) => p._id === projectId);
+          if (project) {
+            this.invoiceForm.patchValue({
+              clientName: project.clientName || '',
+              clientEmail: project.clientEmail || '',
+              amount: project.budget || 0,
+              subtotal: project.budget || 0,
+            });
+          }
+          this.loadTasksForProject(projectId);
+        } else {
+          this.tasks.set([]);
+          this.invoiceForm.get('taskId')?.setValue('');
         }
-        this.loadTasksForProject(projectId);
-      } else {
-        this.tasks.set([]);
-        this.invoiceForm.get('taskId')?.setValue('');
-      }
-    });
+      });
 
-    this.invoiceForm.get('billingType')?.valueChanges.subscribe((billingType) => {
-      if (billingType !== 'manual') {
-        this.clearLineItems();
-      } else if (this.lineItems.length === 0) {
-        this.addLineItem();
-      }
-      if (billingType === 'hourly' || billingType === 'daily') {
-        this.timeInputMode.set('fetch');
-      }
-    });
+    this.invoiceForm.get('billingType')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((billingType) => {
+        if (billingType !== 'manual') {
+          this.clearLineItems();
+        } else if (this.lineItems.length === 0) {
+          this.addLineItem();
+        }
+        if (billingType === 'hourly' || billingType === 'daily') {
+          this.timeInputMode.set('fetch');
+        }
+      });
 
-    this.invoiceForm.get('tax')?.valueChanges.subscribe(() => {
-      this.updateTotals();
-    });
+    this.invoiceForm.get('manualHours')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.calculateManualAmount());
 
-    this.invoiceForm.get('manualHours')?.valueChanges.subscribe(() => {
-      this.calculateManualAmount();
-    });
+    this.invoiceForm.get('manualDays')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.calculateManualAmount());
 
-    this.invoiceForm.get('manualDays')?.valueChanges.subscribe(() => {
-      this.calculateManualAmount();
-    });
+    this.invoiceForm.get('hourlyRate')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.timeInputMode() === 'manual' && this.billingType === 'hourly') {
+          this.calculateManualAmount();
+        }
+      });
 
-    this.invoiceForm.get('hourlyRate')?.valueChanges.subscribe(() => {
-      if (this.timeInputMode() === 'manual' && this.billingType === 'hourly') {
-        this.calculateManualAmount();
-      }
-    });
-
-    this.invoiceForm.get('dailyRate')?.valueChanges.subscribe(() => {
-      if (this.timeInputMode() === 'manual' && this.billingType === 'daily') {
-        this.calculateManualAmount();
-      }
-    });
+    this.invoiceForm.get('dailyRate')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.timeInputMode() === 'manual' && this.billingType === 'daily') {
+          this.calculateManualAmount();
+        }
+      });
   }
 
   addLineItem(item?: InvoiceLineItem): void {
