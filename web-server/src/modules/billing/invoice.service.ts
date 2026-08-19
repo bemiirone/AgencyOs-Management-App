@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { Invoice, InvoiceStatus } from './schemas/invoice.schema';
 import { CreateInvoiceDto, UpdateInvoiceDto, TimeAggregationQueryDto } from './dto/invoice.dto';
 import { TimeEntry } from '../time/schemas/time-entry.schema';
+import { Project } from '../project/schemas/project.schema';
 
 @Injectable()
 export class InvoiceService {
@@ -13,6 +14,7 @@ export class InvoiceService {
   constructor(
     @InjectModel(Invoice.name) private invoiceModel: Model<Invoice>,
     @InjectModel(TimeEntry.name) private timeEntryModel: Model<TimeEntry>,
+    @InjectModel(Project.name) private projectModel: Model<Project>,
     private configService: ConfigService,
   ) {
     const secretKey = this.configService.get<string>('stripe.secretKey');
@@ -46,6 +48,7 @@ export class InvoiceService {
 
     return this.invoiceModel
       .find(query)
+      .populate('projectId', 'name')
       .populate('taskId', 'title')
       .sort({ createdAt: -1 })
       .exec();
@@ -54,6 +57,7 @@ export class InvoiceService {
   async findOne(id: string, tenantId: string) {
     const invoice = await this.invoiceModel
       .findOne({ _id: id, tenantId })
+      .populate('projectId', 'name')
       .populate('taskId', 'title')
       .exec();
 

@@ -24,6 +24,7 @@ export class InvoiceController {
     const invoices = await this.invoiceService.findAll(tenantId, status);
     return invoices.map((invoice) => ({
       ...invoice.toObject(),
+      projectName: invoice.projectId ? (invoice.projectId as any).name : null,
       taskName: invoice.taskId ? (invoice.taskId as any).title : null,
     }));
   }
@@ -34,6 +35,7 @@ export class InvoiceController {
     const invoice = await this.invoiceService.findOne(id, tenantId);
     return {
       ...invoice.toObject(),
+      projectName: invoice.projectId ? (invoice.projectId as any).name : null,
       taskName: invoice.taskId ? (invoice.taskId as any).title : null,
     };
   }

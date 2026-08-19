@@ -39,9 +39,15 @@ export interface CreateInvoicePayload {
 export interface UpdateInvoicePayload {
   status?: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
   billingType?: 'budget' | 'hourly' | 'daily' | 'manual';
+  clientId?: string;
   lineItems?: Array<{ description: string; quantity: number; rate: number; amount: number }>;
   expenses?: Array<{ description: string; amount: number; date?: string }>;
   taskId?: string;
+  dateRange?: { startDate: string; endDate: string };
+  hourlyRate?: number;
+  dailyRate?: number;
+  totalHours?: number;
+  totalDays?: number;
   subtotal?: number;
   amount?: number;
   tax?: number;

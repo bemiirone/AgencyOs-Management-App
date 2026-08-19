@@ -172,6 +172,11 @@ export class UpdateInvoiceDto {
   @IsOptional()
   billingType?: BillingType;
 
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  clientId?: string;
+
   @ApiProperty({ type: [InvoiceLineItemDto], required: false })
   @IsArray()
   @ValidateNested({ each: true })
@@ -190,6 +195,32 @@ export class UpdateInvoiceDto {
   @IsString()
   @IsOptional()
   taskId?: string;
+
+  @ApiProperty({ type: DateRangeDto, required: false })
+  @ValidateNested()
+  @Type(() => DateRangeDto)
+  @IsOptional()
+  dateRange?: DateRangeDto;
+
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
+  hourlyRate?: number;
+
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
+  dailyRate?: number;
+
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
+  totalHours?: number;
+
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
+  totalDays?: number;
 
   @ApiProperty({ required: false })
   @IsNumber()

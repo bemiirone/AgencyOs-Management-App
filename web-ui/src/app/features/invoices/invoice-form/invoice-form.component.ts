@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } fr
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowLeft, faSpinner, faSave, faPlus, faTrash, faClock } from '@fortawesome/free-solid-svg-icons';
-import { InvoiceStore, CreateInvoicePayload } from '../../../stores/invoice.store';
+import { InvoiceStore, CreateInvoicePayload, UpdateInvoicePayload } from '../../../stores/invoice.store';
 import { ProjectStore } from '../../../stores/project.store';
 import { TaskStore } from '../../../stores/task.store';
 import { Project } from '../../../shared/models/project.model';
@@ -111,67 +111,76 @@ export class InvoiceFormComponent implements OnInit {
     return this.subtotal + this.tax;
   }
 
+  loadInvoiceData(id: string): void {
+    this.mode.set('edit');
+    this.invoiceId.set(id);
+    this.loading.set(true);
+
+    this.invoiceStore.loadInvoice(id).subscribe({
+      next: (invoice: Invoice) => {
+        const projectId = typeof invoice.projectId === 'string' ? invoice.projectId : (invoice.projectId as any)?._id;
+        const taskId = typeof invoice.taskId === 'string' ? invoice.taskId : (invoice.taskId as any)?._id;
+
+        this.invoiceForm.patchValue({
+          projectId: projectId || '',
+          clientName: invoice.clientName,
+          clientEmail: invoice.clientEmail,
+          billingType: invoice.billingType,
+          hourlyRate: invoice.hourlyRate || 0,
+          dailyRate: invoice.dailyRate || 0,
+          totalHours: invoice.totalHours || 0,
+          totalDays: invoice.totalDays || 0,
+          subtotal: invoice.subtotal,
+          amount: invoice.amount,
+          tax: invoice.tax || 0,
+          dueDate: invoice.dueDate ? new Date(invoice.dueDate).toISOString().split('T')[0] : '',
+          notes: invoice.notes || '',
+          startDate: invoice.dateRange?.startDate ? new Date(invoice.dateRange.startDate).toISOString().split('T')[0] : '',
+          endDate: invoice.dateRange?.endDate ? new Date(invoice.dateRange.endDate).toISOString().split('T')[0] : '',
+        });
+
+        if (invoice.lineItems?.length) {
+          invoice.lineItems.forEach((item) => this.addLineItem(item));
+        }
+
+        if (taskId) {
+          this.invoiceForm.patchValue({ taskId });
+          if (projectId) {
+            this.loadTasksForProject(projectId);
+          }
+        }
+
+        if (invoice.expenses?.length) {
+          invoice.expenses.forEach((expense) => this.addExpense(expense));
+        }
+
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('Failed to load invoice');
+        this.loading.set(false);
+      },
+    });
+  }
+
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
 
     this.projectStore.loadAllProjects().subscribe({
       next: (response) => {
         this.projects.set(response.data);
+
+        if (id) {
+          this.loadInvoiceData(id);
+        } else {
+          this.mode.set('create');
+          if (this.invoiceForm.get('billingType')?.value === 'manual') {
+            this.addLineItem();
+          }
+        }
       },
       error: (err) => console.error('Failed to load projects:', err),
     });
-
-    if (id) {
-      this.mode.set('edit');
-      this.invoiceId.set(id);
-      this.loading.set(true);
-
-      this.invoiceStore.loadInvoice(id).subscribe({
-        next: (invoice: Invoice) => {
-          this.invoiceForm.patchValue({
-            projectId: invoice.projectId,
-            clientName: invoice.clientName,
-            clientEmail: invoice.clientEmail,
-            billingType: invoice.billingType,
-            hourlyRate: invoice.hourlyRate || 0,
-            dailyRate: invoice.dailyRate || 0,
-            totalHours: invoice.totalHours || 0,
-            totalDays: invoice.totalDays || 0,
-            subtotal: invoice.subtotal,
-            amount: invoice.amount,
-            tax: invoice.tax || 0,
-            dueDate: invoice.dueDate ? new Date(invoice.dueDate).toISOString().split('T')[0] : '',
-            notes: invoice.notes || '',
-            startDate: invoice.dateRange?.startDate ? new Date(invoice.dateRange.startDate).toISOString().split('T')[0] : '',
-            endDate: invoice.dateRange?.endDate ? new Date(invoice.dateRange.endDate).toISOString().split('T')[0] : '',
-          });
-
-          if (invoice.lineItems?.length) {
-            invoice.lineItems.forEach((item) => this.addLineItem(item));
-          }
-
-          if (invoice.taskId) {
-            this.invoiceForm.patchValue({ taskId: invoice.taskId });
-            this.loadTasksForProject(invoice.projectId);
-          }
-
-          if (invoice.expenses?.length) {
-            invoice.expenses.forEach((expense) => this.addExpense(expense));
-          }
-
-          this.loading.set(false);
-        },
-        error: () => {
-          this.error.set('Failed to load invoice');
-          this.loading.set(false);
-        },
-      });
-    } else {
-      this.mode.set('create');
-      if (this.invoiceForm.get('billingType')?.value === 'manual') {
-        this.addLineItem();
-      }
-    }
 
     this.invoiceForm.get('projectId')?.valueChanges.subscribe((projectId) => {
       if (projectId) {
@@ -439,57 +448,57 @@ export class InvoiceFormComponent implements OnInit {
     this.error.set('');
 
     const formValue = this.invoiceForm.value;
-
-    const payload: CreateInvoicePayload = {
-      projectId: formValue.projectId,
-      clientName: formValue.clientName,
-      clientEmail: formValue.clientEmail,
-      billingType: formValue.billingType,
-      subtotal: formValue.subtotal,
-      amount: formValue.amount,
-      tax: formValue.tax || 0,
-      dueDate: formValue.dueDate ? new Date(formValue.dueDate).toISOString() : undefined,
-      notes: formValue.notes || undefined,
-    };
-
     const project = this.projects().find((p) => p._id === formValue.projectId);
-    if (project?.clientId) {
-      payload.clientId = project.clientId;
-    }
-
-    if (formValue.taskId) {
-      payload.taskId = formValue.taskId;
-    }
-
-    if (formValue.billingType === 'hourly' || formValue.billingType === 'daily') {
-      payload.hourlyRate = formValue.hourlyRate;
-      payload.dailyRate = formValue.dailyRate;
-      payload.totalHours = formValue.totalHours;
-      payload.totalDays = formValue.totalDays;
-      if (formValue.startDate && formValue.endDate) {
-        payload.dateRange = {
-          startDate: new Date(formValue.startDate).toISOString(),
-          endDate: new Date(formValue.endDate).toISOString(),
-        };
-      }
-      if (this.timeInputMode() === 'manual') {
-        payload.manualHours = formValue.manualHours;
-        payload.manualDays = formValue.manualDays;
-      }
-    }
-
-    if (formValue.billingType === 'manual' && formValue.lineItems?.length) {
-      payload.lineItems = formValue.lineItems;
-    }
-
-    if (formValue.expenses?.length) {
-      payload.expenses = formValue.expenses.map((expense: any) => ({
-        ...expense,
-        date: expense.date ? new Date(expense.date).toISOString() : undefined,
-      }));
-    }
 
     if (this.mode() === 'create') {
+      const payload: CreateInvoicePayload = {
+        projectId: formValue.projectId,
+        clientName: formValue.clientName,
+        clientEmail: formValue.clientEmail,
+        billingType: formValue.billingType,
+        subtotal: formValue.subtotal,
+        amount: formValue.amount,
+        tax: formValue.tax || 0,
+        dueDate: formValue.dueDate ? new Date(formValue.dueDate).toISOString() : undefined,
+        notes: formValue.notes || undefined,
+      };
+
+      if (project?.clientId) {
+        payload.clientId = project.clientId;
+      }
+
+      if (formValue.taskId) {
+        payload.taskId = formValue.taskId;
+      }
+
+      if (formValue.billingType === 'hourly' || formValue.billingType === 'daily') {
+        payload.hourlyRate = formValue.hourlyRate;
+        payload.dailyRate = formValue.dailyRate;
+        payload.totalHours = formValue.totalHours;
+        payload.totalDays = formValue.totalDays;
+        if (formValue.startDate && formValue.endDate) {
+          payload.dateRange = {
+            startDate: new Date(formValue.startDate).toISOString(),
+            endDate: new Date(formValue.endDate).toISOString(),
+          };
+        }
+        if (this.timeInputMode() === 'manual') {
+          payload.manualHours = formValue.manualHours;
+          payload.manualDays = formValue.manualDays;
+        }
+      }
+
+      if (formValue.billingType === 'manual' && formValue.lineItems?.length) {
+        payload.lineItems = formValue.lineItems;
+      }
+
+      if (formValue.expenses?.length) {
+        payload.expenses = formValue.expenses.map((expense: any) => ({
+          ...expense,
+          date: expense.date ? new Date(expense.date).toISOString() : undefined,
+        }));
+      }
+
       this.invoiceStore.createInvoice(payload).subscribe({
         next: () => {
           this.saving.set(false);
@@ -503,6 +512,47 @@ export class InvoiceFormComponent implements OnInit {
       });
     } else {
       const id = this.invoiceId();
+      const payload: UpdateInvoicePayload = {
+        billingType: formValue.billingType,
+        subtotal: formValue.subtotal,
+        amount: formValue.amount,
+        tax: formValue.tax || 0,
+        dueDate: formValue.dueDate ? new Date(formValue.dueDate).toISOString() : undefined,
+        notes: formValue.notes || undefined,
+      };
+
+      if (project?.clientId) {
+        payload.clientId = project.clientId;
+      }
+
+      if (formValue.taskId) {
+        payload.taskId = formValue.taskId;
+      }
+
+      if (formValue.billingType === 'hourly' || formValue.billingType === 'daily') {
+        payload.hourlyRate = formValue.hourlyRate;
+        payload.dailyRate = formValue.dailyRate;
+        payload.totalHours = formValue.totalHours;
+        payload.totalDays = formValue.totalDays;
+        if (formValue.startDate && formValue.endDate) {
+          payload.dateRange = {
+            startDate: new Date(formValue.startDate).toISOString(),
+            endDate: new Date(formValue.endDate).toISOString(),
+          };
+        }
+      }
+
+      if (formValue.billingType === 'manual' && formValue.lineItems?.length) {
+        payload.lineItems = formValue.lineItems;
+      }
+
+      if (formValue.expenses?.length) {
+        payload.expenses = formValue.expenses.map((expense: any) => ({
+          ...expense,
+          date: expense.date ? new Date(expense.date).toISOString() : undefined,
+        }));
+      }
+
       this.invoiceStore.updateInvoice(id, payload).subscribe({
         next: () => {
           this.saving.set(false);
