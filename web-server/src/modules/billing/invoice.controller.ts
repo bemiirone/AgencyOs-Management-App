@@ -21,13 +21,21 @@ export class InvoiceController {
   @Get()
   @ApiOperation({ summary: 'Get all invoices' })
   async findAll(@TenantId() tenantId: string, @Query('status') status?: InvoiceStatus) {
-    return this.invoiceService.findAll(tenantId, status);
+    const invoices = await this.invoiceService.findAll(tenantId, status);
+    return invoices.map((invoice) => ({
+      ...invoice.toObject(),
+      taskName: invoice.taskId ? (invoice.taskId as any).title : null,
+    }));
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get invoice by ID' })
   async findOne(@Param('id') id: string, @TenantId() tenantId: string) {
-    return this.invoiceService.findOne(id, tenantId);
+    const invoice = await this.invoiceService.findOne(id, tenantId);
+    return {
+      ...invoice.toObject(),
+      taskName: invoice.taskId ? (invoice.taskId as any).title : null,
+    };
   }
 
   @Patch(':id')

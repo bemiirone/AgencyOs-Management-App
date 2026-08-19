@@ -6,8 +6,10 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowLeft, faSpinner, faSave, faPlus, faTrash, faClock } from '@fortawesome/free-solid-svg-icons';
 import { InvoiceStore, CreateInvoicePayload } from '../../../stores/invoice.store';
 import { ProjectStore } from '../../../stores/project.store';
+import { TaskStore } from '../../../stores/task.store';
 import { Project } from '../../../shared/models/project.model';
-import { Invoice, InvoiceLineItem, PaymentStage, InvoiceExpense, TimeAggregationResult } from '../../../shared/models/invoice.model';
+import { Task } from '../../../shared/models/task.model';
+import { Invoice, InvoiceLineItem, InvoiceExpense, TimeAggregationResult } from '../../../shared/models/invoice.model';
 
 @Component({
   selector: 'app-invoice-form',
@@ -21,6 +23,7 @@ export class InvoiceFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly invoiceStore = inject(InvoiceStore);
   private readonly projectStore = inject(ProjectStore);
+  private readonly taskStore = inject(TaskStore);
   private readonly fb = inject(FormBuilder);
 
   readonly mode = signal<'create' | 'edit'>('create');
@@ -29,6 +32,7 @@ export class InvoiceFormComponent implements OnInit {
   readonly error = signal('');
   readonly invoiceId = signal('');
   readonly projects = signal<Project[]>([]);
+  readonly tasks = signal<Task[]>([]);
   readonly aggregatingTime = signal(false);
   readonly timeInputMode = signal<'fetch' | 'manual'>('fetch');
 
@@ -41,11 +45,11 @@ export class InvoiceFormComponent implements OnInit {
 
   invoiceForm: FormGroup = this.fb.group({
     projectId: ['', Validators.required],
+    taskId: [''],
     clientName: ['', Validators.required],
     clientEmail: ['', [Validators.required, Validators.email]],
     billingType: ['budget', Validators.required],
     lineItems: this.fb.array([]),
-    paymentStages: this.fb.array([]),
     expenses: this.fb.array([]),
     startDate: [''],
     endDate: [''],
@@ -65,10 +69,6 @@ export class InvoiceFormComponent implements OnInit {
 
   get lineItems(): FormArray {
     return this.invoiceForm.get('lineItems') as FormArray;
-  }
-
-  get paymentStages(): FormArray {
-    return this.invoiceForm.get('paymentStages') as FormArray;
   }
 
   get expenses(): FormArray {
@@ -97,14 +97,6 @@ export class InvoiceFormComponent implements OnInit {
 
   get showProjectBudget(): boolean {
     return this.billingType === 'budget';
-  }
-
-  get showPaymentStagesToggle(): boolean {
-    return this.billingType === 'budget';
-  }
-
-  get showPaymentStages(): boolean {
-    return this.showPaymentStagesToggle && this.paymentStages.length > 0;
   }
 
   get subtotal(): number {
@@ -158,8 +150,9 @@ export class InvoiceFormComponent implements OnInit {
             invoice.lineItems.forEach((item) => this.addLineItem(item));
           }
 
-          if (invoice.paymentStages?.length) {
-            invoice.paymentStages.forEach((stage) => this.addPaymentStage(stage));
+          if (invoice.taskId) {
+            this.invoiceForm.patchValue({ taskId: invoice.taskId });
+            this.loadTasksForProject(invoice.projectId);
           }
 
           if (invoice.expenses?.length) {
@@ -191,6 +184,10 @@ export class InvoiceFormComponent implements OnInit {
             subtotal: project.budget || 0,
           });
         }
+        this.loadTasksForProject(projectId);
+      } else {
+        this.tasks.set([]);
+        this.invoiceForm.get('taskId')?.setValue('');
       }
     });
 
@@ -199,9 +196,6 @@ export class InvoiceFormComponent implements OnInit {
         this.clearLineItems();
       } else if (this.lineItems.length === 0) {
         this.addLineItem();
-      }
-      if (billingType !== 'budget') {
-        this.clearPaymentStages();
       }
       if (billingType === 'hourly' || billingType === 'daily') {
         this.timeInputMode.set('fetch');
@@ -257,32 +251,18 @@ export class InvoiceFormComponent implements OnInit {
     this.updateLineItemAmounts();
   }
 
-  addPaymentStage(stage?: PaymentStage): void {
-    this.paymentStages.push(
-      this.fb.group({
-        name: [stage?.name || '', Validators.required],
-        percentage: [stage?.percentage || 0, [Validators.required, Validators.min(0), Validators.max(100)]],
-        dueDate: [stage?.dueDate ? new Date(stage.dueDate).toISOString().split('T')[0] : ''],
-      })
-    );
-  }
-
-  removePaymentStage(index: number): void {
-    this.paymentStages.removeAt(index);
-  }
-
-  clearPaymentStages(): void {
-    while (this.paymentStages.length) {
-      this.paymentStages.removeAt(0);
+  loadTasksForProject(projectId: string): void {
+    if (!projectId) {
+      this.tasks.set([]);
+      this.invoiceForm.get('taskId')?.setValue('');
+      return;
     }
-  }
-
-  togglePaymentStages(checked: boolean): void {
-    if (checked && this.paymentStages.length === 0) {
-      this.addPaymentStage();
-    } else if (!checked) {
-      this.clearPaymentStages();
-    }
+    this.taskStore.loadTasksByProject(projectId).subscribe({
+      next: (tasks: Task[]) => {
+        this.tasks.set(tasks.filter((t) => t.status === 'done'));
+      },
+      error: (err) => console.error('Failed to load tasks:', err),
+    });
   }
 
   addExpense(expense?: InvoiceExpense): void {
@@ -477,6 +457,10 @@ export class InvoiceFormComponent implements OnInit {
       payload.clientId = project.clientId;
     }
 
+    if (formValue.taskId) {
+      payload.taskId = formValue.taskId;
+    }
+
     if (formValue.billingType === 'hourly' || formValue.billingType === 'daily') {
       payload.hourlyRate = formValue.hourlyRate;
       payload.dailyRate = formValue.dailyRate;
@@ -496,13 +480,6 @@ export class InvoiceFormComponent implements OnInit {
 
     if (formValue.billingType === 'manual' && formValue.lineItems?.length) {
       payload.lineItems = formValue.lineItems;
-    }
-
-    if (formValue.paymentStages?.length) {
-      payload.paymentStages = formValue.paymentStages.map((stage: any) => ({
-        ...stage,
-        dueDate: stage.dueDate ? new Date(stage.dueDate).toISOString() : undefined,
-      }));
     }
 
     if (formValue.expenses?.length) {

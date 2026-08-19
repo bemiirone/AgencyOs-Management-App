@@ -44,11 +44,18 @@ export class InvoiceService {
       query.status = status;
     }
 
-    return this.invoiceModel.find(query).sort({ createdAt: -1 }).exec();
+    return this.invoiceModel
+      .find(query)
+      .populate('taskId', 'title')
+      .sort({ createdAt: -1 })
+      .exec();
   }
 
   async findOne(id: string, tenantId: string) {
-    const invoice = await this.invoiceModel.findOne({ _id: id, tenantId }).exec();
+    const invoice = await this.invoiceModel
+      .findOne({ _id: id, tenantId })
+      .populate('taskId', 'title')
+      .exec();
 
     if (!invoice) {
       throw new NotFoundException('Invoice not found');

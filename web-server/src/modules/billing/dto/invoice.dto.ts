@@ -25,23 +25,6 @@ export class InvoiceLineItemDto {
   amount: number;
 }
 
-export class PaymentStageDto {
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-
-  @ApiProperty()
-  @IsNumber()
-  @IsNotEmpty()
-  percentage: number;
-
-  @ApiProperty({ required: false })
-  @IsDateString()
-  @IsOptional()
-  dueDate?: string;
-}
-
 export class InvoiceExpenseDto {
   @ApiProperty()
   @IsString()
@@ -104,19 +87,17 @@ export class CreateInvoiceDto {
   @IsOptional()
   lineItems?: InvoiceLineItemDto[];
 
-  @ApiProperty({ type: [PaymentStageDto], required: false })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => PaymentStageDto)
-  @IsOptional()
-  paymentStages?: PaymentStageDto[];
-
   @ApiProperty({ type: [InvoiceExpenseDto], required: false })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => InvoiceExpenseDto)
   @IsOptional()
   expenses?: InvoiceExpenseDto[];
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  taskId?: string;
 
   @ApiProperty({ type: DateRangeDto, required: false })
   @ValidateNested()
@@ -198,19 +179,17 @@ export class UpdateInvoiceDto {
   @IsOptional()
   lineItems?: InvoiceLineItemDto[];
 
-  @ApiProperty({ type: [PaymentStageDto], required: false })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => PaymentStageDto)
-  @IsOptional()
-  paymentStages?: PaymentStageDto[];
-
   @ApiProperty({ type: [InvoiceExpenseDto], required: false })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => InvoiceExpenseDto)
   @IsOptional()
   expenses?: InvoiceExpenseDto[];
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  taskId?: string;
 
   @ApiProperty({ required: false })
   @IsNumber()

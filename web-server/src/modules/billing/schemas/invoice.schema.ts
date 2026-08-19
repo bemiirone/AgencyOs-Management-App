@@ -31,23 +31,6 @@ export class InvoiceLineItem {
   amount: number;
 }
 
-export class PaymentStage {
-  @Prop({ required: true })
-  name: string;
-
-  @Prop({ required: true })
-  percentage: number;
-
-  @Prop()
-  dueDate: Date;
-
-  @Prop({ enum: InvoiceStatus, default: InvoiceStatus.DRAFT })
-  status: InvoiceStatus;
-
-  @Prop()
-  paidAt: Date;
-}
-
 export class InvoiceExpense {
   @Prop({ required: true })
   description: string;
@@ -94,10 +77,10 @@ export class Invoice extends BaseDocument {
   declare lineItems: InvoiceLineItem[];
 
   @Prop({ type: [Object], default: [] })
-  declare paymentStages: PaymentStage[];
-
-  @Prop({ type: [Object], default: [] })
   declare expenses: InvoiceExpense[];
+
+  @Prop({ type: Types.ObjectId, ref: 'Task' })
+  declare taskId: string;
 
   @Prop()
   declare dateRange: DateRange;

@@ -60,6 +60,13 @@
             <p class="text-base-content/70">{{ getBillingTypeLabel(inv.billingType) }}</p>
           </div>
 
+          @if (inv.taskId) {
+            <div>
+              <h3 class="text-lg font-semibold mb-2">Task</h3>
+              <p class="text-base-content/70">{{ inv.taskName || 'Task' }}</p>
+            </div>
+          }
+
           <div>
             <h3 class="text-lg font-semibold mb-2">Client</h3>
             <p class="text-base-content/70">{{ inv.clientName }}</p>
@@ -115,36 +122,6 @@
                     <td>{{ item.quantity }}</td>
                     <td>{{ formatCurrency(item.rate) }}</td>
                     <td>{{ formatCurrency(item.amount) }}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        }
-
-        @if (inv.paymentStages && inv.paymentStages.length > 0) {
-          <div class="divider">Payment Stages</div>
-          <div class="overflow-x-auto">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Stage</th>
-                  <th>Percentage</th>
-                  <th>Due Date</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (stage of inv.paymentStages; track $index) {
-                  <tr>
-                    <td>{{ stage.name }}</td>
-                    <td>{{ stage.percentage }}%</td>
-                    <td>{{ formatDate(stage.dueDate) }}</td>
-                    <td>
-                      <span class="badge {{ getStatusClass(stage.status) }} badge-sm">
-                        {{ getStatusLabel(stage.status) }}
-                      </span>
-                    </td>
                   </tr>
                 }
               </tbody>

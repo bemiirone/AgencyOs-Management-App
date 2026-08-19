@@ -50,6 +50,7 @@
               <tr>
                 <th>Invoice #</th>
                 <th>Project</th>
+                <th>Task</th>
                 <th>Client</th>
                 <th>Billing Type</th>
                 <th>Amount</th>
@@ -66,6 +67,7 @@
                     <div class="text-sm text-base-content/50">{{ formatDate(invoice.createdAt) }}</div>
                   </td>
                   <td>{{ invoice.projectName || 'Unknown Project' }}</td>
+                  <td>{{ invoice.taskName || '-' }}</td>
                   <td>{{ invoice.clientName }}</td>
                   <td>
                     <span class="badge badge-sm">{{ getBillingTypeLabel(invoice.billingType) }}</span>
@@ -98,7 +100,7 @@
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="8" class="text-center py-8 text-base-content/50">
+                  <td colspan="9" class="text-center py-8 text-base-content/50">
                     No invoices found
                   </td>
                 </tr>

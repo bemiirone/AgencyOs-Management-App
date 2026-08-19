@@ -18,8 +18,8 @@ export interface CreateInvoicePayload {
   clientEmail: string;
   billingType?: 'budget' | 'hourly' | 'daily' | 'manual';
   lineItems?: Array<{ description: string; quantity: number; rate: number; amount: number }>;
-  paymentStages?: Array<{ name: string; percentage: number; dueDate?: string }>;
   expenses?: Array<{ description: string; amount: number; date?: string }>;
+  taskId?: string;
   dateRange?: { startDate: string; endDate: string };
   hourlyRate?: number;
   dailyRate?: number;
@@ -40,8 +40,8 @@ export interface UpdateInvoicePayload {
   status?: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
   billingType?: 'budget' | 'hourly' | 'daily' | 'manual';
   lineItems?: Array<{ description: string; quantity: number; rate: number; amount: number }>;
-  paymentStages?: Array<{ name: string; percentage: number; dueDate?: string }>;
   expenses?: Array<{ description: string; amount: number; date?: string }>;
+  taskId?: string;
   subtotal?: number;
   amount?: number;
   tax?: number;

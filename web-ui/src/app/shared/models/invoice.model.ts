@@ -9,8 +9,9 @@ export interface Invoice {
   status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
   billingType: 'budget' | 'hourly' | 'daily' | 'manual';
   lineItems: InvoiceLineItem[];
-  paymentStages: PaymentStage[];
   expenses: InvoiceExpense[];
+  taskId?: string;
+  taskName?: string;
   dateRange?: {
     startDate: Date;
     endDate: Date;
@@ -37,14 +38,6 @@ export interface InvoiceLineItem {
   quantity: number;
   rate: number;
   amount: number;
-}
-
-export interface PaymentStage {
-  name: string;
-  percentage: number;
-  dueDate?: Date;
-  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
-  paidAt?: Date;
 }
 
 export interface InvoiceExpense {
