@@ -6,6 +6,23 @@ import { Page, CreatePageRequest, UpdatePageRequest } from '../models/page.model
 import { Faq, CreateFaqRequest, UpdateFaqRequest } from '../models/faq.model';
 import { NotificationSettings } from '../models/notification-settings.model';
 
+export interface ContentEntry {
+  _id: string;
+  key: string;
+  value: string;
+  category: string;
+  locale: string;
+  description: string;
+}
+
+export interface ContentUpdateRequest {
+  value: string;
+}
+
+export interface BulkContentRequest {
+  entries: { key: string; value: string; category: string; locale?: string; description?: string }[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminApiService {
   private http = inject(HttpClient);
@@ -61,5 +78,17 @@ export class AdminApiService {
 
   updateNotificationSettings(data: Partial<NotificationSettings>): Observable<NotificationSettings> {
     return this.http.put<NotificationSettings>(`${this.apiUrl}/notification-settings`, data);
+  }
+
+  getContent(): Observable<ContentEntry[]> {
+    return this.http.get<ContentEntry[]>(`${this.apiUrl}/content`);
+  }
+
+  updateContent(key: string, data: ContentUpdateRequest): Observable<ContentEntry> {
+    return this.http.patch<ContentEntry>(`${this.apiUrl}/content/${key}`, data);
+  }
+
+  bulkUpdateContent(entries: BulkContentRequest['entries']): Observable<ContentEntry[]> {
+    return this.http.post<ContentEntry[]>(`${this.apiUrl}/content/bulk`, { entries });
   }
 }

@@ -32,6 +32,10 @@ export const appRoutes: Route[] = [
         path: 'notifications',
         loadComponent: () => import('./pages/notifications/notifications.component').then(m => m.NotificationsComponent)
       },
+      {
+        path: 'content',
+        loadComponent: () => import('./pages/content/content.component').then(m => m.ContentComponent)
+      },
     ]
   },
   {
