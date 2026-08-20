@@ -1,6 +1,9 @@
-<div class="container mx-auto px-4 py-8">
+<div class="container mx-auto p-6">
   <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold">Team</h1>
+    <div>
+      <h1 class="text-3xl font-bold">Team</h1>
+      <p class="text-base-content/60">Manage your team members and their roles.</p>
+    </div>
     @if (isAdmin()) {
       <button class="btn btn-primary" (click)="toggleCreateForm()">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
