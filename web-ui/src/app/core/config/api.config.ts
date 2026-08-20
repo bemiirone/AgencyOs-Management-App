@@ -79,4 +79,8 @@ export const API_CONFIG = {
     LIST: '/api/pages',
     DETAIL: (slug: string) => `/api/pages/${slug}`,
   },
+  CONTENT: {
+    LIST: (locale?: string) => `/api/content${locale ? `?locale=${locale}` : ''}`,
+    BY_CATEGORY: (category: string, locale?: string) => `/api/content/${category}${locale ? `?locale=${locale}` : ''}`,
+  },
 };

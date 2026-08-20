@@ -1,13 +1,13 @@
-<app-content-card title="Upcoming Tasks" [icon]="faCalendarAlt" titleClass="mb-4" cardBodyClass="p-6">
+<app-content-card [title]="contentStore.content('dashboard.upcomingTasks.title')" [icon]="faCalendarAlt" titleClass="mb-4" cardBodyClass="p-6">
   @if (upcomingTasks().length > 0) {
       <div class="overflow-x-auto">
         <table class="table">
           <thead>
             <tr>
-              <th>Task Name</th>
-              <th>Project</th>
-              <th>Status</th>
-              <th>Due Date</th>
+              <th>{{ contentStore.content('dashboard.table.taskName') }}</th>
+              <th>{{ contentStore.content('dashboard.table.project') }}</th>
+              <th>{{ contentStore.content('dashboard.table.status') }}</th>
+              <th>{{ contentStore.content('dashboard.table.dueDate') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -60,7 +60,7 @@
     } @else {
       <div class="text-center py-8 text-base-content/50">
         <fa-icon [icon]="faCheckCircle" class="text-4xl mb-2 text-success"></fa-icon>
-        <p>No upcoming tasks</p>
+        <p>{{ contentStore.content('dashboard.upcomingTasks.empty') }}</p>
       </div>
     }
 </app-content-card>

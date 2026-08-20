@@ -1,4 +1,4 @@
-import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, input, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -11,6 +11,7 @@ import {
 import { Task } from '../../../shared/models/task.model';
 import { Project } from '../../../shared/models/project.model';
 import { ContentCardComponent } from '../../../shared/components/content-card/content-card.component';
+import { ContentStore } from '../../../stores/content.store';
 
 @Component({
   selector: 'app-upcoming-tasks',
@@ -19,6 +20,8 @@ import { ContentCardComponent } from '../../../shared/components/content-card/co
   templateUrl: './upcoming-tasks.component.html',
 })
 export class UpcomingTasksComponent {
+  readonly contentStore = inject(ContentStore);
+
   readonly tasks = input.required<Task[]>();
   readonly projects = input.required<Project[]>();
 
@@ -79,12 +82,12 @@ export class UpcomingTasksComponent {
   }
 
   getStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-      todo: 'To Do',
-      in_progress: 'In Progress',
-      in_review: 'In Review',
-      done: 'Done',
+    const keyMap: Record<string, string> = {
+      todo: 'status.todo',
+      in_progress: 'status.inProgress',
+      in_review: 'status.inReview',
+      done: 'status.done',
     };
-    return labels[status] || status;
+    return this.contentStore.content(keyMap[status] || status);
   }
 }

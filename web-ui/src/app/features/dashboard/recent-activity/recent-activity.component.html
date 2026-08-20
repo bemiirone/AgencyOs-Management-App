@@ -1,4 +1,4 @@
-<app-content-card title="Recent Activity">
+<app-content-card [title]="title">
   <div class="mt-4">
     @if (activities().length > 0) {
       <ul class="space-y-3">
@@ -14,7 +14,7 @@
         }
       </ul>
     } @else {
-      <p class="text-base-content/50 text-center py-4">No recent activity</p>
+      <p class="text-base-content/50 text-center py-4">{{ emptyMessage }}</p>
     }
   </div>
 </app-content-card>

@@ -1,12 +1,12 @@
 <div class="p-6">
   <div class="mb-8">
     <div class="flex items-center gap-3">
-      <h1 class="text-3xl font-bold text-base-content">Welcome back, {{ userName() }}!</h1>
+      <h1 class="text-3xl font-bold text-base-content">{{ contentStore.contentWithParams('dashboard.welcome', { name: userName() }) }}</h1>
       @if (tenantName()) {
         <span class="badge badge-primary badge-outline">{{ tenantName() }}</span>
       }
     </div>
-    <p class="text-base-content/60 mt-1">Here's what's happening with your projects today.</p>
+    <p class="text-base-content/60 mt-1">{{ contentStore.content('dashboard.subtitle') }}</p>
   </div>
 
   @if (loading()) {
@@ -31,8 +31,8 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-      <app-chart-card title="Projects by Status" [chartOptions]="projectChartData()" [loading]="loading()" />
-      <app-chart-card title="Tasks by Status" [chartOptions]="taskChartData()" [loading]="loading()" />
+      <app-chart-card [title]="contentStore.content('dashboard.charts.projectsByStatus')" [chartOptions]="projectChartData()" [loading]="loading()" />
+      <app-chart-card [title]="contentStore.content('dashboard.charts.tasksByStatus')" [chartOptions]="taskChartData()" [loading]="loading()" />
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">

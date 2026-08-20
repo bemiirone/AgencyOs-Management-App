@@ -28,6 +28,7 @@ import { TaskStore } from '../../stores/task.store';
 import { TimeEntryStore } from '../../stores/time-entry.store';
 import { InvoiceStore } from '../../stores/invoice.store';
 import { UserStore } from '../../stores/user.store';
+import { ContentStore } from '../../stores/content.store';
 import { Project } from '../../shared/models/project.model';
 import { Task } from '../../shared/models/task.model';
 import { TimeEntry } from '../../shared/models/time-entry.model';
@@ -51,6 +52,7 @@ export class DashboardComponent implements OnInit {
   private readonly timeEntryStore = inject(TimeEntryStore);
   private readonly invoiceStore = inject(InvoiceStore);
   private readonly userStore = inject(UserStore);
+  readonly contentStore = inject(ContentStore);
 
   readonly faProjectDiagram = faProjectDiagram;
   readonly faTasks = faTasks;
@@ -100,10 +102,10 @@ export class DashboardComponent implements OnInit {
   );
 
   readonly statItems: StatItem[] = [
-    { icon: faProjectDiagram, key: 'totalProjects', title: 'Total Projects', description: 'Active and completed', color: 'text-primary' },
-    { icon: faTasks, key: 'activeTasks', title: 'Active Tasks', description: 'In progress', color: 'text-secondary' },
-    { icon: faClock, key: 'totalHours', title: 'Total Hours', description: 'Tracked this month', color: 'text-accent' },
-    { icon: faFileInvoiceDollar, key: 'pendingInvoices', title: 'Pending Invoices', description: 'Awaiting payment', color: 'text-info' },
+    { icon: faProjectDiagram, key: 'totalProjects', title: this.contentStore.content('dashboard.stats.projects.title'), description: this.contentStore.content('dashboard.stats.projects.description'), color: 'text-primary' },
+    { icon: faTasks, key: 'activeTasks', title: this.contentStore.content('dashboard.stats.tasks.title'), description: this.contentStore.content('dashboard.stats.tasks.description'), color: 'text-secondary' },
+    { icon: faClock, key: 'totalHours', title: this.contentStore.content('dashboard.stats.hours.title'), description: this.contentStore.content('dashboard.stats.hours.description'), color: 'text-accent' },
+    { icon: faFileInvoiceDollar, key: 'pendingInvoices', title: this.contentStore.content('dashboard.stats.invoices.title'), description: this.contentStore.content('dashboard.stats.invoices.description'), color: 'text-info' },
   ];
 
   ngOnInit(): void {
@@ -135,7 +137,7 @@ export class DashboardComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.toast.error('Failed to load dashboard data');
+        this.toast.error(this.contentStore.content('dashboard.error.loadFailed'));
         this.loading.set(false);
       },
     });

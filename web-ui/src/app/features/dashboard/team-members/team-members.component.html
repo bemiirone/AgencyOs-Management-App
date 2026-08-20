@@ -1,4 +1,4 @@
-<app-content-card title="Team Members">
+<app-content-card [title]="title">
   <div class="mt-4">
     @if (members().length > 0) {
       <div class="space-y-3">
@@ -17,7 +17,7 @@
         }
       </div>
     } @else {
-      <p class="text-base-content/50 text-center py-4">No team members</p>
+      <p class="text-base-content/50 text-center py-4">{{ emptyMessage }}</p>
     }
   </div>
 </app-content-card>
