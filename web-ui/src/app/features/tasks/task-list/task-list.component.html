@@ -1,12 +1,12 @@
 <div class="p-6">
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
     <div>
-      <h1 class="text-3xl font-bold text-base-content">Tasks</h1>
-      <p class="text-base-content/60 mt-1">Track and manage all tasks across projects</p>
+      <h1 class="text-3xl font-bold text-base-content">{{ contentStore.content('tasks.title') }}</h1>
+      <p class="text-base-content/60 mt-1">{{ contentStore.content('tasks.subtitle') }}</p>
     </div>
     <a routerLink="/tasks/create" class="btn btn-primary">
       <fa-icon [icon]="faPlus" class="mr-2"></fa-icon>
-      New Task
+      {{ contentStore.content('tasks.newTask') }}
     </a>
   </div>
 
@@ -23,7 +23,7 @@
       <div class="flex flex-wrap gap-4 mt-4">
         <div class="form-control sm:w-48">
           <select [(ngModel)]="projectFilter" (ngModelChange)="onFilterChange()" class="select select-bordered">
-            <option value="">All Projects</option>
+            <option value="">{{ contentStore.content('tasks.filter.allProjects') }}</option>
             @for (project of projects(); track project._id) {
               <option [value]="project._id">{{ project.name }}</option>
             }
@@ -31,7 +31,7 @@
         </div>
         <div class="form-control sm:w-48">
           <select [(ngModel)]="assigneeFilter" (ngModelChange)="onFilterChange()" class="select select-bordered">
-            <option value="">All Assignees</option>
+            <option value="">{{ contentStore.content('tasks.filter.allAssignees') }}</option>
             @for (user of userStore.users(); track user.id) {
               <option [value]="user.id">{{ user.name }}</option>
             }
@@ -39,20 +39,20 @@
         </div>
         <div class="form-control sm:w-48">
           <select [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()" class="select select-bordered">
-            <option value="">All Statuses</option>
-            <option value="todo">To Do</option>
-            <option value="in_progress">In Progress</option>
-            <option value="in_review">In Review</option>
-            <option value="done">Done</option>
+            <option value="">{{ contentStore.content('tasks.filter.allStatuses') }}</option>
+            <option value="todo">{{ contentStore.content('status.todo') }}</option>
+            <option value="in_progress">{{ contentStore.content('status.inProgress') }}</option>
+            <option value="in_review">{{ contentStore.content('status.inReview') }}</option>
+            <option value="done">{{ contentStore.content('status.done') }}</option>
           </select>
         </div>
         <div class="form-control sm:w-48">
           <select [(ngModel)]="priorityFilter" (ngModelChange)="onFilterChange()" class="select select-bordered">
-            <option value="">All Priorities</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-            <option value="urgent">Urgent</option>
+            <option value="">{{ contentStore.content('tasks.filter.allPriorities') }}</option>
+            <option value="low">{{ contentStore.content('priority.low') }}</option>
+            <option value="medium">{{ contentStore.content('priority.medium') }}</option>
+            <option value="high">{{ contentStore.content('priority.high') }}</option>
+            <option value="urgent">{{ contentStore.content('priority.urgent') }}</option>
           </select>
         </div>
       </div>
@@ -139,7 +139,7 @@
               } @empty {
                 <tr>
                   <td colspan="8" class="text-center py-8 text-base-content/50">
-                    No tasks found
+                    {{ contentStore.content('tasks.empty') }}
                   </td>
                 </tr>
               }
@@ -181,10 +181,10 @@
 
   <app-confirm-dialog
     #deleteTaskDialog
-    title="Delete Task"
-    [message]="'Are you sure you want to delete \'' + (tasks().find(t => t._id === pendingDeleteTaskId())?.title || 'this task') + '\'? This action cannot be undone.'"
-    confirmText="Delete"
-    cancelText="Cancel"
+    [title]="contentStore.content('tasks.delete.confirmTitle')"
+    [message]="contentStore.contentWithParams('tasks.delete.confirmMessage', { title: tasks().find(t => t._id === pendingDeleteTaskId())?.title || 'this task' })"
+    [confirmText]="contentStore.content('common.delete')"
+    [cancelText]="contentStore.content('common.cancel')"
     variant="error"
     (confirmed)="confirmDeleteTask()"
   />

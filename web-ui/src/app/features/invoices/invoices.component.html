@@ -1,12 +1,12 @@
 <div class="p-6">
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
     <div>
-      <h1 class="text-3xl font-bold text-base-content">Invoices</h1>
-      <p class="text-base-content/60 mt-1">Manage and track all invoices</p>
+      <h1 class="text-3xl font-bold text-base-content">{{ contentStore.content('invoices.title') }}</h1>
+      <p class="text-base-content/60 mt-1">{{ contentStore.content('invoices.subtitle') }}</p>
     </div>
     <button [routerLink]="['/invoices/create']" class="btn btn-primary">
       <fa-icon [icon]="faPlus" class="mr-2"></fa-icon>
-      Generate Invoice
+      {{ contentStore.content('invoices.generateInvoice') }}
     </button>
   </div>
 
@@ -29,12 +29,12 @@
             (ngModelChange)="onStatusFilterChange()"
             class="select select-bordered w-full"
           >
-            <option value="">All Statuses</option>
-            <option value="draft">Draft</option>
-            <option value="sent">Sent</option>
-            <option value="paid">Paid</option>
-            <option value="overdue">Overdue</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="">{{ contentStore.content('invoices.filter.allStatuses') }}</option>
+            <option value="draft">{{ contentStore.content('invoice.status.draft') }}</option>
+            <option value="sent">{{ contentStore.content('invoice.status.sent') }}</option>
+            <option value="paid">{{ contentStore.content('invoice.status.paid') }}</option>
+            <option value="overdue">{{ contentStore.content('invoice.status.overdue') }}</option>
+            <option value="cancelled">{{ contentStore.content('invoice.status.cancelled') }}</option>
           </select>
         </div>
       </div>
@@ -101,7 +101,7 @@
               } @empty {
                 <tr>
                   <td colspan="9" class="text-center py-8 text-base-content/50">
-                    No invoices found
+                    {{ contentStore.content('invoices.empty') }}
                   </td>
                 </tr>
               }
@@ -113,8 +113,8 @@
 
   <app-confirm-dialog
     #confirmDialog
-    [message]="pendingAction === 'delete' ? 'Are you sure you want to delete this invoice?' : 'Are you sure you want to send this invoice to the client?'"
-    [confirmText]="pendingAction === 'delete' ? 'Delete' : 'Send'"
+    [message]="pendingAction === 'delete' ? contentStore.content('invoices.delete.confirmMessage') : contentStore.content('invoices.send.confirmMessage')"
+    [confirmText]="pendingAction === 'delete' ? contentStore.content('common.delete') : contentStore.content('invoices.send.action')"
     [variant]="pendingAction === 'delete' ? 'error' : 'info'"
     (confirmed)="onConfirm()"
   />

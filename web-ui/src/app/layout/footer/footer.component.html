@@ -3,10 +3,10 @@
     <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
       <div>
         <h3 class="text-sm font-semibold uppercase tracking-wider text-base-content">
-          AgencyOS
+          {{ contentStore.content('brand.name') }}
         </h3>
         <p class="mt-4 text-sm text-base-content/70">
-          Manage your agency projects, tasks, time tracking, and invoicing in one place.
+          {{ contentStore.content('brand.tagline') }}
         </p>
         <div class="mt-6 flex gap-4">
           <a href="#" class="text-base-content/60 hover:text-base-content transition-colors" aria-label="LinkedIn">
@@ -23,7 +23,7 @@
 
       <div>
         <h3 class="text-sm font-semibold uppercase tracking-wider text-base-content">
-          Platform
+          {{ contentStore.content('footer.platform') }}
         </h3>
         <ul class="mt-4 space-y-3">
           <li>
@@ -56,7 +56,7 @@
 
       <div>
         <h3 class="text-sm font-semibold uppercase tracking-wider text-base-content">
-          Resources
+          {{ contentStore.content('footer.resources') }}
         </h3>
         <ul class="mt-4 space-y-3">
           @for (page of pages(); track trackBySlug($index, page)) {
@@ -73,7 +73,7 @@
 
     <div class="mt-10 border-t border-base-content/10 pt-8">
       <p class="text-center text-sm text-base-content/60">
-        &copy; {{ currentYear }} AgencyOS. All rights reserved.
+        &copy; {{ currentYear }} {{ contentStore.content('brand.name') }}. All rights reserved.
       </p>
     </div>
   </div>

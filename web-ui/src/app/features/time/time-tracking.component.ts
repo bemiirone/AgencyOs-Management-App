@@ -7,6 +7,7 @@ import { TimeEntryStore } from '../../stores/time-entry.store';
 import { ProjectStore } from '../../stores/project.store';
 import { TaskStore } from '../../stores/task.store';
 import { AuthService } from '../../core/services/auth.service';
+import { ContentStore } from '../../stores/content.store';
 import { TimeEntry } from '../../shared/models/time-entry.model';
 import { Project } from '../../shared/models/project.model';
 import { Task } from '../../shared/models/task.model';
@@ -38,6 +39,7 @@ export class TimeTrackingComponent implements OnInit, OnDestroy {
   private readonly projectStore = inject(ProjectStore);
   private readonly taskStore = inject(TaskStore);
   private readonly authService = inject(AuthService);
+  readonly contentStore = inject(ContentStore);
 
   readonly currentUserId = signal<string | null>(null);
 

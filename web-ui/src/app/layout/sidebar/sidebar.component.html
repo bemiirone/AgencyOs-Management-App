@@ -1,6 +1,6 @@
 <div class="bg-base-100 min-h-full w-64 p-4 border-r border-base-200">
   <div class="mb-6 px-2">
-    <h2 class="text-2xl font-bold text-primary">AgencyOS</h2>
+    <h2 class="text-2xl font-bold text-primary">{{ contentStore.content('brand.name') }}</h2>
     @if (tenantName()) {
       <div class="flex items-center gap-2 mt-2">
         <fa-icon [icon]="faBuilding" class="text-xs text-base-content/50"></fa-icon>
@@ -18,7 +18,7 @@
           [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
         >
           <fa-icon [icon]="item.icon" class="w-5"></fa-icon>
-          {{ item.label }}
+          {{ contentStore.content(item.labelKey) }}
         </a>
       </li>
     }

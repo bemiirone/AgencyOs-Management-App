@@ -2,8 +2,8 @@
   <div class="card w-full max-w-md shadow-2xl bg-base-100">
     <div class="card-body">
       <div class="text-center mb-6">
-        <h1 class="text-3xl font-bold text-primary">AgencyOS</h1>
-        <p class="text-base-content/60 mt-2">Create your account</p>
+        <h1 class="text-3xl font-bold text-primary">{{ contentStore.content('brand.name') }}</h1>
+        <p class="text-base-content/60 mt-2">{{ contentStore.content('auth.register.title') }}</p>
       </div>
 
       @if (error()) {
@@ -16,7 +16,7 @@
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
         <div class="form-control mb-4">
           <label for="register-name" class="label">
-            <span class="label-text font-medium">Full Name</span>
+            <span class="label-text font-medium">{{ contentStore.content('auth.register.name.label') }}</span>
           </label>
           <div class="relative">
             <fa-icon [icon]="faUser" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
@@ -32,9 +32,9 @@
           @if (registerForm.get('name')?.invalid && registerForm.get('name')?.touched) {
             <div class="label">
               @if (registerForm.get('name')?.hasError('required')) {
-                <span class="label-text-alt text-error">Name is required</span>
+                <span class="label-text-alt text-error">{{ contentStore.content('auth.register.name.validation.required') }}</span>
               } @else if (registerForm.get('name')?.hasError('minlength')) {
-                <span class="label-text-alt text-error">Name must be at least 2 characters</span>
+                <span class="label-text-alt text-error">{{ contentStore.content('auth.register.name.validation.minLength') }}</span>
               }
             </div>
           }
@@ -42,7 +42,7 @@
 
         <div class="form-control mb-4">
           <label for="register-agency" class="label">
-            <span class="label-text font-medium">Agency Name</span>
+            <span class="label-text font-medium">{{ contentStore.content('auth.register.agencyName.label') }}</span>
           </label>
           <div class="relative">
             <fa-icon [icon]="faBuilding" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
@@ -68,7 +68,7 @@
 
         <div class="form-control mb-4">
           <label for="register-email" class="label">
-            <span class="label-text font-medium">Email</span>
+            <span class="label-text font-medium">{{ contentStore.content('auth.register.email.label') }}</span>
           </label>
           <div class="relative">
             <fa-icon [icon]="faEnvelope" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
@@ -94,7 +94,7 @@
 
         <div class="form-control mb-4">
           <label for="register-password" class="label">
-            <span class="label-text font-medium">Password</span>
+            <span class="label-text font-medium">{{ contentStore.content('auth.register.password.label') }}</span>
           </label>
           <div class="relative">
             <fa-icon [icon]="faLock" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
@@ -117,9 +117,9 @@
           @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
             <div class="label">
               @if (registerForm.get('password')?.hasError('required')) {
-                <span class="label-text-alt text-error">Password is required</span>
+                <span class="label-text-alt text-error">{{ contentStore.content('auth.register.password.validation') }}</span>
               } @else if (registerForm.get('password')?.hasError('minlength')) {
-                <span class="label-text-alt text-error">Password must be at least 8 characters</span>
+                <span class="label-text-alt text-error">{{ contentStore.content('auth.register.password.validation') }}</span>
               }
             </div>
           }
@@ -127,7 +127,7 @@
 
         <div class="form-control mb-6">
           <label for="register-confirm" class="label">
-            <span class="label-text font-medium">Confirm Password</span>
+            <span class="label-text font-medium">{{ contentStore.content('auth.register.confirmPassword.label') }}</span>
           </label>
           <div class="relative">
             <fa-icon [icon]="faLock" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
@@ -149,7 +149,7 @@
           </div>
           @if (registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.touched) {
             <div class="label">
-              <span class="label-text-alt text-error">Passwords do not match</span>
+              <span class="label-text-alt text-error">{{ contentStore.content('auth.register.confirmPassword.validation') }}</span>
             </div>
           }
         </div>
@@ -161,17 +161,17 @@
         >
           @if (loading()) {
             <fa-icon [icon]="faSpinner" class="animate-spin mr-2"></fa-icon>
-            Creating account...
+            {{ contentStore.content('auth.register.submitting') }}
           } @else {
-            Create Account
+            {{ contentStore.content('auth.register.submit') }}
           }
         </button>
       </form>
 
       <div class="text-center mt-4">
         <p class="text-base-content/60">
-          Already have an account?
-          <a routerLink="/login" class="link link-primary">Sign in</a>
+          {{ contentStore.content('auth.register.hasAccount') }}
+          <a routerLink="/login" class="link link-primary">{{ contentStore.content('auth.register.signIn') }}</a>
         </p>
       </div>
     </div>

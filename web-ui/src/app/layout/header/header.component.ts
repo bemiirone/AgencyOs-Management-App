@@ -5,6 +5,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faBars, faBell, faUser, faSignOutAlt, faChevronDown, faCheck, faBuilding, faExclamationTriangle, faSyncAlt } from '@fortawesome/free-solid-svg-icons';
 import { AuthService, Workspace } from '../../core/services/auth.service';
 import { NotificationStore } from '../../stores/notification.store';
+import { ContentStore } from '../../stores/content.store';
 import { Notification } from '../../shared/models/notification.model';
 import { ToastService } from '../../core/services/toast.service';
 
@@ -22,6 +23,7 @@ export class HeaderComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly notificationStore = inject(NotificationStore);
   private readonly router = inject(Router);
+  readonly contentStore = inject(ContentStore);
 
   readonly faBars = faBars;
   readonly faBell = faBell;

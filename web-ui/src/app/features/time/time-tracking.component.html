@@ -1,7 +1,7 @@
 <div class="p-6">
   <div class="mb-6">
-    <h1 class="text-3xl font-bold text-base-content">Time Tracking</h1>
-    <p class="text-base-content/60 mt-1">Track your time across projects and tasks</p>
+    <h1 class="text-3xl font-bold text-base-content">{{ contentStore.content('time.title') }}</h1>
+    <p class="text-base-content/60 mt-1">{{ contentStore.content('time.subtitle') }}</p>
   </div>
 
   @if (loading()) {
@@ -28,7 +28,7 @@
         <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-end">
           <div class="form-control flex-1">
             <label for="timer-project" class="label">
-              <span class="label-text font-medium">Project</span>
+              <span class="label-text font-medium">{{ contentStore.content('time.project.label') }}</span>
             </label>
             <select
               id="timer-project"
@@ -45,7 +45,7 @@
 
           <div class="form-control flex-1">
             <label for="timer-task" class="label">
-              <span class="label-text font-medium">Task (optional)</span>
+              <span class="label-text font-medium">{{ contentStore.content('time.task.label') }}</span>
             </label>
             <select id="timer-task" [(ngModel)]="selectedTaskId" class="select select-bordered w-full">
               <option value="">No task</option>
@@ -57,20 +57,20 @@
 
           <div class="form-control flex-2 flex-grow-2">
             <label for="timer-desc" class="label">
-              <span class="label-text font-medium">Description</span>
+              <span class="label-text font-medium">{{ contentStore.content('time.description.label') }}</span>
             </label>
             <input
               id="timer-desc"
               type="text"
               [(ngModel)]="timerDescription"
-              placeholder="What are you working on?"
+              placeholder="{{ contentStore.content('time.description.placeholder') }}"
               class="input input-bordered w-full"
             />
           </div>
 
           <div class="form-control">
             <label for="timer-billable" class="label cursor-pointer">
-              <span class="label-text font-medium">Billable</span>
+              <span class="label-text font-medium">{{ contentStore.content('time.billable') }}</span>
               <input id="timer-billable" type="checkbox" [(ngModel)]="isBillable" class="checkbox checkbox-primary" />
             </label>
           </div>
@@ -91,7 +91,7 @@
                 (click)="startTimer()"
               >
                 <fa-icon [icon]="faPlay" class="mr-2"></fa-icon>
-                Start
+                {{ contentStore.content('time.start') }}
               </button>
               @if (timeEntryStore.runningEntry()) {
                 <button class="btn btn-error" (click)="stopTimer()">
@@ -174,8 +174,8 @@
         } @empty {
           <div class="text-center py-12 text-base-content/50">
             <fa-icon [icon]="faClock" class="text-4xl mb-4"></fa-icon>
-            <p class="text-lg">No time entries yet</p>
-            <p class="text-sm mt-1">Start the timer to track your time</p>
+            <p class="text-lg">{{ contentStore.content('time.empty') }}</p>
+            <p class="text-sm mt-1">{{ contentStore.content('time.emptyHint') }}</p>
           </div>
         }
     </app-content-card>

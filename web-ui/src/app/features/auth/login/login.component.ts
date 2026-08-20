@@ -6,6 +6,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faEnvelope, faLock, faSpinner, faEye, faEyeSlash, faBuilding, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { AuthService, Workspace } from '../../../core/services/auth.service';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { ContentStore } from '../../../stores/content.store';
 
 @Component({
   selector: 'app-login',
@@ -18,6 +19,7 @@ import { ModalComponent } from '../../../shared/components/modal/modal.component
 export class LoginComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  readonly contentStore = inject(ContentStore);
 
   readonly faEnvelope = faEnvelope;
   readonly faLock = faLock;

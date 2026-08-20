@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faUser, faEnvelope, faLock, faSpinner, faEye, faEyeSlash, faBuilding } from '@fortawesome/free-solid-svg-icons';
 import { AuthService } from '../../../core/services/auth.service';
+import { ContentStore } from '../../../stores/content.store';
 
 function passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
   const password = group.get('password')?.value;
@@ -27,6 +28,7 @@ export class RegisterComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  readonly contentStore = inject(ContentStore);
 
   readonly faUser = faUser;
   readonly faEnvelope = faEnvelope;

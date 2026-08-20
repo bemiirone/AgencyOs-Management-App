@@ -15,6 +15,7 @@ import { Project } from '../../../shared/models/project.model';
 import { TaskStore } from '../../../stores/task.store';
 import { ProjectStore } from '../../../stores/project.store';
 import { UserStore } from '../../../stores/user.store';
+import { ContentStore } from '../../../stores/content.store';
 import { SearchCardComponent } from '../../../shared/components/search-card/search-card.component';
 import { ContentCardComponent } from '../../../shared/components/content-card/content-card.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -31,6 +32,7 @@ export class TaskListComponent implements OnInit {
   private readonly taskStore = inject(TaskStore);
   private readonly projectStore = inject(ProjectStore);
   readonly userStore = inject(UserStore);
+  readonly contentStore = inject(ContentStore);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   readonly Math = Math;
@@ -218,23 +220,23 @@ export class TaskListComponent implements OnInit {
   }
 
   getStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-      todo: 'To Do',
-      in_progress: 'In Progress',
-      in_review: 'In Review',
-      done: 'Done',
+    const keyMap: Record<string, string> = {
+      todo: 'status.todo',
+      in_progress: 'status.inProgress',
+      in_review: 'status.inReview',
+      done: 'status.done',
     };
-    return labels[status] || status;
+    return this.contentStore.content(keyMap[status] || status);
   }
 
   getPriorityLabel(priority: string): string {
-    const labels: Record<string, string> = {
-      low: 'Low',
-      medium: 'Medium',
-      high: 'High',
-      urgent: 'Urgent',
+    const keyMap: Record<string, string> = {
+      low: 'priority.low',
+      medium: 'priority.medium',
+      high: 'priority.high',
+      urgent: 'priority.urgent',
     };
-    return labels[priority] || priority;
+    return this.contentStore.content(keyMap[priority] || priority);
   }
 
   deleteTask(id: string): void {

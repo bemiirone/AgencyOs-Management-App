@@ -3,8 +3,8 @@
     <div class="card-body">
       @if (stage() === 1) {
         <div class="text-center mb-6">
-          <h1 class="text-3xl font-bold text-primary">AgencyOS</h1>
-          <p class="text-base-content/60 mt-2">Sign in to your account</p>
+          <h1 class="text-3xl font-bold text-primary">{{ contentStore.content('brand.name') }}</h1>
+          <p class="text-base-content/60 mt-2">{{ contentStore.content('auth.login.title') }}</p>
         </div>
 
         @if (error()) {
@@ -17,7 +17,7 @@
         <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
           <div class="form-control mb-4">
             <label for="login-email" class="label">
-              <span class="label-text font-medium">Email</span>
+              <span class="label-text font-medium">{{ contentStore.content('auth.login.email.label') }}</span>
             </label>
             <div class="relative">
               <fa-icon [icon]="faEnvelope" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
@@ -26,7 +26,7 @@
                 type="email"
                 [(ngModel)]="email"
                 name="email"
-                placeholder="you@example.com"
+                placeholder="{{ contentStore.content('auth.login.email.placeholder') }}"
                 class="input input-bordered w-full pl-10"
                 required
                 email
@@ -35,14 +35,14 @@
             </div>
             @if (emailModel.invalid && emailModel.touched) {
               <div class="label">
-                <span class="label-text-alt text-error">Please enter a valid email</span>
+                <span class="label-text-alt text-error">{{ contentStore.content('auth.login.email.validation') }}</span>
               </div>
             }
           </div>
 
           <div class="form-control mb-6">
             <label for="login-password" class="label">
-              <span class="label-text font-medium">Password</span>
+              <span class="label-text font-medium">{{ contentStore.content('auth.login.password.label') }}</span>
             </label>
             <div class="relative">
               <fa-icon [icon]="faLock" class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"></fa-icon>
@@ -51,7 +51,7 @@
                 [type]="showPassword() ? 'text' : 'password'"
                 [(ngModel)]="password"
                 name="password"
-                placeholder="Enter your password"
+                placeholder="{{ contentStore.content('auth.login.password.placeholder') }}"
                 class="input input-bordered w-full pl-10 pr-10"
                 required
                 minlength="6"
@@ -67,7 +67,7 @@
             </div>
             @if (passwordModel.invalid && passwordModel.touched) {
               <div class="label">
-                <span class="label-text-alt text-error">Password must be at least 6 characters</span>
+                <span class="label-text-alt text-error">{{ contentStore.content('auth.login.password.validation') }}</span>
               </div>
             }
           </div>
@@ -79,22 +79,22 @@
           >
             @if (loading()) {
               <fa-icon [icon]="faSpinner" class="animate-spin mr-2"></fa-icon>
-              Signing in...
+              {{ contentStore.content('auth.login.submitting') }}
             } @else {
-              Sign In
+              {{ contentStore.content('auth.login.submit') }}
             }
           </button>
         </form>
 
         <div class="text-center mt-4">
           <p class="text-base-content/60">
-            Don't have an account?
-            <a routerLink="/register" class="link link-primary">Register</a>
+            {{ contentStore.content('auth.login.noAccount') }}
+            <a routerLink="/register" class="link link-primary">{{ contentStore.content('auth.login.signUp') }}</a>
           </p>
         </div>
       } @else {
         <div class="text-center mb-6">
-          <h1 class="text-3xl font-bold text-primary">AgencyOS</h1>
+          <h1 class="text-3xl font-bold text-primary">{{ contentStore.content('brand.name') }}</h1>
           <p class="text-base-content/60 mt-2">Select your workspace</p>
           <p class="text-sm text-base-content/40 mt-1">Signed in as {{ email() }}</p>
         </div>
@@ -138,9 +138,9 @@
             >
               @if (loading()) {
                 <fa-icon [icon]="faSpinner" class="animate-spin mr-2"></fa-icon>
-                Loading...
+                {{ contentStore.content('common.loading') }}
               } @else {
-                Continue
+                {{ contentStore.content('auth.login.continue') }}
               }
             </button>
           </div>
@@ -149,22 +149,22 @@
     </div>
   </div>
 
-  <app-modal
-    [visible]="showDeactivatedModal()"
-    title="Workspace Deactivated"
-    (dismissed)="closeDeactivatedModal()"
-  >
-    <div class="space-y-4">
-      <div class="alert alert-warning">
-        <fa-icon [icon]="faBuilding" class="text-xl"></fa-icon>
-        <div>
-          <p class="font-medium">The workspace "{{ deactivatedWorkspaceName() }}" has been deactivated.</p>
-          <p class="text-sm mt-1">Please contact your administrator to reactivate this workspace.</p>
+    <app-modal
+      [visible]="showDeactivatedModal()"
+      title="Workspace Deactivated"
+      (dismissed)="closeDeactivatedModal()"
+    >
+      <div class="space-y-4">
+        <div class="alert alert-warning">
+          <fa-icon [icon]="faBuilding" class="text-xl"></fa-icon>
+          <div>
+            <p class="font-medium">The workspace "{{ deactivatedWorkspaceName() }}" has been deactivated.</p>
+            <p class="text-sm mt-1">Please contact your administrator to reactivate this workspace.</p>
+          </div>
         </div>
+        <button class="btn btn-primary w-full" (click)="closeDeactivatedModal()">
+          {{ contentStore.content('common.close') }}
+        </button>
       </div>
-      <button class="btn btn-primary w-full" (click)="closeDeactivatedModal()">
-        Close
-      </button>
-    </div>
-  </app-modal>
+    </app-modal>
 </div>

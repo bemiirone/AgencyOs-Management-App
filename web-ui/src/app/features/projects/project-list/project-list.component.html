@@ -1,13 +1,13 @@
 <div class="p-6">
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
     <div>
-      <h1 class="text-3xl font-bold text-base-content">Projects</h1>
-      <p class="text-base-content/60 mt-1">Manage and track all your projects</p>
+      <h1 class="text-3xl font-bold text-base-content">{{ contentStore.content('projects.title') }}</h1>
+      <p class="text-base-content/60 mt-1">{{ contentStore.content('projects.subtitle') }}</p>
     </div>
     @if (isAdmin()) {
       <button [routerLink]="['/projects/create']" class="btn btn-primary">
         <fa-icon [icon]="faPlus" class="mr-2"></fa-icon>
-        New Project
+        {{ contentStore.content('projects.newProject') }}
       </button>
     }
   </div>
@@ -76,7 +76,7 @@
               } @empty {
                 <tr>
                   <td colspan="6" class="text-center py-8 text-base-content/50">
-                    No projects found
+                    {{ contentStore.content('projects.empty') }}
                   </td>
                 </tr>
               }
@@ -118,10 +118,10 @@
 
   <app-confirm-dialog
     #deleteProjectDialog
-    title="Delete Project"
-    [message]="'Are you sure you want to delete \'' + (projects().find(p => p._id === pendingDeleteProjectId())?.name || 'this project') + '\'? This action cannot be undone.'"
-    confirmText="Delete"
-    cancelText="Cancel"
+    [title]="contentStore.content('projects.delete.confirmTitle')"
+    [message]="contentStore.contentWithParams('projects.delete.confirmMessage', { name: projects().find(p => p._id === pendingDeleteProjectId())?.name || 'this project' })"
+    [confirmText]="contentStore.content('common.delete')"
+    [cancelText]="contentStore.content('common.cancel')"
     variant="error"
     (confirmed)="confirmDeleteProject()"
   />

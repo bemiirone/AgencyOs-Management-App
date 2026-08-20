@@ -7,6 +7,7 @@ import { faPlus, faEye, faEdit, faTrash, faSearch, faSpinner, faPaperPlane } fro
 import { Invoice } from '../../shared/models/invoice.model';
 import { InvoiceStore } from '../../stores/invoice.store';
 import { ProjectStore } from '../../stores/project.store';
+import { ContentStore } from '../../stores/content.store';
 import { ContentCardComponent } from '../../shared/components/content-card/content-card.component';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
@@ -22,6 +23,7 @@ export class InvoicesComponent implements OnInit {
   private readonly projectStore = inject(ProjectStore);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  readonly contentStore = inject(ContentStore);
 
   readonly invoices = signal<Invoice[]>([]);
   readonly loading = signal(false);
@@ -85,24 +87,18 @@ export class InvoicesComponent implements OnInit {
   }
 
   getStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-      draft: 'Draft',
-      sent: 'Sent',
-      paid: 'Paid',
-      overdue: 'Overdue',
-      cancelled: 'Cancelled',
+    const keyMap: Record<string, string> = {
+      draft: 'invoice.status.draft',
+      sent: 'invoice.status.sent',
+      paid: 'invoice.status.paid',
+      overdue: 'invoice.status.overdue',
+      cancelled: 'invoice.status.cancelled',
     };
-    return labels[status] || status;
+    return this.contentStore.content(keyMap[status] || status);
   }
 
   getBillingTypeLabel(type: string): string {
-    const labels: Record<string, string> = {
-      budget: 'Budget',
-      hourly: 'Hourly',
-      daily: 'Daily',
-      manual: 'Manual',
-    };
-    return labels[type] || type;
+    return this.contentStore.content(`invoice.billingType.${type}`);
   }
 
   formatCurrency(amount: number): string {

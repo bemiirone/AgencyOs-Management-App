@@ -5,6 +5,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faLinkedin, faTwitter, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { PageService } from '../../shared/services/page.service';
 import { Page } from '../../shared/models/page.model';
+import { ContentStore } from '../../stores/content.store';
 
 @Component({
   selector: 'app-footer',
@@ -22,6 +23,7 @@ export class FooterComponent implements OnInit {
   readonly faGithub = faGithub;
 
   private readonly pageService = inject(PageService);
+  readonly contentStore = inject(ContentStore);
 
   ngOnInit(): void {
     this.pageService.getPages().subscribe({

@@ -6,7 +6,7 @@
   </div>
 
   <div class="flex-1">
-    <h1 class="text-xl font-semibold text-base-content/80">AgencyOS</h1>
+    <h1 class="text-xl font-semibold text-base-content/80">{{ contentStore.content('brand.name') }}</h1>
   </div>
 
   <div class="flex-none gap-2">
@@ -82,7 +82,7 @@
             }
           } @else {
             <div class="px-3 py-6 text-center text-base-content/40">
-              <p class="text-sm">No notifications</p>
+              <p class="text-sm">{{ contentStore.content('notifications.empty') }}</p>
             </div>
           }
         </div>
@@ -104,13 +104,13 @@
             </div>
           </a>
         </li>
-        <li><a routerLink="/settings"><fa-icon [icon]="faUser" class="w-4"></fa-icon> Profile</a></li>
+        <li><a routerLink="/settings"><fa-icon [icon]="faUser" class="w-4"></fa-icon> {{ contentStore.content('settings.profile.title') }}</a></li>
         <li><a tabindex="0" role="button" (click)="toggleNotifications()" (keydown.enter)="toggleNotifications()"><fa-icon [icon]="faBell" class="w-4"></fa-icon> Notifications</a></li>
         <div class="divider my-1"></div>
         <li>
           <a class="text-error" tabindex="0" role="button" (click)="onLogout()" (keydown.enter)="onLogout()">
             <fa-icon [icon]="faSignOutAlt" class="w-4"></fa-icon>
-            Logout
+            {{ contentStore.content('auth.logout') }}
           </a>
         </li>
       </ul>

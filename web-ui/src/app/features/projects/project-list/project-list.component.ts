@@ -7,6 +7,7 @@ import { faPlus, faEdit, faTrash, faSpinner } from '@fortawesome/free-solid-svg-
 import { Project } from '../../../shared/models/project.model';
 import { ProjectStore } from '../../../stores/project.store';
 import { AuthService } from '../../../core/services/auth.service';
+import { ContentStore } from '../../../stores/content.store';
 import { SearchCardComponent } from '../../../shared/components/search-card/search-card.component';
 import { ContentCardComponent } from '../../../shared/components/content-card/content-card.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -24,6 +25,7 @@ export class ProjectListComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  readonly contentStore = inject(ContentStore);
   readonly Math = Math;
   
   @ViewChild('deleteProjectDialog') deleteProjectDialog!: ConfirmDialogComponent;
@@ -164,14 +166,7 @@ export class ProjectListComponent implements OnInit {
   }
 
   getProjectStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-      draft: 'Draft',
-      active: 'Active',
-      on_hold: 'On Hold',
-      completed: 'Completed',
-      archived: 'Archived',
-    };
-    return labels[status] || status;
+    return this.contentStore.content(`project.status.${status}`);
   }
 
   deleteProject(id: string): void {
