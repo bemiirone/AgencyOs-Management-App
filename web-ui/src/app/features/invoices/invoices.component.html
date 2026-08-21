@@ -18,7 +18,7 @@
             <input
               type="text"
               [(ngModel)]="searchQuery"
-              placeholder="Search invoices..."
+              placeholder="{{ contentStore.content('invoices.search.placeholder') }}"
               class="input input-bordered w-full pl-10"
             />
           </div>
@@ -48,15 +48,15 @@
           <table class="table">
             <thead>
               <tr>
-                <th>Invoice #</th>
-                <th>Project</th>
-                <th>Task</th>
-                <th>Client</th>
-                <th>Billing Type</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Due Date</th>
-                <th>Actions</th>
+                <th>{{ contentStore.content('invoices.table.invoiceNumber') }}</th>
+                <th>{{ contentStore.content('invoices.table.project') }}</th>
+                <th>{{ contentStore.content('invoices.table.task') }}</th>
+                <th>{{ contentStore.content('invoices.table.client') }}</th>
+                <th>{{ contentStore.content('invoices.table.billingType') }}</th>
+                <th>{{ contentStore.content('invoices.table.amount') }}</th>
+                <th>{{ contentStore.content('invoices.table.status') }}</th>
+                <th>{{ contentStore.content('invoices.table.dueDate') }}</th>
+                <th>{{ contentStore.content('invoices.table.actions') }}</th>
               </tr>
             </thead>
             <tbody>

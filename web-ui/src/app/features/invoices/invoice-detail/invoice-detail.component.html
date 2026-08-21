@@ -2,29 +2,29 @@
   <div class="mb-6 flex justify-between items-center">
     <a routerLink="/invoices" queryParamsHandling="preserve" class="btn btn-ghost btn-sm gap-2">
       <fa-icon [icon]="faArrowLeft"></fa-icon>
-      Back to Invoices
+      {{ contentStore.content('invoice.detail.back') }}
     </a>
     @if (invoice(); as inv) {
       <div class="flex gap-2">
         @if (inv.status === 'draft') {
           <a [routerLink]="['/invoices', inv._id, 'edit']" queryParamsHandling="preserve" class="btn btn-primary btn-sm">
             <fa-icon [icon]="faEdit" class="mr-2"></fa-icon>
-            Edit
+            {{ contentStore.content('invoice.detail.edit') }}
           </a>
           <button class="btn btn-info btn-sm" (click)="openSendConfirm()">
             <fa-icon [icon]="faPaperPlane" class="mr-2"></fa-icon>
-            Send to Client
+            {{ contentStore.content('invoice.detail.sendToClient') }}
           </button>
         }
         @if (inv.status === 'sent') {
           <button class="btn btn-success btn-sm" (click)="openMarkPaidConfirm()">
             <fa-icon [icon]="faCheck" class="mr-2"></fa-icon>
-            Mark as Paid
+            {{ contentStore.content('invoice.detail.markAsPaid') }}
           </button>
         }
         <button class="btn btn-ghost btn-sm" onclick="window.print()">
           <fa-icon [icon]="faPrint" class="mr-2"></fa-icon>
-          Print
+          {{ contentStore.content('invoice.detail.print') }}
         </button>
       </div>
     }
@@ -40,79 +40,79 @@
         <div class="flex justify-between items-start mb-6">
           <div>
             <h2 class="card-title text-3xl">{{ inv.invoiceNumber }}</h2>
-            <p class="text-base-content/60 mt-1">Created: {{ formatDate(inv.createdAt) }}</p>
+            <p class="text-base-content/60 mt-1">{{ contentStore.content('invoice.detail.created') }} {{ formatDate(inv.createdAt) }}</p>
           </div>
           <span class="badge {{ getStatusClass(inv.status) }} badge-lg gap-1">
             {{ getStatusLabel(inv.status) }}
           </span>
         </div>
 
-        <div class="divider">Invoice Details</div>
+        <div class="divider">{{ contentStore.content('invoice.detail.section.details') }}</div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h3 class="text-lg font-semibold mb-2">Project</h3>
-            <p class="text-base-content/70">{{ inv.projectName || 'Unknown Project' }}</p>
+            <h3 class="text-lg font-semibold mb-2">{{ contentStore.content('invoice.detail.label.project') }}</h3>
+            <p class="text-base-content/70">{{ inv.projectName || contentStore.content('invoices.fallback.unknownProject') }}</p>
           </div>
 
           <div>
-            <h3 class="text-lg font-semibold mb-2">Billing Type</h3>
+            <h3 class="text-lg font-semibold mb-2">{{ contentStore.content('invoice.detail.label.billingType') }}</h3>
             <p class="text-base-content/70">{{ getBillingTypeLabel(inv.billingType) }}</p>
           </div>
 
           @if (inv.taskId) {
             <div>
-              <h3 class="text-lg font-semibold mb-2">Task</h3>
-              <p class="text-base-content/70">{{ inv.taskName || 'Task' }}</p>
+              <h3 class="text-lg font-semibold mb-2">{{ contentStore.content('invoice.detail.label.task') }}</h3>
+              <p class="text-base-content/70">{{ inv.taskName || contentStore.content('invoice.detail.label.task') }}</p>
             </div>
           }
 
           <div>
-            <h3 class="text-lg font-semibold mb-2">Client</h3>
+            <h3 class="text-lg font-semibold mb-2">{{ contentStore.content('invoice.detail.label.client') }}</h3>
             <p class="text-base-content/70">{{ inv.clientName }}</p>
             <p class="text-base-content/50 text-sm">{{ inv.clientEmail }}</p>
           </div>
 
           <div>
-            <h3 class="text-lg font-semibold mb-2">Due Date</h3>
+            <h3 class="text-lg font-semibold mb-2">{{ contentStore.content('invoice.detail.label.dueDate') }}</h3>
             <p class="text-base-content/70">{{ formatDate(inv.dueDate) }}</p>
           </div>
         </div>
 
         @if (inv.billingType === 'hourly' || inv.billingType === 'daily') {
-          <div class="divider">Time Aggregation</div>
+          <div class="divider">{{ contentStore.content('invoice.detail.section.timeAggregation') }}</div>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             @if (inv.dateRange) {
               <div>
-                <h4 class="text-sm font-medium text-base-content/60">Date Range</h4>
+                <h4 class="text-sm font-medium text-base-content/60">{{ contentStore.content('invoice.detail.label.dateRange') }}</h4>
                 <p>{{ formatDate(inv.dateRange.startDate) }} - {{ formatDate(inv.dateRange.endDate) }}</p>
               </div>
             }
             @if (inv.billingType === 'hourly') {
               <div>
-                <h4 class="text-sm font-medium text-base-content/60">Total Hours</h4>
-                <p>{{ inv.totalHours || 0 }} hours @ {{ formatCurrency(inv.hourlyRate || 0) }}/hr</p>
+                <h4 class="text-sm font-medium text-base-content/60">{{ contentStore.content('invoice.detail.label.totalHours') }}</h4>
+                <p>{{ inv.totalHours || 0 }} {{ contentStore.content('invoice.detail.unit.hours') }} @ {{ formatCurrency(inv.hourlyRate || 0) }}{{ contentStore.content('invoice.detail.unit.perHour') }}</p>
               </div>
             }
             @if (inv.billingType === 'daily') {
               <div>
-                <h4 class="text-sm font-medium text-base-content/60">Total Days</h4>
-                <p>{{ inv.totalDays || 0 }} days @ {{ formatCurrency(inv.dailyRate || 0) }}/day</p>
+                <h4 class="text-sm font-medium text-base-content/60">{{ contentStore.content('invoice.detail.label.totalDays') }}</h4>
+                <p>{{ inv.totalDays || 0 }} {{ contentStore.content('invoice.detail.unit.days') }} @ {{ formatCurrency(inv.dailyRate || 0) }}{{ contentStore.content('invoice.detail.unit.perDay') }}</p>
               </div>
             }
           </div>
         }
 
         @if (inv.lineItems && inv.lineItems.length > 0) {
-          <div class="divider">Line Items</div>
+          <div class="divider">{{ contentStore.content('invoice.detail.section.lineItems') }}</div>
           <div class="overflow-x-auto">
             <table class="table">
               <thead>
                 <tr>
-                  <th>Description</th>
-                  <th>Quantity</th>
-                  <th>Rate</th>
-                  <th>Amount</th>
+                  <th>{{ contentStore.content('invoice.detail.table.description') }}</th>
+                  <th>{{ contentStore.content('invoice.detail.table.quantity') }}</th>
+                  <th>{{ contentStore.content('invoice.detail.table.rate') }}</th>
+                  <th>{{ contentStore.content('invoice.detail.table.amount') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -130,14 +130,14 @@
         }
 
         @if (inv.expenses && inv.expenses.length > 0) {
-          <div class="divider">Expenses</div>
+          <div class="divider">{{ contentStore.content('invoice.detail.section.expenses') }}</div>
           <div class="overflow-x-auto">
             <table class="table">
               <thead>
                 <tr>
-                  <th>Description</th>
-                  <th>Amount</th>
-                  <th>Date</th>
+                  <th>{{ contentStore.content('invoice.detail.table.description') }}</th>
+                  <th>{{ contentStore.content('invoice.detail.table.amount') }}</th>
+                  <th>{{ contentStore.content('invoice.detail.table.date') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -153,26 +153,26 @@
           </div>
         }
 
-        <div class="divider">Summary</div>
+        <div class="divider">{{ contentStore.content('invoice.detail.section.summary') }}</div>
 
         <div class="flex justify-end">
           <div class="w-64">
             <div class="flex justify-between py-2">
-              <span class="text-base-content/70">Subtotal:</span>
+              <span class="text-base-content/70">{{ contentStore.content('invoice.detail.summary.subtotal') }}</span>
               <span class="font-medium">{{ formatCurrency(inv.subtotal) }}</span>
             </div>
             <div class="flex justify-between py-2">
-              <span class="text-base-content/70">Tax:</span>
+              <span class="text-base-content/70">{{ contentStore.content('invoice.detail.summary.tax') }}</span>
               <span class="font-medium">{{ formatCurrency(inv.tax || 0) }}</span>
             </div>
             <div class="divider my-1"></div>
             <div class="flex justify-between py-2 text-lg font-bold">
-              <span>Total:</span>
+              <span>{{ contentStore.content('invoice.detail.summary.total') }}</span>
               <span>{{ formatCurrency(inv.total) }}</span>
             </div>
             @if (inv.status === 'paid') {
               <div class="flex justify-between py-2 text-success">
-                <span>Paid:</span>
+                <span>{{ contentStore.content('invoice.detail.summary.paid') }}</span>
                 <span>{{ formatDate(inv.paidAt) }}</span>
               </div>
             }
@@ -180,7 +180,7 @@
         </div>
 
         @if (inv.notes) {
-          <div class="divider">Notes</div>
+          <div class="divider">{{ contentStore.content('invoice.detail.section.notes') }}</div>
           <p class="text-base-content/70 whitespace-pre-wrap">{{ inv.notes }}</p>
         }
       </div>
@@ -194,16 +194,16 @@
 
 <app-confirm-dialog
   #confirmDialog
-  message="Are you sure you want to send this invoice to the client?"
-  confirmText="Send"
+  [message]="contentStore.content('invoice.detail.confirm.send.message')"
+  [confirmText]="contentStore.content('invoice.detail.confirm.send.action')"
   variant="info"
   (confirmed)="sendInvoice()"
 />
 
 <app-confirm-dialog
   #markPaidDialog
-  message="Are you sure you want to mark this invoice as paid?"
-  confirmText="Mark as Paid"
+  [message]="contentStore.content('invoice.detail.confirm.markPaid.message')"
+  [confirmText]="contentStore.content('invoice.detail.confirm.markPaid.action')"
   variant="success"
   (confirmed)="markAsPaid()"
 />

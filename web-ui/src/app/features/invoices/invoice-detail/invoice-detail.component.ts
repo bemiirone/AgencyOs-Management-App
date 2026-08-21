@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowLeft, faSpinner, faEdit, faPaperPlane, faPrint, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { InvoiceStore } from '../../../stores/invoice.store';
+import { ContentStore } from '../../../stores/content.store';
 import { Invoice } from '../../../shared/models/invoice.model';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
@@ -17,6 +18,7 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
 export class InvoiceDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly invoiceStore = inject(InvoiceStore);
+  readonly contentStore = inject(ContentStore);
 
   readonly invoice = signal<Invoice | null>(null);
   readonly loading = signal(false);
@@ -42,7 +44,7 @@ export class InvoiceDetailComponent implements OnInit {
           this.loading.set(false);
         },
         error: () => {
-          this.error.set('Failed to load invoice');
+          this.error.set(this.contentStore.content('invoice.detail.error.loadFailed'));
           this.loading.set(false);
         },
       });
@@ -61,24 +63,24 @@ export class InvoiceDetailComponent implements OnInit {
   }
 
   getStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-      draft: 'Draft',
-      sent: 'Sent',
-      paid: 'Paid',
-      overdue: 'Overdue',
-      cancelled: 'Cancelled',
+    const keyMap: Record<string, string> = {
+      draft: 'invoice.status.draft',
+      sent: 'invoice.status.sent',
+      paid: 'invoice.status.paid',
+      overdue: 'invoice.status.overdue',
+      cancelled: 'invoice.status.cancelled',
     };
-    return labels[status] || status;
+    return this.contentStore.content(keyMap[status] || status);
   }
 
   getBillingTypeLabel(type: string): string {
-    const labels: Record<string, string> = {
-      budget: 'Project Budget',
-      hourly: 'Hourly Rate',
-      daily: 'Daily Rate',
-      manual: 'Manual Line Items',
+    const keyMap: Record<string, string> = {
+      budget: 'invoice.billingType.budget',
+      hourly: 'invoice.billingType.hourly',
+      daily: 'invoice.billingType.daily',
+      manual: 'invoice.billingType.manual',
     };
-    return labels[type] || type;
+    return this.contentStore.content(keyMap[type] || type);
   }
 
   formatCurrency(amount: number | undefined): string {

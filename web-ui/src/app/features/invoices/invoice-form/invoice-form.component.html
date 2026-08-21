@@ -2,7 +2,7 @@
   <div class="mb-6">
     <a routerLink="/invoices" queryParamsHandling="preserve" class="btn btn-ghost btn-sm gap-2">
       <fa-icon [icon]="faArrowLeft"></fa-icon>
-      Back to Invoices
+      {{ contentStore.content('invoice.form.back') }}
     </a>
   </div>
 
@@ -13,7 +13,7 @@
   } @else {
     <div class="card bg-base-100 shadow max-w-4xl">
       <div class="card-body">
-        <h2 class="card-title text-2xl mb-4">{{ mode() === 'create' ? 'Generate Invoice' : 'Edit Invoice' }}</h2>
+        <h2 class="card-title text-2xl mb-4">{{ mode() === 'create' ? contentStore.content('invoice.form.title.create') : contentStore.content('invoice.form.title.edit') }}</h2>
 
         @if (error()) {
           <div class="alert alert-error mb-4">
@@ -25,10 +25,10 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div class="form-control">
               <div class="label">
-                <span class="label-text font-medium">Project</span>
+                <span class="label-text font-medium">{{ contentStore.content('invoice.form.label.project') }}</span>
               </div>
               <select formControlName="projectId" class="select select-bordered w-full">
-                <option value="">Select Project</option>
+                <option value="">{{ contentStore.content('invoice.form.label.selectProject') }}</option>
                 @for (project of projects(); track project._id) {
                   <option [value]="project._id">{{ project.name }}</option>
                 }
@@ -37,10 +37,10 @@
 
             <div class="form-control">
               <div class="label">
-                <span class="label-text font-medium">Task (Optional)</span>
+                <span class="label-text font-medium">{{ contentStore.content('invoice.form.label.task') }}</span>
               </div>
               <select formControlName="taskId" class="select select-bordered w-full">
-                <option value="">All project tasks</option>
+                <option value="">{{ contentStore.content('invoice.form.label.allTasks') }}</option>
                 @for (task of tasks(); track task._id) {
                   <option [value]="task._id">{{ task.title }}</option>
                 }
@@ -50,7 +50,7 @@
 
           <div class="form-control mb-4">
             <div class="label">
-              <span class="label-text font-medium">Due Date</span>
+              <span class="label-text font-medium">{{ contentStore.content('invoice.form.label.dueDate') }}</span>
             </div>
             <input type="date" formControlName="dueDate" class="input input-bordered w-full" />
           </div>
@@ -58,39 +58,39 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div class="form-control">
               <div class="label">
-                <span class="label-text font-medium">Client Name</span>
+                <span class="label-text font-medium">{{ contentStore.content('invoice.form.label.clientName') }}</span>
               </div>
-              <input type="text" formControlName="clientName" class="input input-bordered w-full" placeholder="Client name" />
+              <input type="text" formControlName="clientName" class="input input-bordered w-full" placeholder="{{ contentStore.content('invoice.form.label.clientName.placeholder') }}" />
             </div>
 
             <div class="form-control">
               <div class="label">
-                <span class="label-text font-medium">Client Email</span>
+                <span class="label-text font-medium">{{ contentStore.content('invoice.form.label.clientEmail') }}</span>
               </div>
-              <input type="email" formControlName="clientEmail" class="input input-bordered w-full" placeholder="client@example.com" />
+              <input type="email" formControlName="clientEmail" class="input input-bordered w-full" placeholder="{{ contentStore.content('invoice.form.label.clientEmail.placeholder') }}" />
             </div>
           </div>
 
           <div class="form-control mb-4">
             <div class="label">
-              <span class="label-text font-medium">Billing Type</span>
+              <span class="label-text font-medium">{{ contentStore.content('invoice.form.label.billingType') }}</span>
             </div>
             <div class="flex gap-4">
               <label class="label cursor-pointer gap-2">
                 <input type="radio" formControlName="billingType" value="budget" class="radio radio-primary" />
-                <span class="label-text">Project Budget</span>
+                <span class="label-text">{{ contentStore.content('invoice.form.billingType.budget') }}</span>
               </label>
               <label class="label cursor-pointer gap-2">
                 <input type="radio" formControlName="billingType" value="hourly" class="radio radio-primary" />
-                <span class="label-text">Hourly Rate</span>
+                <span class="label-text">{{ contentStore.content('invoice.form.billingType.hourly') }}</span>
               </label>
               <label class="label cursor-pointer gap-2">
                 <input type="radio" formControlName="billingType" value="daily" class="radio radio-primary" />
-                <span class="label-text">Daily Rate</span>
+                <span class="label-text">{{ contentStore.content('invoice.form.billingType.daily') }}</span>
               </label>
               <label class="label cursor-pointer gap-2">
                 <input type="radio" formControlName="billingType" value="manual" class="radio radio-primary" />
-                <span class="label-text">Manual Line Items</span>
+                <span class="label-text">{{ contentStore.content('invoice.form.billingType.manual') }}</span>
               </label>
             </div>
           </div>
@@ -98,7 +98,7 @@
           @if (showProjectBudget) {
             <div class="form-control mb-4">
               <div class="label">
-                <span class="label-text font-medium">Amount (from Project Budget)</span>
+                <span class="label-text font-medium">{{ contentStore.content('invoice.form.label.amount') }}</span>
               </div>
               <input type="number" formControlName="amount" class="input input-bordered w-full" min="0" step="0.01" />
             </div>
@@ -107,16 +107,16 @@
           @if (showTimeSection) {
             <div class="form-control mb-4">
               <div class="label">
-                <span class="label-text font-medium">Time Input Method</span>
+                <span class="label-text font-medium">{{ contentStore.content('invoice.form.label.timeInputMethod') }}</span>
               </div>
               <div class="flex gap-4">
                 <label class="label cursor-pointer gap-2">
                   <input type="radio" [checked]="timeInputMode() === 'fetch'" (change)="onTimeInputModeChange('fetch')" class="radio radio-primary" />
-                  <span class="label-text">Fetch Time Entries</span>
+                  <span class="label-text">{{ contentStore.content('invoice.form.label.fetchTime') }}</span>
                 </label>
                 <label class="label cursor-pointer gap-2">
                   <input type="radio" [checked]="timeInputMode() === 'manual'" (change)="onTimeInputModeChange('manual')" class="radio radio-primary" />
-                  <span class="label-text">Manual Input</span>
+                  <span class="label-text">{{ contentStore.content('invoice.form.label.manualInput') }}</span>
                 </label>
               </div>
             </div>
@@ -127,27 +127,27 @@
               <div class="card-body p-4">
                 <h3 class="card-title text-lg mb-2">
                   <fa-icon [icon]="faClock" class="mr-2"></fa-icon>
-                  Fetch Time Entries
+                  {{ contentStore.content('invoice.form.section.fetchTime') }}
                 </h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   <div class="form-control">
                     <div class="label">
-                      <span class="label-text">Start Date</span>
+                      <span class="label-text">{{ contentStore.content('invoice.form.label.startDate') }}</span>
                     </div>
                     <input type="date" formControlName="startDate" class="input input-bordered w-full" />
                   </div>
 
                   <div class="form-control">
                     <div class="label">
-                      <span class="label-text">End Date</span>
+                      <span class="label-text">{{ contentStore.content('invoice.form.label.endDate') }}</span>
                     </div>
                     <input type="date" formControlName="endDate" class="input input-bordered w-full" />
                   </div>
 
                   <div class="form-control">
                     <div class="label">
-                      <span class="label-text">{{ billingType === 'hourly' ? 'Hourly Rate (£)' : 'Daily Rate (£)' }}</span>
+                      <span class="label-text">{{ billingType === 'hourly' ? contentStore.content('invoice.form.label.hourlyRate') : contentStore.content('invoice.form.label.dailyRate') }}</span>
                     </div>
                     <input type="number" [formControlName]="billingType === 'hourly' ? 'hourlyRate' : 'dailyRate'" class="input input-bordered w-full" min="0" step="0.01" />
                   </div>
@@ -156,21 +156,21 @@
                 <button type="button" class="btn btn-secondary btn-sm" (click)="aggregateTime()" [disabled]="aggregatingTime()">
                   @if (aggregatingTime()) {
                     <fa-icon [icon]="faSpinner" class="animate-spin mr-2"></fa-icon>
-                    Aggregating...
+                    {{ contentStore.content('invoice.form.button.aggregating') }}
                   } @else {
                     <fa-icon [icon]="faClock" class="mr-2"></fa-icon>
-                    Fetch Time Entries
+                    {{ contentStore.content('invoice.form.button.fetchTime') }}
                   }
                 </button>
 
                 @if (billingType === 'hourly') {
                   <div class="mt-2 text-sm text-base-content/70">
-                    Total Hours (rounded): {{ invoiceForm.get('totalHours')?.value || 0 }}
+                    {{ contentStore.content('invoice.form.info.totalHours') }} {{ invoiceForm.get('totalHours')?.value || 0 }}
                   </div>
                 }
                 @if (billingType === 'daily') {
                   <div class="mt-2 text-sm text-base-content/70">
-                    Total Days (rounded): {{ invoiceForm.get('totalDays')?.value || 0 }}
+                    {{ contentStore.content('invoice.form.info.totalDays') }} {{ invoiceForm.get('totalDays')?.value || 0 }}
                   </div>
                 }
               </div>
@@ -178,7 +178,7 @@
 
             <div class="form-control mb-4">
               <div class="label">
-                <span class="label-text font-medium">Calculated Amount</span>
+                <span class="label-text font-medium">{{ contentStore.content('invoice.form.label.amount') }}</span>
               </div>
               <input type="number" formControlName="amount" class="input input-bordered w-full" min="0" step="0.01" />
             </div>
@@ -189,22 +189,22 @@
               <div class="card-body p-4">
                 <h3 class="card-title text-lg mb-2">
                   <fa-icon [icon]="faClock" class="mr-2"></fa-icon>
-                  Manual Time Input
+                  {{ contentStore.content('invoice.form.section.manualTime') }}
                 </h3>
 
                 @if (billingType === 'hourly') {
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-control">
-                      <div class="label">
-                        <span class="label-text">Hours Worked</span>
-                      </div>
-                      <input type="number" formControlName="manualHours" class="input input-bordered w-full" min="0" step="0.1" placeholder="e.g., 6.5" />
+                    <div class="label">
+                      <span class="label-text">{{ contentStore.content('invoice.form.label.hoursWorked') }}</span>
                     </div>
+                    <input type="number" formControlName="manualHours" class="input input-bordered w-full" min="0" step="0.1" placeholder="e.g., 6.5" />
+                  </div>
 
-                    <div class="form-control">
-                      <div class="label">
-                        <span class="label-text">Hourly Rate (£)</span>
-                      </div>
+                  <div class="form-control">
+                    <div class="label">
+                      <span class="label-text">{{ contentStore.content('invoice.form.label.hourlyRate') }}</span>
+                    </div>
                       <input type="number" formControlName="hourlyRate" class="input input-bordered w-full" min="0" step="0.01" />
                     </div>
                   </div>
@@ -217,23 +217,23 @@
                 @if (billingType === 'daily') {
                   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="form-control">
-                      <div class="label">
-                        <span class="label-text">Hours Worked</span>
-                      </div>
-                      <input type="number" formControlName="manualHours" class="input input-bordered w-full" min="0" step="0.1" placeholder="e.g., 11" />
+                    <div class="label">
+                      <span class="label-text">{{ contentStore.content('invoice.form.label.hoursWorked') }}</span>
                     </div>
+                    <input type="number" formControlName="manualHours" class="input input-bordered w-full" min="0" step="0.1" placeholder="e.g., 11" />
+                  </div>
 
-                    <div class="form-control">
-                      <div class="label">
-                        <span class="label-text">Work Day Length (hours)</span>
-                      </div>
-                      <input type="number" formControlName="workDayHours" class="input input-bordered w-full" min="1" step="0.5" placeholder="e.g., 8" />
+                  <div class="form-control">
+                    <div class="label">
+                      <span class="label-text">{{ contentStore.content('invoice.form.label.workDayLength') }}</span>
                     </div>
+                    <input type="number" formControlName="workDayHours" class="input input-bordered w-full" min="1" step="0.5" placeholder="e.g., 8" />
+                  </div>
 
-                    <div class="form-control">
-                      <div class="label">
-                        <span class="label-text">Daily Rate (£)</span>
-                      </div>
+                  <div class="form-control">
+                    <div class="label">
+                      <span class="label-text">{{ contentStore.content('invoice.form.label.dailyRate') }}</span>
+                    </div>
                       <input type="number" formControlName="dailyRate" class="input input-bordered w-full" min="0" step="0.01" />
                     </div>
                   </div>
@@ -250,10 +250,10 @@
             <div class="card bg-base-200 mb-4">
               <div class="card-body p-4">
                 <div class="flex justify-between items-center mb-2">
-                  <h3 class="card-title text-lg">Line Items</h3>
+                  <h3 class="card-title text-lg">{{ contentStore.content('invoice.form.section.lineItems') }}</h3>
                   <button type="button" class="btn btn-sm btn-primary" (click)="addLineItem()">
                     <fa-icon [icon]="faPlus" class="mr-2"></fa-icon>
-                    Add Line Item
+                    {{ contentStore.content('invoice.form.button.addLineItem') }}
                   </button>
                 </div>
 
@@ -261,7 +261,7 @@
                   @for (item of lineItems.controls; track $index) {
                     <div [formGroupName]="$index" class="grid grid-cols-12 gap-2 mb-2 items-end">
                       <div class="col-span-4 form-control">
-                        <input type="text" formControlName="description" class="input input-bordered input-sm w-full" placeholder="Description" />
+                        <input type="text" formControlName="description" class="input input-bordered input-sm w-full" placeholder="{{ contentStore.content('invoice.detail.table.description') }}" />
                       </div>
                       <div class="col-span-2 form-control">
                         <input type="number" formControlName="quantity" class="input input-bordered input-sm w-full" placeholder="Qty" min="0" step="1" (input)="onLineItemChange()" />
@@ -270,7 +270,7 @@
                         <input type="number" formControlName="rate" class="input input-bordered input-sm w-full" placeholder="Rate" min="0" step="0.01" (input)="onLineItemChange()" />
                       </div>
                       <div class="col-span-3 form-control">
-                        <input type="number" formControlName="amount" class="input input-bordered input-sm w-full" placeholder="Amount" min="0" step="0.01" readonly />
+                        <input type="number" formControlName="amount" class="input input-bordered input-sm w-full" placeholder="{{ contentStore.content('invoice.detail.table.amount') }}" min="0" step="0.01" readonly />
                       </div>
                       <div class="col-span-1">
                         <button type="button" class="btn btn-sm btn-error btn-ghost" (click)="removeLineItem($index)">
@@ -286,7 +286,7 @@
 
           <div class="form-control mb-4">
             <label class="label cursor-pointer">
-              <span class="label-text font-medium">Add Expenses</span>
+              <span class="label-text font-medium">{{ contentStore.content('invoice.form.label.addExpenses') }}</span>
               <input type="checkbox" class="toggle toggle-primary" [checked]="expenses.length > 0" (change)="expenses.length === 0 ? addExpense() : clearExpenses()" />
             </label>
           </div>
@@ -295,10 +295,10 @@
             <div class="card bg-base-200 mb-4">
               <div class="card-body p-4">
                 <div class="flex justify-between items-center mb-2">
-                  <h3 class="card-title text-lg">Expenses</h3>
+                  <h3 class="card-title text-lg">{{ contentStore.content('invoice.form.section.expenses') }}</h3>
                   <button type="button" class="btn btn-sm btn-primary" (click)="addExpense()">
                     <fa-icon [icon]="faPlus" class="mr-2"></fa-icon>
-                    Add Expense
+                    {{ contentStore.content('invoice.form.button.addExpense') }}
                   </button>
                 </div>
 
@@ -306,10 +306,10 @@
                   @for (expense of expenses.controls; track $index) {
                     <div [formGroupName]="$index" class="grid grid-cols-12 gap-2 mb-2 items-end">
                       <div class="col-span-5 form-control">
-                        <input type="text" formControlName="description" class="input input-bordered input-sm w-full" placeholder="Description" />
+                        <input type="text" formControlName="description" class="input input-bordered input-sm w-full" placeholder="{{ contentStore.content('invoice.detail.table.description') }}" />
                       </div>
                       <div class="col-span-3 form-control">
-                        <input type="number" formControlName="amount" class="input input-bordered input-sm w-full" placeholder="Amount" min="0" step="0.01" (input)="updateExpenseTotals()" />
+                        <input type="number" formControlName="amount" class="input input-bordered input-sm w-full" placeholder="{{ contentStore.content('invoice.detail.table.amount') }}" min="0" step="0.01" (input)="updateExpenseTotals()" />
                       </div>
                       <div class="col-span-3 form-control">
                         <input type="date" formControlName="date" class="input input-bordered input-sm w-full" />
@@ -329,14 +329,14 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div class="form-control">
               <div class="label">
-                <span class="label-text font-medium">Subtotal</span>
+                <span class="label-text font-medium">{{ contentStore.content('invoice.form.label.subtotal') }}</span>
               </div>
               <input type="number" formControlName="subtotal" class="input input-bordered w-full" readonly />
             </div>
 
             <div class="form-control">
               <div class="label">
-                <span class="label-text font-medium">Tax (£)</span>
+                <span class="label-text font-medium">{{ contentStore.content('invoice.form.label.tax') }}</span>
               </div>
               <input type="number" formControlName="tax" class="input input-bordered w-full" min="0" step="0.01" />
             </div>
@@ -344,28 +344,28 @@
 
           <div class="alert alert-info mb-4">
             <div>
-              <strong>Total: {{ total | currency:'GBP':'symbol':'1.2-2' }}</strong>
+              <strong>{{ contentStore.content('invoice.form.label.total') }} {{ total | currency:'GBP':'symbol':'1.2-2' }}</strong>
             </div>
           </div>
 
           <div class="form-control mb-6">
             <div class="label">
-              <span class="label-text font-medium">Notes</span>
+              <span class="label-text font-medium">{{ contentStore.content('invoice.form.label.notes') }}</span>
             </div>
-            <textarea formControlName="notes" class="textarea textarea-bordered w-full" rows="3" placeholder="Additional notes..."></textarea>
+            <textarea formControlName="notes" class="textarea textarea-bordered w-full" rows="3" placeholder="{{ contentStore.content('invoice.form.label.notes.placeholder') }}"></textarea>
           </div>
 
           <div class="flex gap-3">
             <button type="submit" class="btn btn-primary flex-1" [disabled]="invoiceForm.invalid || saving()">
               @if (saving()) {
                 <fa-icon [icon]="faSpinner" class="animate-spin mr-2"></fa-icon>
-                {{ mode() === 'create' ? 'Creating...' : 'Saving...' }}
+                {{ mode() === 'create' ? contentStore.content('invoice.form.button.creating') : contentStore.content('invoice.form.button.saving') }}
               } @else {
                 <fa-icon [icon]="faSave" class="mr-2"></fa-icon>
-                {{ mode() === 'create' ? 'Generate Invoice' : 'Save Changes' }}
+                {{ mode() === 'create' ? contentStore.content('invoice.form.button.generate') : contentStore.content('invoice.form.button.saveChanges') }}
               }
             </button>
-            <a [routerLink]="mode() === 'create' ? '/invoices' : ['/invoices', invoiceId()]" queryParamsHandling="preserve" class="btn btn-ghost">Cancel</a>
+            <a [routerLink]="mode() === 'create' ? '/invoices' : ['/invoices', invoiceId()]" queryParamsHandling="preserve" class="btn btn-ghost">{{ contentStore.content('invoice.form.button.cancel') }}</a>
           </div>
         </form>
       </div>

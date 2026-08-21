@@ -8,6 +8,7 @@ import { faArrowLeft, faSpinner, faSave, faPlus, faTrash, faClock } from '@forta
 import { InvoiceStore, CreateInvoicePayload, UpdateInvoicePayload } from '../../../stores/invoice.store';
 import { ProjectStore } from '../../../stores/project.store';
 import { TaskStore } from '../../../stores/task.store';
+import { ContentStore } from '../../../stores/content.store';
 import { Project } from '../../../shared/models/project.model';
 import { Task } from '../../../shared/models/task.model';
 import { Invoice, InvoiceLineItem, InvoiceExpense, TimeAggregationResult } from '../../../shared/models/invoice.model';
@@ -27,6 +28,7 @@ export class InvoiceFormComponent implements OnInit {
   private readonly taskStore = inject(TaskStore);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
+  readonly contentStore = inject(ContentStore);
 
   readonly mode = signal<'create' | 'edit'>('create');
   readonly loading = signal(false);
@@ -165,7 +167,7 @@ export class InvoiceFormComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Failed to load invoice');
+        this.error.set(this.contentStore.content('invoice.form.error.loadFailed'));
         this.loading.set(false);
       },
     });
@@ -396,7 +398,7 @@ export class InvoiceFormComponent implements OnInit {
     const endDate = this.invoiceForm.get('endDate')?.value;
 
     if (!projectId || !startDate || !endDate) {
-      this.error.set('Please select project and date range');
+      this.error.set(this.contentStore.content('invoice.form.error.selectProjectDate'));
       return;
     }
 
@@ -406,7 +408,7 @@ export class InvoiceFormComponent implements OnInit {
       : this.invoiceForm.get('dailyRate')?.value || 0;
 
     if (!rate) {
-      this.error.set('Please enter a rate');
+      this.error.set(this.contentStore.content('invoice.form.error.enterRate'));
       return;
     }
 
@@ -518,7 +520,7 @@ export class InvoiceFormComponent implements OnInit {
         },
         error: (err: unknown) => {
           const error = err as { error?: { message?: string } };
-          this.error.set(error.error?.message || 'Failed to create invoice');
+          this.error.set(error.error?.message || this.contentStore.content('invoice.form.error.createFailed'));
           this.saving.set(false);
         },
       });
@@ -572,7 +574,7 @@ export class InvoiceFormComponent implements OnInit {
         },
         error: (err: unknown) => {
           const error = err as { error?: { message?: string } };
-          this.error.set(error.error?.message || 'Failed to update invoice');
+          this.error.set(error.error?.message || this.contentStore.content('invoice.form.error.updateFailed'));
           this.saving.set(false);
         },
       });
