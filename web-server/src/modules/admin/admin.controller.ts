@@ -150,4 +150,10 @@ export class AdminController {
   async bulkUpsertContent(@Body() dto: { entries: ContentEntry[] }) {
     return this.contentService.bulkUpsert(dto.entries);
   }
+
+  @Post('content')
+  @ApiOperation({ summary: 'Create a new content entry' })
+  async createContent(@Body() entry: ContentEntry) {
+    return this.contentService.upsert(entry);
+  }
 }

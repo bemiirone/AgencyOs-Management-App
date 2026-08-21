@@ -91,4 +91,8 @@ export class AdminApiService {
   bulkUpdateContent(entries: BulkContentRequest['entries']): Observable<ContentEntry[]> {
     return this.http.post<ContentEntry[]>(`${this.apiUrl}/content/bulk`, { entries });
   }
+
+  createContent(data: ContentEntry): Observable<ContentEntry> {
+    return this.http.post<ContentEntry>(`${this.apiUrl}/content`, data);
+  }
 }

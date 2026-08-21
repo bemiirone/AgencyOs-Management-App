@@ -1,7 +1,13 @@
 <mat-card>
-  <mat-card-header>
-    <mat-card-title>Content Management</mat-card-title>
-    <mat-card-subtitle>Manage application text, labels, and messages</mat-card-subtitle>
+  <mat-card-header class="justify-between">
+    <div>
+      <mat-card-title>Content Management</mat-card-title>
+      <mat-card-subtitle>Manage application text, labels, and messages</mat-card-subtitle>
+    </div>
+    <button mat-raised-button color="primary" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      Add Content
+    </button>
   </mat-card-header>
 
   <mat-card-content class="mt-4">

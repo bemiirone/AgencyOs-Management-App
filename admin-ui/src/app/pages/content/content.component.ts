@@ -11,7 +11,9 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { FormsModule } from '@angular/forms';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AdminApiService, ContentEntry } from '../../services/admin-api.service';
+import { ContentDialogComponent } from '../../components/content-dialog/content-dialog.component';
 
 @Component({
   selector: 'admin-content',
@@ -29,6 +31,7 @@ import { AdminApiService, ContentEntry } from '../../services/admin-api.service'
     MatProgressSpinnerModule,
     MatChipsModule,
     FormsModule,
+    MatDialogModule,
   ],
   templateUrl: './content.component.html',
   styleUrl: './content.component.scss',
@@ -37,6 +40,7 @@ export class ContentComponent implements OnInit {
   private adminApi = inject(AdminApiService);
   private snackBar = inject(MatSnackBar);
   private cdr = inject(ChangeDetectorRef);
+  private dialog = inject(MatDialog);
 
   dataSource = new MatTableDataSource<ContentEntry>([]);
   displayedColumns: string[] = ['key', 'value', 'category', 'description', 'actions'];
@@ -118,6 +122,29 @@ export class ContentComponent implements OnInit {
         this.isSaving = false;
         this.snackBar.open('Failed to update content', 'Close', { duration: 3000 });
       },
+    });
+  }
+
+  openCreateDialog(): void {
+    const dialogRef = this.dialog.open(ContentDialogComponent, {
+      width: '500px',
+      data: { mode: 'create', categories: this.categories },
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.adminApi.createContent(result).subscribe({
+          next: () => {
+            this.snackBar.open('Content added', 'Close', { duration: 2000 });
+            if (result.category && !this.categories.includes(result.category)) {
+              this.categories.push(result.category);
+              this.categories.sort();
+            }
+            this.loadContent();
+          },
+          error: () => this.snackBar.open('Failed to add content', 'Close', { duration: 3000 }),
+        });
+      }
     });
   }
 }

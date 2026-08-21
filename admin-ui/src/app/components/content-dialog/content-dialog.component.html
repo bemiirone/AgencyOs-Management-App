@@ -1,0 +1,49 @@
+<h2 mat-dialog-title>{{ data.mode === 'create' ? 'Add Content' : 'Edit Content' }}</h2>
+
+<mat-dialog-content class="mat-typography">
+  <form class="dialog-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Key</mat-label>
+      <input matInput [(ngModel)]="key" name="key" placeholder="e.g., dashboard.welcome" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Value</mat-label>
+      <textarea matInput [(ngModel)]="value" name="value" rows="3" required></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Category</mat-label>
+      <mat-select [(ngModel)]="category" name="category" required>
+        @for (cat of data.categories; track cat) {
+          <mat-option [value]="cat">{{ cat }}</mat-option>
+        }
+        <mat-option value="__new__">Add new category...</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    @if (category === '__new__') {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>New Category Name</mat-label>
+        <input matInput [(ngModel)]="newCategoryName" name="newCategory" placeholder="e.g., dashboard" />
+      </mat-form-field>
+    }
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Locale</mat-label>
+      <input matInput [(ngModel)]="locale" name="locale" placeholder="en" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Description (optional)</mat-label>
+      <input matInput [(ngModel)]="description" name="description" placeholder="Context for this content entry" />
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="save()" [disabled]="!key.trim() || !value.trim() || (!category && !newCategoryName.trim())">
+    {{ data.mode === 'create' ? 'Add' : 'Save' }}
+  </button>
+</mat-dialog-actions>
