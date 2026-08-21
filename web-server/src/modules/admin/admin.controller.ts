@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { IsString, IsOptional, IsNumber, IsArray, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { AdminService } from './admin.service';
 import { PageService } from '../page/page.service';
 import { FaqService } from '../faq/faq.service';
+import { ContentService, ContentEntry } from '../content/content.service';
 import { AdminJwtAuthGuard } from '../../common/guards/admin-jwt-auth.guard';
 import { CreatePageDto, UpdatePageDto } from '../page/dto/page.dto';
 
@@ -56,6 +57,7 @@ export class AdminController {
     private readonly adminService: AdminService,
     private readonly pageService: PageService,
     private readonly faqService: FaqService,
+    private readonly contentService: ContentService,
   ) {}
 
   @Get('tenants')
@@ -125,5 +127,27 @@ export class AdminController {
   @ApiOperation({ summary: 'Delete an FAQ group' })
   async deleteFaq(@Param('id') id: string) {
     return this.faqService.delete(id);
+  }
+
+  @Get('content')
+  @ApiOperation({ summary: 'Get all content entries (admin only)' })
+  async findAllContent() {
+    return this.contentService.findAll();
+  }
+
+  @Patch('content/:key')
+  @ApiOperation({ summary: 'Update a content entry value' })
+  async updateContent(
+    @Param('key') key: string,
+    @Body('value') value: string,
+    @Query('locale') locale?: string,
+  ) {
+    return this.contentService.update(key, value, locale);
+  }
+
+  @Post('content/bulk')
+  @ApiOperation({ summary: 'Bulk upsert content entries' })
+  async bulkUpsertContent(@Body() dto: { entries: ContentEntry[] }) {
+    return this.contentService.bulkUpsert(dto.entries);
   }
 }
