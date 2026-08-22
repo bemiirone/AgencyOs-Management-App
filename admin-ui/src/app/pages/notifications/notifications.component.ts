@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -41,6 +41,7 @@ interface NotificationTypeSection {
 export class NotificationsComponent implements OnInit {
   private adminApi = inject(AdminApiService);
   private snackBar = inject(MatSnackBar);
+  private cdr = inject(ChangeDetectorRef);
 
   settings: NotificationSettings | null = null;
   isLoading = true;
@@ -53,6 +54,29 @@ export class NotificationsComponent implements OnInit {
     { key: 'taskOverdue', label: 'Task Overdue', description: 'Triggered when a task has passed its deadline' },
   ];
 
+  private readonly defaults: Record<string, NotificationTypeConfig> = {
+    projectDueSoon: {
+      enabled: true,
+      titleTemplate: "Project '{{name}}' due in less than a week",
+      messageTemplate: "The project '{{name}}' has a deadline approaching. Please review progress.",
+    },
+    projectOverdue: {
+      enabled: true,
+      titleTemplate: "Project '{{name}}' is overdue",
+      messageTemplate: "The project '{{name}}' has exceeded its deadline. Immediate attention required.",
+    },
+    taskDueSoon: {
+      enabled: true,
+      titleTemplate: "Task '{{title}}' due in less than a week",
+      messageTemplate: "The task '{{title}}' has a deadline approaching.",
+    },
+    taskOverdue: {
+      enabled: true,
+      titleTemplate: "Task '{{title}}' is overdue",
+      messageTemplate: "The task '{{title}}' has exceeded its deadline.",
+    },
+  };
+
   ngOnInit(): void {
     this.loadSettings();
   }
@@ -61,14 +85,25 @@ export class NotificationsComponent implements OnInit {
     this.isLoading = true;
     this.adminApi.getNotificationSettings().subscribe({
       next: (data) => {
-        this.settings = data;
+        this.settings = this.ensureDefaults(data);
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.isLoading = false;
         this.snackBar.open('Failed to load notification settings', 'Close', { duration: 3000 });
       },
     });
+  }
+
+  private ensureDefaults(settings: NotificationSettings): NotificationSettings {
+    const keys = ['projectDueSoon', 'projectOverdue', 'taskDueSoon', 'taskOverdue'] as const;
+    for (const key of keys) {
+      if (!settings[key]) {
+        (settings as any)[key] = { ...this.defaults[key] };
+      }
+    }
+    return settings;
   }
 
   saveSettings(): void {
@@ -88,29 +123,7 @@ export class NotificationsComponent implements OnInit {
 
   resetToDefaults(section: NotificationTypeSection): void {
     if (!this.settings) return;
-    const defaults: Record<string, NotificationTypeConfig> = {
-      projectDueSoon: {
-        enabled: true,
-        titleTemplate: "Project '{{name}}' due in less than a week",
-        messageTemplate: "The project '{{name}}' has a deadline approaching. Please review progress.",
-      },
-      projectOverdue: {
-        enabled: true,
-        titleTemplate: "Project '{{name}}' is overdue",
-        messageTemplate: "The project '{{name}}' has exceeded its deadline. Immediate attention required.",
-      },
-      taskDueSoon: {
-        enabled: true,
-        titleTemplate: "Task '{{title}}' due in less than a week",
-        messageTemplate: "The task '{{title}}' has a deadline approaching.",
-      },
-      taskOverdue: {
-        enabled: true,
-        titleTemplate: "Task '{{title}}' is overdue",
-        messageTemplate: "The task '{{title}}' has exceeded its deadline.",
-      },
-    };
-    this.settings[section.key] = { ...defaults[section.key] };
+    this.settings[section.key] = { ...this.defaults[section.key] };
   }
 
   formatLastRun(date?: string): string {
