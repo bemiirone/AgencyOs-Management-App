@@ -5,6 +5,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FaqService, FaqHeading } from '../../../shared/services/faq.service';
 import { SearchCardComponent } from '../../../shared/components/search-card/search-card.component';
 import { FaqAccordionComponent } from './components/faq-accordion/faq-accordion.component';
+import { ContentStore } from '../../../stores/content.store';
 
 @Component({
   selector: 'app-faq-page',
@@ -20,7 +21,7 @@ export class FaqPageComponent implements OnInit {
   readonly expandedHeadings = signal<Set<string>>(new Set());
   readonly expandedQuestions = signal<Set<string>>(new Set());
   readonly searchQuery = signal('');
-
+  readonly contentStore = inject(ContentStore);
   private readonly faqService = inject(FaqService);
 
   readonly filteredFaqs = computed(() => {

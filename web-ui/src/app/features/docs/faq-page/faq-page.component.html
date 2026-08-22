@@ -9,7 +9,7 @@
     <app-search-card
       [searchQuery]="searchQuery()"
       [resultCount]="resultCount()"
-      placeholder="Search FAQs by topic, question, or answer..."
+      placeholder="{{contentStore.content('docs.faq.searchcard.placeholder')}}"
       (searchChange)="onSearchChange($event)"
       (clear)="onClearSearch()"
     />
