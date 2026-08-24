@@ -4,21 +4,45 @@ import { catchError, tap, throwError } from 'rxjs';
 import { TimeEntry } from '../shared/models/time-entry.model';
 import { API_CONFIG } from '../core/config/api.config';
 import { ToastService } from '../core/services/toast.service';
+import { WebSocketService } from '../core/services/websocket.service';
 
 @Injectable({ providedIn: 'root' })
 export class TimeEntryStore {
   private http = inject(HttpClient);
   private toast = inject(ToastService);
+  private ws = inject(WebSocketService);
 
   private _entries = signal<TimeEntry[]>([]);
   private _runningEntry = signal<TimeEntry | null>(null);
   private _isLoading = signal(false);
   private _error = signal<string | null>(null);
+  private _elapsedSeconds = signal(0);
 
   entries = computed(() => this._entries());
   runningEntry = computed(() => this._runningEntry());
   isLoading = computed(() => this._isLoading());
   error = computed(() => this._error());
+  elapsedSeconds = computed(() => this._elapsedSeconds());
+
+  constructor() {
+    this.ws.on<{ timeEntryId: string; elapsed: number }>('timerTick', (data) => {
+      if (this._runningEntry()?._id === data.timeEntryId) {
+        this._elapsedSeconds.set(data.elapsed);
+      }
+    });
+
+    this.ws.on<{ timeEntryId: string; duration: number }>('timerStopped', (data) => {
+      if (this._runningEntry()?._id === data.timeEntryId) {
+        this._runningEntry.set(null);
+        this._elapsedSeconds.set(0);
+        this._entries.update((entries) =>
+          entries.map((e) =>
+            e._id === data.timeEntryId ? { ...e, isRunning: false, duration: data.duration } : e
+          )
+        );
+      }
+    });
+  }
 
   loadEntries(userId?: string) {
     this._isLoading.set(true);
@@ -113,7 +137,9 @@ export class TimeEntryStore {
         this._runningEntry.set(entry);
         this._entries.update((entries) => [entry, ...entries]);
         this._isLoading.set(false);
+        this._elapsedSeconds.set(0);
         this.toast.info('Timer started');
+        this.ws.emit('startTimer', { timeEntryId: entry._id });
       }),
       catchError((error) => {
         this._error.set(error.error?.message || 'Failed to start timer');
@@ -128,9 +154,12 @@ export class TimeEntryStore {
     this._isLoading.set(true);
     this._error.set(null);
 
+    this.ws.emit('stopTimer', { timeEntryId: id });
+
     return this.http.post<TimeEntry>(API_CONFIG.TIME_ENTRIES.STOP(id), {}).pipe(
       tap((entry) => {
         this._runningEntry.set(null);
+        this._elapsedSeconds.set(0);
         this._entries.update((entries) =>
           entries.map((e) => (e._id === id ? entry : e))
         );

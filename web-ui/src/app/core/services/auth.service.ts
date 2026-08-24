@@ -5,6 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { API_CONFIG } from '../config/api.config';
 import { StorageService } from './storage.service';
 import { User } from '../../shared/models/user.model';
+import { WebSocketService } from './websocket.service';
 
 interface LoginRequest {
   email: string;
@@ -42,6 +43,7 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   private storageService = inject(StorageService);
+  private ws = inject(WebSocketService);
 
   private currentUser = signal<User | null>(null);
   private workspaces = signal<Workspace[]>([]);
@@ -63,6 +65,7 @@ export class AuthService {
     this.storageService.setRefreshToken(response.refreshToken);
     this.storageService.setUser(response.user);
     this.currentUser.set(response.user);
+    this.ws.connect();
 
     if (response.workspaces) {
       this.workspaces.set(response.workspaces);
@@ -80,11 +83,13 @@ export class AuthService {
     this.storageService.setRefreshToken(response.refreshToken);
     this.storageService.setUser(response.user);
     this.currentUser.set(response.user);
+    this.ws.connect();
 
     return response;
   }
 
   async logout(): Promise<void> {
+    this.ws.disconnect();
     this.storageService.clear();
     this.currentUser.set(null);
     this.workspaces.set([]);

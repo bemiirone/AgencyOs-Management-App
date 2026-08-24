@@ -96,7 +96,7 @@
               @if (timeEntryStore.runningEntry()) {
                 <button class="btn btn-error" (click)="stopTimer()">
                   <fa-icon [icon]="faStop" class="mr-2"></fa-icon>
-                  {{ timeEntryStore.formatDuration(timeEntryStore.runningEntry()!.duration + elapsedSeconds()) }}
+                  {{ timeEntryStore.formatDuration(timeEntryStore.runningEntry()!.duration + timeEntryStore.elapsedSeconds()) }}
                 </button>
               }
             </div>
@@ -157,7 +157,7 @@
                       <span class="badge badge-success badge-sm">Billable</span>
                     }
                     <span class="font-mono text-sm font-medium">
-                      {{ entry.isRunning ? timeEntryStore.formatDuration(timeEntryStore.runningEntry()!.duration + elapsedSeconds()) : timeEntryStore.formatDuration(entry.duration) }}
+                      {{ entry.isRunning ? timeEntryStore.formatDuration(timeEntryStore.runningEntry()!.duration + timeEntryStore.elapsedSeconds()) : timeEntryStore.formatDuration(entry.duration) }}
                     </span>
                     <button
                       class="btn btn-ghost btn-xs text-error"

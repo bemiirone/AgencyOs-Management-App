@@ -57,9 +57,6 @@ export class TimeTrackingComponent implements OnInit, OnDestroy {
   readonly showRunningBanner = signal(false);
   readonly runningTimerInfo = signal({ projectName: '', startedAgo: '' });
 
-  readonly elapsedSeconds = signal(0);
-  private timerInterval: ReturnType<typeof setInterval> | null = null;
-
   readonly faPlay = faPlay;
   readonly faStop = faStop;
   readonly faTrash = faTrash;
@@ -90,7 +87,6 @@ export class TimeTrackingComponent implements OnInit, OnDestroy {
       next: (entries) => {
         this.groupEntries(entries);
         this.loading.set(false);
-        this.startElapsedTimer();
       },
       error: () => this.loading.set(false),
     });
@@ -113,9 +109,7 @@ export class TimeTrackingComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    this.stopElapsedTimer();
-  }
+  ngOnDestroy(): void {}
 
   onProjectChange(): void {
     const projectId = this.selectedProjectId();
@@ -146,8 +140,6 @@ export class TimeTrackingComponent implements OnInit, OnDestroy {
 
     this.timeEntryStore.startTimer(data).subscribe({
       next: (entry) => {
-        this.elapsedSeconds.set(0);
-        this.startElapsedTimer();
         const entries = this.timeEntryStore.entries();
         this.groupEntries(entries);
       },
@@ -161,8 +153,6 @@ export class TimeTrackingComponent implements OnInit, OnDestroy {
 
     this.timeEntryStore.stopTimer(running._id).subscribe({
       next: () => {
-        this.stopElapsedTimer();
-        this.elapsedSeconds.set(0);
         this.showRunningBanner.set(false);
         const entries = this.timeEntryStore.entries();
         this.groupEntries(entries);
@@ -237,30 +227,12 @@ export class TimeTrackingComponent implements OnInit, OnDestroy {
 
       const group = grouped.get(dateKey)!;
       group.entries.push(entry);
-      group.totalSeconds += entry.isRunning ? this.elapsedSeconds() : entry.duration;
+      group.totalSeconds += entry.isRunning ? this.timeEntryStore.elapsedSeconds() : entry.duration;
     }
 
     this.groupedEntries.set(
       Array.from(grouped.values()).sort((a, b) => b.date.getTime() - a.date.getTime())
     );
-  }
-
-  private startElapsedTimer(): void {
-    this.stopElapsedTimer();
-    this.timerInterval = setInterval(() => {
-      const running = this.timeEntryStore.runningEntry();
-      if (running) {
-        const elapsed = Math.floor((Date.now() - new Date(running.startTime).getTime()) / 1000);
-        this.elapsedSeconds.set(elapsed);
-      }
-    }, 1000);
-  }
-
-  private stopElapsedTimer(): void {
-    if (this.timerInterval) {
-      clearInterval(this.timerInterval);
-      this.timerInterval = null;
-    }
   }
 
   private timeAgo(date: Date): string {

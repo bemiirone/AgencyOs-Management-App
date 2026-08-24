@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { WebSocketService } from './core/services/websocket.service';
+import { AuthService } from './core/services/auth.service';
 
 @Component({
   imports: [RouterModule],
@@ -7,6 +9,14 @@ import { RouterModule } from '@angular/router';
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
-export class App {
+export class App implements OnInit {
   protected title = 'web-ui';
+  private ws = inject(WebSocketService);
+  private auth = inject(AuthService);
+
+  ngOnInit(): void {
+    if (this.auth.isAuthenticated()) {
+      this.ws.connect();
+    }
+  }
 }
