@@ -14,7 +14,7 @@ import { AdminApiService } from '../../services/admin-api.service';
 import { NotificationSettings, NotificationTypeConfig } from '../../models/notification-settings.model';
 
 interface NotificationTypeSection {
-  key: 'projectDueSoon' | 'projectOverdue' | 'taskDueSoon' | 'taskOverdue';
+  key: 'projectDueSoon' | 'projectOverdue' | 'taskDueSoon' | 'taskOverdue' | 'invoiceDueSoon' | 'invoiceOverdue';
   label: string;
   description: string;
 }
@@ -52,6 +52,8 @@ export class NotificationsComponent implements OnInit {
     { key: 'projectOverdue', label: 'Project Overdue', description: 'Triggered when a project has passed its deadline' },
     { key: 'taskDueSoon', label: 'Task Due Soon', description: 'Triggered when a task deadline is within 7 days' },
     { key: 'taskOverdue', label: 'Task Overdue', description: 'Triggered when a task has passed its deadline' },
+    { key: 'invoiceDueSoon', label: 'Invoice Due Soon', description: 'Triggered when an invoice payment deadline is within 7 days' },
+    { key: 'invoiceOverdue', label: 'Invoice Overdue', description: 'Triggered when an invoice has passed its due date' },
   ];
 
   private readonly defaults: Record<string, NotificationTypeConfig> = {
@@ -75,6 +77,16 @@ export class NotificationsComponent implements OnInit {
       titleTemplate: "Task '{{title}}' is overdue",
       messageTemplate: "The task '{{title}}' has exceeded its deadline.",
     },
+    invoiceDueSoon: {
+      enabled: true,
+      titleTemplate: "Invoice #{{number}} due in less than a week",
+      messageTemplate: "Invoice #{{number}} for {{clientName}} is due soon. Please ensure timely payment.",
+    },
+    invoiceOverdue: {
+      enabled: true,
+      titleTemplate: "Invoice #{{number}} is overdue",
+      messageTemplate: "Invoice #{{number}} for {{clientName}} has exceeded its due date. Follow up required.",
+    },
   };
 
   ngOnInit(): void {
@@ -97,7 +109,7 @@ export class NotificationsComponent implements OnInit {
   }
 
   private ensureDefaults(settings: NotificationSettings): NotificationSettings {
-    const keys = ['projectDueSoon', 'projectOverdue', 'taskDueSoon', 'taskOverdue'] as const;
+    const keys = ['projectDueSoon', 'projectOverdue', 'taskDueSoon', 'taskOverdue', 'invoiceDueSoon', 'invoiceOverdue'] as const;
     for (const key of keys) {
       if (!settings[key]) {
         (settings as any)[key] = { ...this.defaults[key] };

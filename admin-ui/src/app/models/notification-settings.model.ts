@@ -11,6 +11,8 @@ export interface NotificationSettings {
   projectOverdue: NotificationTypeConfig;
   taskDueSoon: NotificationTypeConfig;
   taskOverdue: NotificationTypeConfig;
+  invoiceDueSoon: NotificationTypeConfig;
+  invoiceOverdue: NotificationTypeConfig;
   lastRunAt?: string;
   lastRunStatus?: string;
   lastRunCount: number;

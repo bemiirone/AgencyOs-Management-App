@@ -43,6 +43,16 @@ export class UpdateNotificationSettingsDto {
   @ValidateNested()
   @Type(() => NotificationTypeConfigDto)
   taskOverdue?: NotificationTypeConfigDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => NotificationTypeConfigDto)
+  invoiceDueSoon?: NotificationTypeConfigDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => NotificationTypeConfigDto)
+  invoiceOverdue?: NotificationTypeConfigDto;
 }
 
 @ApiTags('admin')

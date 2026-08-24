@@ -29,6 +29,12 @@ export class NotificationSettings extends Document {
   @Prop({ type: Object, default: () => ({ enabled: true, titleTemplate: "Task '{{title}}' is overdue", messageTemplate: "The task '{{title}}' has exceeded its deadline." }) })
   declare taskOverdue: NotificationTypeConfig;
 
+  @Prop({ type: Object, default: () => ({ enabled: true, titleTemplate: "Invoice #{{number}} due in less than a week", messageTemplate: "Invoice #{{number}} for {{clientName}} is due soon. Please ensure timely payment." }) })
+  declare invoiceDueSoon: NotificationTypeConfig;
+
+  @Prop({ type: Object, default: () => ({ enabled: true, titleTemplate: "Invoice #{{number}} is overdue", messageTemplate: "Invoice #{{number}} for {{clientName}} has exceeded its due date. Follow up required." }) })
+  declare invoiceOverdue: NotificationTypeConfig;
+
   @Prop()
   declare lastRunAt: Date;
 

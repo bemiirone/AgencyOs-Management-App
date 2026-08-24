@@ -59,13 +59,13 @@
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Title Template</mat-label>
               <input matInput [(ngModel)]="settings[section.key].titleTemplate" [name]="section.key + '.titleTemplate'" />
-              <mat-hint>Use {{ '{{name}}' }} for projects, {{ '{{title}}' }} for tasks</mat-hint>
+              <mat-hint>Use {{ '{{name}}' }} for projects, {{ '{{title}}' }} for tasks, {{ '{{number}}' }} and {{ '{{clientName}}' }} for invoices</mat-hint>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Message Template</mat-label>
               <textarea matInput rows="3" [(ngModel)]="settings[section.key].messageTemplate" [name]="section.key + '.messageTemplate'"></textarea>
-              <mat-hint>Use {{ '{{name}}' }} for projects, {{ '{{title}}' }} for tasks</mat-hint>
+              <mat-hint>Use {{ '{{name}}' }} for projects, {{ '{{title}}' }} for tasks, {{ '{{number}}' }} and {{ '{{clientName}}' }} for invoices</mat-hint>
             </mat-form-field>
 
             <div class="actions">

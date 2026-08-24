@@ -46,6 +46,20 @@ export class NotificationSettingsService implements OnModuleInit {
         messageTemplate: "The task '{{title}}' has exceeded its deadline.",
       };
     }
+    if (!settings.invoiceDueSoon || !settings.invoiceDueSoon.titleTemplate) {
+      settings.invoiceDueSoon = {
+        enabled: settings.invoiceDueSoon?.enabled ?? true,
+        titleTemplate: "Invoice #{{number}} due in less than a week",
+        messageTemplate: "Invoice #{{number}} for {{clientName}} is due soon. Please ensure timely payment.",
+      };
+    }
+    if (!settings.invoiceOverdue || !settings.invoiceOverdue.titleTemplate) {
+      settings.invoiceOverdue = {
+        enabled: settings.invoiceOverdue?.enabled ?? true,
+        titleTemplate: "Invoice #{{number}} is overdue",
+        messageTemplate: "Invoice #{{number}} for {{clientName}} has exceeded its due date. Follow up required.",
+      };
+    }
     return settings;
   }
 
