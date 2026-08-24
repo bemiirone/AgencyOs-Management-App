@@ -11,16 +11,18 @@
 
   <ul class="menu w-full">
     @for (item of navItems; track item.route) {
-      <li>
-        <a
-          [routerLink]="item.route"
-          routerLinkActive="active"
-          [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
-        >
-          <fa-icon [icon]="item.icon" class="w-5"></fa-icon>
-          {{ contentStore.content(item.labelKey) }}
-        </a>
-      </li>
+      @if (!item.roles || canAccessInvoice()) {
+        <li>
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
+          >
+            <fa-icon [icon]="item.icon" class="w-5"></fa-icon>
+            {{ contentStore.content(item.labelKey) }}
+          </a>
+        </li>
+      }
     }
   </ul>
 </div>

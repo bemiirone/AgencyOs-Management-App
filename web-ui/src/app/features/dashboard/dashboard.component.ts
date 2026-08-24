@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { forkJoin, combineLatest } from 'rxjs';
+import { forkJoin, combineLatest, of } from 'rxjs';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import {
   faProjectDiagram,
@@ -118,11 +118,14 @@ export class DashboardComponent implements OnInit {
   private loadDashboard(): void {
     this.loading.set(true);
 
+    const userRole = this.authService.getUserRole();
+    const canAccessInvoices = userRole === 'admin' || userRole === 'manager';
+
     const dashboardData$ = forkJoin({
       projects: this.projectStore.loadAllProjects(),
       tasks: this.taskStore.loadAllTasks(),
       timeEntries: this.timeEntryStore.loadEntries(),
-      invoices: this.invoiceStore.loadInvoices(),
+      invoices: canAccessInvoices ? this.invoiceStore.loadInvoices() : of([]),
     });
 
     const users$ = this.userStore.loadUsers();

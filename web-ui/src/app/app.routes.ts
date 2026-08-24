@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 
 export const routes: Routes = [
@@ -104,6 +105,8 @@ export const routes: Routes = [
           import('./features/invoices/invoices.component').then(
             (m) => m.InvoicesComponent
           ),
+        canActivate: [roleGuard],
+        data: { roles: ['admin', 'manager'] },
       },
       {
         path: 'invoices/create',
@@ -111,6 +114,8 @@ export const routes: Routes = [
           import('./features/invoices/invoice-form/invoice-form.component').then(
             (m) => m.InvoiceFormComponent
           ),
+        canActivate: [roleGuard],
+        data: { roles: ['admin', 'manager'] },
       },
       {
         path: 'invoices/:id',
@@ -118,6 +123,8 @@ export const routes: Routes = [
           import('./features/invoices/invoice-detail/invoice-detail.component').then(
             (m) => m.InvoiceDetailComponent
           ),
+        canActivate: [roleGuard],
+        data: { roles: ['admin', 'manager'] },
       },
       {
         path: 'invoices/:id/edit',
@@ -125,6 +132,8 @@ export const routes: Routes = [
           import('./features/invoices/invoice-form/invoice-form.component').then(
             (m) => m.InvoiceFormComponent
           ),
+        canActivate: [roleGuard],
+        data: { roles: ['admin', 'manager'] },
       },
       {
         path: 'admin/users',

@@ -53,11 +53,16 @@ export class SidebarComponent implements OnInit {
     { labelKey: 'nav.projects', icon: faProjectDiagram, route: '/projects' },
     { labelKey: 'nav.tasks', icon: faTasks, route: '/tasks' },
     { labelKey: 'nav.timeTracking', icon: faClock, route: '/time' },
-    { labelKey: 'nav.invoices', icon: faFileInvoiceDollar, route: '/invoices' },
+    { labelKey: 'nav.invoices', icon: faFileInvoiceDollar, route: '/invoices', roles: ['admin', 'manager'] },
     { labelKey: 'nav.team', icon: faUsers, route: '/admin/users' },
     { labelKey: 'nav.docs', icon: faBook, route: '/docs' },
     { labelKey: 'nav.settings', icon: faCog, route: '/settings' },
   ];
 
   readonly adminNavItems = [];
+
+  canAccessInvoice(): boolean {
+    const role = this.userRole();
+    return role === 'admin' || role === 'manager';
+  }
 }
