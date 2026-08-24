@@ -21,7 +21,7 @@ export class NotificationStore {
 
     return this.http.get<Notification[]>(API_CONFIG.NOTIFICATIONS.LIST).pipe(
       tap((notifications) => {
-        this._notifications.set(notifications);
+        this._notifications.set(notifications.filter((n) => n.status === 'pending'));
         this._unreadCount.set(notifications.filter((n) => n.status === 'pending').length);
         this._isLoading.set(false);
       }),

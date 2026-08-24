@@ -6,7 +6,6 @@ import { faBars, faBell, faUser, faSignOutAlt, faChevronDown, faCheck, faBuildin
 import { AuthService, Workspace } from '../../core/services/auth.service';
 import { NotificationStore } from '../../stores/notification.store';
 import { ContentStore } from '../../stores/content.store';
-import { Notification } from '../../shared/models/notification.model';
 import { ToastService } from '../../core/services/toast.service';
 
 @Component({
@@ -40,12 +39,12 @@ export class HeaderComponent implements OnInit {
   readonly userName = signal('');
   readonly userRole = signal('');
   readonly tenantName = signal('');
-  readonly notifications = signal<Notification[]>([]);
   readonly unreadCount = signal(0);
   readonly showNotifications = signal(false);
   readonly showWorkspaceDropdown = signal(false);
   readonly workspaces = this.authService.getWorkspacesSignal();
   readonly hasMultipleWorkspaces = computed(() => this.workspaces().length > 1);
+  readonly notifications = this.notificationStore.notifications;
 
   ngOnInit(): void {
     const user = this.authService.getUser();
@@ -54,8 +53,7 @@ export class HeaderComponent implements OnInit {
     this.tenantName.set(this.authService.getTenantName());
 
     this.notificationStore.loadNotifications().subscribe({
-      next: (notifications) => {
-        this.notifications.set(notifications);
+      next: () => {
         this.unreadCount.set(this.notificationStore.unreadCount());
       },
       error: (err) => console.error('Failed to load notifications:', err),
@@ -89,8 +87,7 @@ export class HeaderComponent implements OnInit {
 
   refreshNotifications(): void {
     this.notificationStore.loadNotifications().subscribe({
-      next: (notifications) => {
-        this.notifications.set(notifications);
+      next: () => {
         this.unreadCount.set(this.notificationStore.unreadCount());
       },
       error: (err) => console.error('Failed to refresh notifications:', err),
