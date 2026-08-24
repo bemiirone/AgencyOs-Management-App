@@ -37,7 +37,7 @@ export class Notification extends BaseDocument {
   declare error: string;
 
   @Prop()
-  declare entityType: 'project' | 'task';
+  declare entityType: 'project' | 'task' | 'invoice';
 
   @Prop()
   declare entityId: string;

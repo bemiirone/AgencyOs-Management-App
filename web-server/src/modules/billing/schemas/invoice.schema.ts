@@ -126,6 +126,9 @@ export class Invoice extends BaseDocument {
 
   @Prop()
   declare notes: string;
+
+  @Prop()
+  declare lastDueDateReminderSent: Date;
 }
 
 export const InvoiceSchema = SchemaFactory.createForClass(Invoice);
