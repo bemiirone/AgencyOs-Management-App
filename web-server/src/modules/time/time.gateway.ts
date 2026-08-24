@@ -10,7 +10,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { WsJwtGuard } from '../../common/guards/ws-jwt.guard';
 import { TimeEntryService } from './time-entry.service';
 
 @WebSocketGateway({
@@ -18,7 +18,7 @@ import { TimeEntryService } from './time-entry.service';
     origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:4200'],
   },
 })
-@UseGuards(JwtAuthGuard)
+@UseGuards(WsJwtGuard)
 export class TimeGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() declare server: Server;
 
@@ -31,11 +31,12 @@ export class TimeGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   async handleConnection(client: Socket) {
-    console.log(`Client connected: ${client.id}`);
+    console.log(`[WS Gateway] Client connected: ${client.id}`);
+    console.log(`[WS Gateway] Query params:`, client.handshake.query);
   }
 
   async handleDisconnect(client: Socket) {
-    console.log(`Client disconnected: ${client.id}`);
+    console.log(`[WS Gateway] Client disconnected: ${client.id}`);
 
     const interval = this.timerIntervals.get(client.id);
     if (interval) {
@@ -49,14 +50,19 @@ export class TimeGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     @MessageBody() data: { timeEntryId: string },
     @ConnectedSocket() client: Socket,
   ) {
+    console.log(`[WS Gateway] startTimer received from ${client.id}:`, data);
+    console.log(`[WS Gateway] client.data.user:`, client.data.user);
     const { timeEntryId } = data;
 
     const timeEntry = await this.timeEntryService.findOne(
-      client.data.user?.tenantId,
       timeEntryId,
+      client.data.user?.tenantId,
     );
 
+    console.log(`[WS Gateway] Found timeEntry:`, timeEntry);
+
     if (timeEntry?.isRunning) {
+      console.log(`[WS Gateway] Starting interval for ${client.id}`);
       const interval = setInterval(() => {
         this.server.to(client.id).emit('timerTick', {
           timeEntryId,
@@ -75,6 +81,7 @@ export class TimeGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     @MessageBody() data: { timeEntryId: string },
     @ConnectedSocket() client: Socket,
   ) {
+    console.log(`[WS Gateway] stopTimer received from ${client.id}:`, data);
     const { timeEntryId } = data;
 
     const interval = this.timerIntervals.get(client.id);

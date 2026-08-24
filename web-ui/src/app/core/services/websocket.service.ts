@@ -35,9 +35,7 @@ export class WebSocketService implements OnDestroy {
     const url = `${protocol}//${host}:${port}`;
 
     this.socket = io(url, {
-      extraHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
+      query: { token },
       transports: ['websocket'],
       reconnection: true,
       reconnectionDelay: 1000,
@@ -46,6 +44,7 @@ export class WebSocketService implements OnDestroy {
     });
 
     this.socket.on('connect', () => {
+      console.log('[WS] Connected:', this.socket?.id);
       this._status.set('connected');
       for (const pending of this.pendingHandlers) {
         this.socket!.on(pending.event, pending.handler);
@@ -53,12 +52,13 @@ export class WebSocketService implements OnDestroy {
       this.pendingHandlers = [];
     });
 
-    this.socket.on('disconnect', () => {
+    this.socket.on('disconnect', (reason) => {
+      console.log('[WS] Disconnected:', reason);
       this._status.set('disconnected');
     });
 
     this.socket.on('connect_error', (error) => {
-      console.error('WebSocket connection error:', error);
+      console.error('[WS] Connection error:', error.message);
       this._status.set('disconnected');
     });
   }
@@ -85,7 +85,11 @@ export class WebSocketService implements OnDestroy {
   }
 
   emit(event: string, data: unknown): void {
-    if (!this.socket?.connected) return;
+    if (!this.socket?.connected) {
+      console.warn(`[WS] Cannot emit "${event}" - not connected`);
+      return;
+    }
+    console.log(`[WS] Emitting "${event}":`, data);
     this.socket.emit(event, data);
   }
 
