@@ -4,17 +4,17 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Copy monorepo files
-COPY package.json pnpm-lock.yaml ./
+COPY package.json package-lock.json ./
 COPY nx.json tsconfig.base.json ./
 
 # Install dependencies
-RUN npm install -g pnpm && pnpm install --frozen-lockfile
+RUN npm ci
 
 # Copy source code
 COPY . .
 
 # Build NestJS app
-RUN pnpm nx build web-server --prod
+RUN npx nx build web-server --configuration=production
 
 # Production image
 FROM node:20-alpine
@@ -22,11 +22,11 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Install only production dependencies
-COPY package.json pnpm-lock.yaml ./
-RUN npm install -g pnpm && pnpm install --prod --frozen-lockfile
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 
 # Copy built application from builder
-COPY --from=builder /app/dist/agency-os/web-server ./dist
+COPY --from=builder /app/web-server/dist ./dist
 
 EXPOSE 3000
 
