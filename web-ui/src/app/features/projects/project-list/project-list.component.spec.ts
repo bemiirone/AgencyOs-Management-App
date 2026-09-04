@@ -5,6 +5,7 @@ import { ProjectListComponent } from './project-list.component';
 import { ProjectStore } from '../../../stores/project.store';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Project } from '../../../shared/models/project.model';
+import { ContentStore } from '../../../stores/content.store';
 
 describe('ProjectListComponent', () => {
   let component: ProjectListComponent;
@@ -63,6 +64,19 @@ describe('ProjectListComponent', () => {
       providers: [
         provideHttpClient(),
         { provide: ProjectStore, useValue: projectStoreMock },
+        {
+          provide: ContentStore,
+          useValue: {
+            content: vi.fn((key: string) => ({
+              'project.status.draft': 'Draft',
+              'project.status.active': 'Active',
+              'project.status.on_hold': 'On Hold',
+              'project.status.completed': 'Completed',
+              'project.status.archived': 'Archived',
+            })[key] ?? key),
+            contentWithParams: vi.fn((key: string) => key),
+          },
+        },
       ],
     }).compileComponents();
 

@@ -7,6 +7,7 @@ import { InvoiceStore } from '../../../stores/invoice.store';
 import { ToastService } from '../../../core/services/toast.service';
 import { of } from 'rxjs';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { ContentStore } from '../../../stores/content.store';
 
 const mockInvoiceStore = {
   loadInvoice: vi.fn(() => of({})),
@@ -18,6 +19,18 @@ const mockToastService = {
   error: vi.fn(),
   info: vi.fn(),
   warning: vi.fn(),
+};
+
+const mockContentStore = {
+  content: vi.fn((key: string) => ({
+    'invoice.status.draft': 'Draft',
+    'invoice.status.sent': 'Sent',
+    'invoice.status.paid': 'Paid',
+    'invoice.billingType.budget': 'Project Budget',
+    'invoice.billingType.hourly': 'Hourly Rate',
+    'invoice.billingType.daily': 'Daily Rate',
+    'invoice.billingType.manual': 'Manual Line Items',
+  })[key] ?? key),
 };
 
 const mockActivatedRoute = {
@@ -40,6 +53,7 @@ describe('InvoiceDetailComponent', () => {
         { provide: InvoiceStore, useValue: mockInvoiceStore },
         { provide: ToastService, useValue: mockToastService },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
+        { provide: ContentStore, useValue: mockContentStore },
       ],
     }).compileComponents();
 

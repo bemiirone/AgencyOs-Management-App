@@ -27,7 +27,7 @@ export class ProjectListComponent implements OnInit {
   private readonly authService = inject(AuthService);
   readonly contentStore = inject(ContentStore);
   readonly Math = Math;
-  
+
   @ViewChild('deleteProjectDialog') deleteProjectDialog!: ConfirmDialogComponent;
 
   readonly projects = signal<Project[]>([]);
@@ -166,7 +166,9 @@ export class ProjectListComponent implements OnInit {
   }
 
   getProjectStatusLabel(status: string): string {
-    return this.contentStore.content(`project.status.${status}`);
+    const key = `project.status.${status}`;
+    const label = this.contentStore.content(key);
+    return label === key ? status : label;
   }
 
   deleteProject(id: string): void {

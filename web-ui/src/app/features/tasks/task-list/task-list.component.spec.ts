@@ -7,6 +7,7 @@ import { ProjectStore } from '../../../stores/project.store';
 import { UserStore } from '../../../stores/user.store';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { signal } from '@angular/core';
+import { ContentStore } from '../../../stores/content.store';
 
 describe('TaskListComponent', () => {
   let component: TaskListComponent;
@@ -102,6 +103,22 @@ describe('TaskListComponent', () => {
         { provide: TaskStore, useValue: taskStoreMock },
         { provide: ProjectStore, useValue: projectStoreMock },
         { provide: UserStore, useValue: userStoreMock },
+        {
+          provide: ContentStore,
+          useValue: {
+            content: vi.fn((key: string) => ({
+              'status.todo': 'To Do',
+              'status.inProgress': 'In Progress',
+              'status.inReview': 'In Review',
+              'status.done': 'Done',
+              'priority.low': 'Low',
+              'priority.medium': 'Medium',
+              'priority.high': 'High',
+              'priority.urgent': 'Urgent',
+            })[key] ?? key),
+            contentWithParams: vi.fn((key: string) => key),
+          },
+        },
       ],
     }).compileComponents();
 

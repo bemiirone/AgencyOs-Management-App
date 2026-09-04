@@ -8,6 +8,7 @@ import { ProjectStore } from '../../stores/project.store';
 import { ToastService } from '../../core/services/toast.service';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Invoice } from '../../shared/models/invoice.model';
+import { ContentStore } from '../../stores/content.store';
 
 const mockInvoiceStore = {
   loadInvoices: vi.fn(() => ({ subscribe: vi.fn() })),
@@ -24,6 +25,18 @@ const mockToastService = {
   error: vi.fn(),
   info: vi.fn(),
   warning: vi.fn(),
+};
+
+const mockContentStore = {
+  content: vi.fn((key: string) => ({
+    'invoice.status.draft': 'Draft',
+    'invoice.status.sent': 'Sent',
+    'invoice.status.paid': 'Paid',
+    'invoice.billingType.budget': 'Budget',
+    'invoice.billingType.hourly': 'Hourly',
+    'invoice.billingType.daily': 'Daily',
+    'invoice.billingType.manual': 'Manual',
+  })[key] ?? key),
 };
 
 function createMockInvoice(overrides: Partial<Invoice> = {}): Invoice {
@@ -65,6 +78,7 @@ describe('InvoicesComponent', () => {
         { provide: InvoiceStore, useValue: mockInvoiceStore },
         { provide: ProjectStore, useValue: mockProjectStore },
         { provide: ToastService, useValue: mockToastService },
+        { provide: ContentStore, useValue: mockContentStore },
       ],
     }).compileComponents();
 
