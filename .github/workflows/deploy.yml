@@ -32,27 +32,6 @@ jobs:
       - name: Build
         run: npx nx run-many --target=build --configuration=production
 
-  deploy-frontend:
-    needs: test
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        app:
-          - name: web-ui
-            project_id_secret: VERCEL_WEB_UI_PROJECT_ID
-          - name: admin-ui
-            project_id_secret: VERCEL_ADMIN_UI_PROJECT_ID
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Deploy ${{ matrix.app.name }} to Vercel
-        uses: vercel/action@v5
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets[matrix.app.project_id_secret] }}
-          working-directory: .
-
   deploy-backend:
     needs: test
     runs-on: ubuntu-latest
