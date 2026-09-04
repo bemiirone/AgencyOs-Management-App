@@ -28,7 +28,7 @@ export class MainLayoutComponent implements OnInit {
 
   ngOnInit() {
     this.showWorkspaceSelect = this.authService.getShowWorkspaceSelect()();
-    this.userStore.loadUsers().subscribe({ error: () => {} });
+    this.userStore.loadUsers().subscribe({ error: (error) => console.error('Failed to load users:', error) });
   }
 
   toggleDrawer(): void {

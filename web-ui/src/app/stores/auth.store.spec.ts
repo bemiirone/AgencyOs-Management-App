@@ -115,7 +115,7 @@ describe('AuthStore', () => {
 
     it('should show error on login failure', () => {
       store.login('test@example.com', 'wrong').subscribe({
-        next: () => {},
+        next: () => undefined,
         error: () => {
           expect(store.isLoading()).toBe(false);
         },
@@ -127,7 +127,7 @@ describe('AuthStore', () => {
 
     it('should use error message from response when available', () => {
       store.login('test@example.com', 'wrong').subscribe({
-        next: () => {},
+        next: () => undefined,
         error: () => {
           expect(store.error()).toBe('Account locked');
         },
@@ -165,7 +165,7 @@ describe('AuthStore', () => {
 
     it('should show error on registration failure', () => {
       store.register('Test User', 'test@example.com', 'password').subscribe({
-        next: () => {},
+        next: () => undefined,
         error: () => {
           expect(store.isLoading()).toBe(false);
         },

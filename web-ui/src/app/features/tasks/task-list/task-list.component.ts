@@ -254,7 +254,7 @@ export class TaskListComponent implements OnInit {
     });
   }
 
-  getUserName(userId: string, fallback: string = 'Unknown'): string {
+  getUserName(userId: string, fallback = 'Unknown'): string {
     if (!userId) return fallback;
     const user = this.userStore.users().find((u) => u.id === userId);
     return user?.name || fallback;

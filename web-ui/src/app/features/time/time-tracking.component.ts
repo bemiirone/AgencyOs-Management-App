@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, OnDestroy, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -34,7 +34,7 @@ interface CreateTimeEntryPayload {
   templateUrl: './time-tracking.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TimeTrackingComponent implements OnInit, OnDestroy {
+export class TimeTrackingComponent implements OnInit {
   readonly timeEntryStore = inject(TimeEntryStore);
   private readonly projectStore = inject(ProjectStore);
   private readonly taskStore = inject(TaskStore);
@@ -108,8 +108,6 @@ export class TimeTrackingComponent implements OnInit, OnDestroy {
       error: (err) => console.error('Failed to get running entry:', err),
     });
   }
-
-  ngOnDestroy(): void {}
 
   onProjectChange(): void {
     const projectId = this.selectedProjectId();

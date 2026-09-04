@@ -288,7 +288,7 @@ export class TaskDetailComponent implements OnInit {
     return `${minutes}m`;
   }
 
-  getUserName(userId: string, fallback: string = 'Unknown'): string {
+  getUserName(userId: string, fallback = 'Unknown'): string {
     if (!userId) return fallback;
     const user = this.userStore.users().find((u) => u.id === userId);
     return user?.name || fallback;

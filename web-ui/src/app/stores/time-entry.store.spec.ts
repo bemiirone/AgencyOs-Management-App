@@ -86,7 +86,7 @@ describe('TimeEntryStore', () => {
 
     it('should set error on failure', () => {
       store.loadEntries().subscribe({
-        next: () => {},
+        next: () => undefined,
         error: () => {
           expect(store.isLoading()).toBe(false);
         },
@@ -170,7 +170,7 @@ describe('TimeEntryStore', () => {
 
     it('should show error toast on failure', () => {
       store.startTimer({ projectId: 'project-1' }).subscribe({
-        next: () => {},
+        next: () => undefined,
         error: () => {
           expect(toastMock.error).toHaveBeenCalledWith('Failed to start timer');
         },
@@ -198,7 +198,7 @@ describe('TimeEntryStore', () => {
 
     it('should show error toast on failure', () => {
       store.stopTimer('entry-1').subscribe({
-        next: () => {},
+        next: () => undefined,
         error: () => {
           expect(toastMock.error).toHaveBeenCalledWith('Failed to stop timer');
         },
@@ -232,7 +232,7 @@ describe('TimeEntryStore', () => {
 
     it('should show error toast on failure', () => {
       store.deleteEntry('entry-1').subscribe({
-        next: () => {},
+        next: () => undefined,
         error: () => {
           expect(toastMock.error).toHaveBeenCalledWith('Failed to delete time entry');
         },

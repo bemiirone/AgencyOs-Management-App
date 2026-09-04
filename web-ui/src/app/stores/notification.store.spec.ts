@@ -79,7 +79,7 @@ describe('NotificationStore', () => {
 
     it('should handle error gracefully', () => {
       store.loadNotifications().subscribe({
-        next: () => {},
+        next: () => undefined,
         error: (error) => {
           expect(error.status).toBe(500);
           expect(store.isLoading()).toBe(false);
@@ -137,7 +137,7 @@ describe('NotificationStore', () => {
 
     it('should handle error gracefully', () => {
       store.markAsRead('notif-1').subscribe({
-        next: () => {},
+        next: () => undefined,
         error: (error) => {
           expect(error.status).toBe(404);
         },

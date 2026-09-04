@@ -89,7 +89,7 @@ describe('InvoiceStore', () => {
 
     it('should set error on failure', () => {
       store.loadInvoices().subscribe({
-        next: () => {},
+        next: () => undefined,
         error: () => {
           expect(store.isLoading()).toBe(false);
         },
@@ -115,7 +115,7 @@ describe('InvoiceStore', () => {
 
     it('should set error on failure', () => {
       store.loadInvoice('invoice-1').subscribe({
-        next: () => {},
+        next: () => undefined,
         error: () => {
           expect(store.isLoading()).toBe(false);
         },
@@ -149,7 +149,7 @@ describe('InvoiceStore', () => {
 
     it('should show error toast on failure', () => {
       store.createInvoice({ projectId: 'project-1', clientName: 'Test', clientEmail: 'test@test.com', subtotal: 100, amount: 100 }).subscribe({
-        next: () => {},
+        next: () => undefined,
         error: () => {
           expect(toastMock.error).toHaveBeenCalledWith('Failed to create invoice');
         },
@@ -178,7 +178,7 @@ describe('InvoiceStore', () => {
 
     it('should show error toast on failure', () => {
       store.updateInvoice('invoice-1', { status: 'sent' }).subscribe({
-        next: () => {},
+        next: () => undefined,
         error: () => {
           expect(toastMock.error).toHaveBeenCalledWith('Failed to update invoice');
         },
@@ -203,7 +203,7 @@ describe('InvoiceStore', () => {
 
     it('should show error toast on failure', () => {
       store.deleteInvoice('invoice-1').subscribe({
-        next: () => {},
+        next: () => undefined,
         error: () => {
           expect(toastMock.error).toHaveBeenCalledWith('Failed to delete invoice');
         },
@@ -230,7 +230,7 @@ describe('InvoiceStore', () => {
 
     it('should show error toast on failure', () => {
       store.sendInvoice('invoice-1').subscribe({
-        next: () => {},
+        next: () => undefined,
         error: () => {
           expect(toastMock.error).toHaveBeenCalledWith('Failed to send invoice');
         },
@@ -278,7 +278,7 @@ describe('InvoiceStore', () => {
         rateType: 'hourly',
         rate: 100,
       }).subscribe({
-        next: () => {},
+        next: () => undefined,
         error: () => {
           expect(toastMock.error).toHaveBeenCalledWith('Failed to aggregate time entries');
         },

@@ -1,10 +1,18 @@
-<h2 mat-dialog-title>{{ data.mode === 'create' ? 'Create FAQ Group' : 'Edit FAQ Group' }}</h2>
+<h2 mat-dialog-title>
+  {{ data.mode === 'create' ? 'Create FAQ Group' : 'Edit FAQ Group' }}
+</h2>
 
 <mat-dialog-content>
   <form #faqForm="ngForm">
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Title</mat-label>
-      <input matInput [(ngModel)]="title" name="title" required placeholder="e.g., General Questions" />
+      <input
+        matInput
+        [(ngModel)]="title"
+        name="title"
+        required
+        placeholder="e.g., General Questions"
+      />
     </mat-form-field>
 
     <div class="form-row">
@@ -16,52 +24,89 @@
 
     <div class="items-header">
       <span>Q&A Items ({{ items.length }})</span>
-      <button mat-stroked-button type="button" color="primary" (click)="addItem()">
+      <button
+        mat-stroked-button
+        type="button"
+        color="primary"
+        (click)="addItem()"
+      >
         <mat-icon>add</mat-icon>
         Add Item
       </button>
     </div>
 
-    <div *ngFor="let item of items; let i = index" class="faq-item">
-      <div class="item-header">
-        <span class="item-number">Item {{ i + 1 }}</span>
-        <div class="item-actions">
-          <button mat-icon-button type="button" (click)="moveItemUp(i)" [disabled]="i === 0" matTooltip="Move up">
-            <mat-icon>arrow_upward</mat-icon>
-          </button>
-          <button mat-icon-button type="button" (click)="moveItemDown(i)" [disabled]="i === items.length - 1" matTooltip="Move down">
-            <mat-icon>arrow_downward</mat-icon>
-          </button>
-          <button mat-icon-button type="button" color="warn" (click)="removeItem(i)" matTooltip="Remove">
-            <mat-icon>delete</mat-icon>
-          </button>
+    @for (item of items; track item; let i = $index) {
+      <div class="faq-item">
+        <div class="item-header">
+          <span class="item-number">Item {{ i + 1 }}</span>
+          <div class="item-actions">
+            <button
+              mat-icon-button
+              type="button"
+              (click)="moveItemUp(i)"
+              [disabled]="i === 0"
+              matTooltip="Move up"
+            >
+              <mat-icon>arrow_upward</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              type="button"
+              (click)="moveItemDown(i)"
+              [disabled]="i === items.length - 1"
+              matTooltip="Move down"
+            >
+              <mat-icon>arrow_downward</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              type="button"
+              color="warn"
+              (click)="removeItem(i)"
+              matTooltip="Remove"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
         </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Question</mat-label>
+          <input
+            matInput
+            [(ngModel)]="item.question"
+            [name]="'question-' + i"
+            required
+          />
+        </mat-form-field>
+
+        <div class="editor-label">Answer</div>
+        <quill-editor
+          [(ngModel)]="item.answer"
+          [name]="'answer-' + i"
+          [modules]="editorModules"
+          placeholder="Type the answer..."
+        ></quill-editor>
       </div>
+    }
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Question</mat-label>
-        <input matInput [(ngModel)]="item.question" [name]="'question-' + i" required />
-      </mat-form-field>
-
-      <div class="editor-label">Answer</div>
-      <quill-editor
-        [(ngModel)]="item.answer"
-        [name]="'answer-' + i"
-        [modules]="editorModules"
-        placeholder="Type the answer..."
-      ></quill-editor>
-    </div>
-
-    <div *ngIf="items.length === 0" class="empty-items">
-      <mat-icon>help_outline</mat-icon>
-      <p>No Q&A items yet. Click "Add Item" to get started.</p>
-    </div>
+    @if (items.length === 0) {
+      <div class="empty-items">
+        <mat-icon>help_outline</mat-icon>
+        <p>No Q&A items yet. Click "Add Item" to get started.</p>
+      </div>
+    }
   </form>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
   <button mat-button (click)="cancel()">Cancel</button>
-  <button mat-raised-button color="primary" (click)="save()" [disabled]="!title || items.length === 0">
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="save()"
+    [disabled]="!title || items.length === 0"
+  >
     {{ data.mode === 'create' ? 'Create' : 'Save' }}
   </button>
 </mat-dialog-actions>
