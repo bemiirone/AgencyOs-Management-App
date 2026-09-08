@@ -20,8 +20,11 @@
         </mat-form-field>
 
         <button mat-raised-button color="primary" type="submit" class="full-width" [disabled]="isLoading">
-          <span *ngIf="!isLoading">Sign In</span>
-          <span *ngIf="isLoading">Signing in...</span>
+          @if (!isLoading) {
+          <span>Sign In</span>
+          } @else {
+          <span>Signing in...</span>
+          }
         </button>
       </form>
     </mat-card-content>
