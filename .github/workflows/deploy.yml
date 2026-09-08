@@ -64,39 +64,45 @@ jobs:
 
       - name: Deploy to EC2
         env:
-          # These are available to the GitHub Runner
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
           IMAGE_TAG: ${{ github.sha }}
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}     # <-- Added
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # <-- Added
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          ADMIN_JWT_SECRET: ${{ secrets.ADMIN_JWT_SECRET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          # Pass the raw secrets to the runner's environment
+          MONGODB_URI_RAW: ${{ secrets.MONGODB_URI }}
+          JWT_SECRET_RAW: ${{ secrets.JWT_SECRET }}
+          ADMIN_JWT_SECRET_RAW: ${{ secrets.ADMIN_JWT_SECRET }}
         run: |
+          # 1. Safely encode complex secrets to base64 to prevent shell metacharacters from breaking the SSH command
+          MONGODB_URI_B64=$(echo -n "$MONGODB_URI_RAW" | base64 -w 0)
+          JWT_SECRET_B64=$(echo -n "$JWT_SECRET_RAW" | base64 -w 0)
+          ADMIN_JWT_SECRET_B64=$(echo -n "$ADMIN_JWT_SECRET_RAW" | base64 -w 0)
+
           mkdir -p ~/.ssh
           printf '%s\n' '${{ secrets.EC2_SSH_KEY }}' > ~/.ssh/deploy-key
           chmod 600 ~/.ssh/deploy-key
           ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts 2>/dev/null
 
-          # The 'env' command here passes the GitHub secrets into the remote EC2 shell
+          # 2. Pass variables safely. Simple vars are wrapped in single quotes. 
+          # Complex vars are decoded on the remote side, completely bypassing shell interpretation.
           ssh -i ~/.ssh/deploy-key "$EC2_USER@$EC2_HOST" \
-            env AWS_ACCOUNT_ID="$AWS_ACCOUNT_ID" \
-                AWS_REGION="$AWS_REGION" \
-                IMAGE_TAG="$IMAGE_TAG" \
-                AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
-                AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" \
-                MONGODB_URI="$MONGODB_URI" \
-                JWT_SECRET="$JWT_SECRET" \
-                ADMIN_JWT_SECRET="$ADMIN_JWT_SECRET" \
-            bash -s << 'EOFSH'
+            "export AWS_ACCOUNT_ID='$AWS_ACCOUNT_ID'; \
+             export AWS_REGION='$AWS_REGION'; \
+             export IMAGE_TAG='$IMAGE_TAG'; \
+             export AWS_ACCESS_KEY_ID='$AWS_ACCESS_KEY_ID'; \
+             export AWS_SECRET_ACCESS_KEY='$AWS_SECRET_ACCESS_KEY'; \
+             export MONGODB_URI=\$(echo '$MONGODB_URI_B64' | base64 -d); \
+             export JWT_SECRET=\$(echo '$JWT_SECRET_B64' | base64 -d); \
+             export ADMIN_JWT_SECRET=\$(echo '$ADMIN_JWT_SECRET_B64' | base64 -d); \
+             bash -s" << 'EOFSH'
             set -e
             REGISTRY="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
             REPOSITORY_NAME="agencyos-backend"
 
-            # NOW THIS WILL WORK, because the EC2 shell has the AWS credentials
+            # This will now succeed because AWS_REGION is correctly populated
             aws ecr get-login-password --region "$AWS_REGION" | \
               docker login --username AWS --password-stdin "$REGISTRY"
             
