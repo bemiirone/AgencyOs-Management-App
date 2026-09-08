@@ -1,4 +1,4 @@
-import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
@@ -24,7 +24,7 @@ export class FaqAccordionComponent {
 
   readonly faChevronDown = faChevronDown;
 
-  constructor(private sanitizer: DomSanitizer) { }
+  private sanitizer = inject(DomSanitizer);
 
   onHeadingToggle(headingId: string): void {
     this.headingToggle.emit(headingId);
