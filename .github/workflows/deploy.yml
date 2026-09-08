@@ -62,7 +62,7 @@ jobs:
           docker push "$REGISTRY/$REPOSITORY_NAME:${{ github.sha }}"
           docker push "$REGISTRY/$REPOSITORY_NAME:latest"
 
-            - name: Deploy to EC2
+      - name: Deploy to EC2
         env:
           # These are available to the GitHub Runner
           EC2_HOST: ${{ secrets.EC2_HOST }}
