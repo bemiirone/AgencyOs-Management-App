@@ -11,10 +11,10 @@ export class PageService {
   private http = inject(HttpClient);
 
   getPages(): Observable<Page[]> {
-    return this.http.get<Page[]>(`${API_CONFIG.baseUrl}${API_CONFIG.PAGES.LIST}`);
+    return this.http.get<Page[]>(API_CONFIG.PAGES.LIST);
   }
 
   getPageBySlug(slug: string): Observable<Page> {
-    return this.http.get<Page>(`${API_CONFIG.baseUrl}${API_CONFIG.PAGES.DETAIL(slug)}`);
+    return this.http.get<Page>(API_CONFIG.PAGES.DETAIL(slug));
   }
 }

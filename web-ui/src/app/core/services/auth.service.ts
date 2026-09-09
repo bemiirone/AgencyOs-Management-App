@@ -58,7 +58,7 @@ export class AuthService {
 
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     const response = await firstValueFrom(
-      this.http.post<AuthResponse>(`${API_CONFIG.baseUrl}${API_CONFIG.AUTH.LOGIN}`, credentials)
+      this.http.post<AuthResponse>(API_CONFIG.AUTH.LOGIN, credentials)
     );
 
     this.storageService.setToken(response.accessToken);
@@ -76,7 +76,7 @@ export class AuthService {
 
   async register(data: RegisterRequest): Promise<AuthResponse> {
     const response = await firstValueFrom(
-      this.http.post<AuthResponse>(`${API_CONFIG.baseUrl}${API_CONFIG.AUTH.REGISTER}`, data)
+      this.http.post<AuthResponse>(API_CONFIG.AUTH.REGISTER, data)
     );
 
     this.storageService.setToken(response.accessToken);
@@ -99,7 +99,7 @@ export class AuthService {
 
   async refreshProfile(): Promise<User> {
     const user = await firstValueFrom(
-      this.http.get<User>(`${API_CONFIG.baseUrl}${API_CONFIG.AUTH.PROFILE}`)
+      this.http.get<User>(API_CONFIG.AUTH.PROFILE)
     );
 
     this.storageService.setUser(user);
@@ -110,7 +110,7 @@ export class AuthService {
 
   async getWorkspaces(): Promise<Workspace[]> {
     const workspaces = await firstValueFrom(
-      this.http.get<Workspace[]>(`${API_CONFIG.baseUrl}${API_CONFIG.AUTH.WORKSPACES}`)
+      this.http.get<Workspace[]>(API_CONFIG.AUTH.WORKSPACES)
     );
 
     const lastWorkspace = this.storageService.getLastWorkspace();
@@ -125,7 +125,7 @@ export class AuthService {
 
   async switchWorkspace(tenantId: string): Promise<void> {
     const response = await firstValueFrom(
-      this.http.post<AuthResponse>(`${API_CONFIG.baseUrl}${API_CONFIG.AUTH.SWITCH_WORKSPACE}`, { tenantId })
+      this.http.post<AuthResponse>(API_CONFIG.AUTH.SWITCH_WORKSPACE, { tenantId })
     );
 
     this.storageService.setToken(response.accessToken);
@@ -144,7 +144,7 @@ export class AuthService {
 
   async joinWorkspace(tenantId: string, inviteCode: string): Promise<Workspace[]> {
     const workspaces = await firstValueFrom(
-      this.http.post<Workspace[]>(`${API_CONFIG.baseUrl}${API_CONFIG.AUTH.JOIN_WORKSPACE}`, { tenantId, inviteCode })
+      this.http.post<Workspace[]>(API_CONFIG.AUTH.JOIN_WORKSPACE, { tenantId, inviteCode })
     );
 
     this.workspaces.set(workspaces);
@@ -158,7 +158,7 @@ export class AuthService {
 
     return firstValueFrom(
       this.http.get<{ tenantId: string; tenantName: string; slug: string }[]>(
-        `${API_CONFIG.baseUrl}${API_CONFIG.AUTH.SEARCH_WORKSPACES(query)}`
+        API_CONFIG.AUTH.SEARCH_WORKSPACES(query)
       )
     );
   }
@@ -169,7 +169,7 @@ export class AuthService {
     }
 
     const workspaces = await firstValueFrom(
-      this.http.post<Workspace[]>(`${API_CONFIG.baseUrl}${API_CONFIG.AUTH.LOOKUP_WORKSPACES}`, { email })
+      this.http.post<Workspace[]>(API_CONFIG.AUTH.LOOKUP_WORKSPACES, { email })
     );
 
     const lastWorkspace = this.storageService.getLastWorkspace();

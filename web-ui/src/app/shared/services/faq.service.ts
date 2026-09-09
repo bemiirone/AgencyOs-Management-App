@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { API_CONFIG } from '../../core/config/api.config';
 
 export interface FaqItem {
   question: string;
@@ -24,7 +23,7 @@ export class FaqService {
 
   async getFaqs(): Promise<FaqHeading[]> {
     return firstValueFrom(
-      this.http.get<FaqHeading[]>(`${API_CONFIG.baseUrl}/api/faq`)
+      this.http.get<FaqHeading[]>('/api/faq')
     );
   }
 }

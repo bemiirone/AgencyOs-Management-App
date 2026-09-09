@@ -11,30 +11,30 @@ export class UserAdminService {
   private http = inject(HttpClient);
 
   findAll(): Observable<UserWithRole[]> {
-    return this.http.get<UserWithRole[]>(`${API_CONFIG.baseUrl}${API_CONFIG.USERS.LIST}`);
+    return this.http.get<UserWithRole[]>(API_CONFIG.USERS.LIST);
   }
 
   findOne(id: string): Observable<UserWithRole> {
-    return this.http.get<UserWithRole>(`${API_CONFIG.baseUrl}${API_CONFIG.USERS.DETAIL(id)}`);
+    return this.http.get<UserWithRole>(API_CONFIG.USERS.DETAIL(id));
   }
 
   create(dto: CreateUserDto): Observable<UserWithRole> {
-    return this.http.post<UserWithRole>(`${API_CONFIG.baseUrl}${API_CONFIG.USERS.CREATE}`, dto);
+    return this.http.post<UserWithRole>(API_CONFIG.USERS.CREATE, dto);
   }
 
   update(id: string, dto: UpdateUserDto): Observable<UserWithRole> {
-    return this.http.patch<UserWithRole>(`${API_CONFIG.baseUrl}${API_CONFIG.USERS.UPDATE(id)}`, dto);
+    return this.http.patch<UserWithRole>(API_CONFIG.USERS.UPDATE(id), dto);
   }
 
   updateRole(id: string, role: string): Observable<UserWithRole> {
-    return this.http.patch<UserWithRole>(`${API_CONFIG.baseUrl}${API_CONFIG.USERS.UPDATE_ROLE(id)}`, { role });
+    return this.http.patch<UserWithRole>(API_CONFIG.USERS.UPDATE_ROLE(id), { role });
   }
 
   softDelete(id: string): Observable<{ success: boolean }> {
-    return this.http.delete<{ success: boolean }>(`${API_CONFIG.baseUrl}${API_CONFIG.USERS.DELETE(id)}`);
+    return this.http.delete<{ success: boolean }>(API_CONFIG.USERS.DELETE(id));
   }
 
   reactivate(id: string): Observable<UserWithRole> {
-    return this.http.patch<UserWithRole>(`${API_CONFIG.baseUrl}${API_CONFIG.USERS.REACTIVATE(id)}`, {});
+    return this.http.patch<UserWithRole>(API_CONFIG.USERS.REACTIVATE(id), {});
   }
 }
