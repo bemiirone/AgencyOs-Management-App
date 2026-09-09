@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { Tenant } from '../models/tenant.model';
 import { Page, CreatePageRequest, UpdatePageRequest } from '../models/page.model';
 import { Faq, CreateFaqRequest, UpdateFaqRequest } from '../models/faq.model';
@@ -26,7 +27,7 @@ export interface BulkContentRequest {
 @Injectable({ providedIn: 'root' })
 export class AdminApiService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000/api/admin';
+  private apiUrl = `${environment.apiBaseUrl}/api/admin`;
 
   getTenants(): Observable<Tenant[]> {
     return this.http.get<Tenant[]>(`${this.apiUrl}/tenants`);

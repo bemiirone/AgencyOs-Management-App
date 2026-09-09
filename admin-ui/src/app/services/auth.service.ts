@@ -3,12 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { AdminLoginRequest, AdminLoginResponse } from '../models/admin.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private apiUrl = 'http://localhost:3000/api';
+  private apiUrl = `${environment.apiBaseUrl}/api`;
 
   login(credentials: AdminLoginRequest): Observable<AdminLoginResponse> {
     return this.http.post<AdminLoginResponse>(`${this.apiUrl}/admin/auth/login`, credentials).pipe(

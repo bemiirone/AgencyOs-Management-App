@@ -1,5 +1,7 @@
+import { environment } from '../../environments/environment';
+
 export const API_CONFIG_STORE = {
-  baseUrl: '/api',
+  baseUrl: environment.apiBaseUrl + '/api',
   timeout: 30000,
   retryAttempts: 3,
   endpoints: {

@@ -37,7 +37,13 @@
               "maximumError": "50kb"
             }
           ],
-          "outputHashing": "all"
+          "outputHashing": "all",
+          "fileReplacements": [
+            {
+              "replace": "admin-ui/src/environments/environment.ts",
+              "with": "admin-ui/src/environments/environment.prod.ts"
+            }
+          ]
         },
         "development": {
           "optimization": false,

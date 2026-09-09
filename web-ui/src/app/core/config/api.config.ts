@@ -1,5 +1,7 @@
+import { environment } from '../../../environments/environment';
+
 export const API_CONFIG = {
-  baseUrl: '',
+  baseUrl: environment.apiBaseUrl,
   AUTH: {
     LOGIN: '/api/auth/login',
     REGISTER: '/api/auth/register',
