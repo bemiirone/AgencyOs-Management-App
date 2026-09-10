@@ -43,6 +43,16 @@ async function bootstrap() {
     }),
   );
 
+  app.enableCors({
+    origin: [
+      'http://localhost:4200',                 
+      'https://agency-os-web-ui.vercel.app',
+      'https://agencyos.nsmultimedia.co.uk'
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
+
   app.useGlobalFilters(new GlobalExceptionFilter());
 
   const port = process.env.PORT || 3000;
