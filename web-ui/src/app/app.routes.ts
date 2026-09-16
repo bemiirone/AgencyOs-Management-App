@@ -1,13 +1,20 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { authRedirectGuard } from './core/guards/auth-redirect.guard';
 import { roleGuard } from './core/guards/role.guard';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'dashboard',
+    redirectTo: 'welcome',
     pathMatch: 'full',
+  },
+  {
+    path: 'welcome',
+    canActivate: [authRedirectGuard],
+    loadComponent: () =>
+      import('./features/landing/welcome.component').then((m) => m.WelcomeComponent),
   },
   {
     path: 'login',

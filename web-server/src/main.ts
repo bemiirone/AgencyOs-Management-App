@@ -45,7 +45,8 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
-      'http://localhost:4200',                 
+      'http://localhost:4200', 
+      'http://localhost:4201',             
       'https://agency-os-web-ui.vercel.app',
       'https://agencyos.nsmultimedia.co.uk'
     ],
