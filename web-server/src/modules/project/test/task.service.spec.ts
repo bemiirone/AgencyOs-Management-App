@@ -1,24 +1,33 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TaskService } from '../task.service';
 
-const mockModel = {
-  create: vi.fn(),
-  find: vi.fn(),
-  findOne: vi.fn(),
-  findOneAndUpdate: vi.fn(),
-  deleteOne: vi.fn(),
-};
+vi.mock('../schemas/task.schema', () => ({
+  Task: 'Task',
+  TaskStatus: {
+    TODO: 'todo',
+    IN_PROGRESS: 'in_progress',
+    IN_REVIEW: 'in_review',
+    DONE: 'done',
+  },
+}));
 
-const createChainableMock = (result: any) => ({
-  sort: vi.fn().mockReturnValue({
-    exec: vi.fn().mockResolvedValue(result),
-  }),
-  exec: vi.fn().mockResolvedValue(result),
-});
+vi.mock('../schemas/project.schema', () => ({
+  Project: 'Project',
+  ProjectStatus: {
+    DRAFT: 'draft',
+    ACTIVE: 'active',
+    ON_HOLD: 'on_hold',
+    COMPLETED: 'completed',
+    ARCHIVED: 'archived',
+  },
+}));
 
 vi.mock('@nestjs/mongoose', () => ({
   InjectModel: () => () => {},
   getModelToken: (name: string) => `${name}Model`,
+  Prop: () => () => {},
+  Schema: () => () => {},
+  SchemaFactory: { createForClass: () => ({ index: () => ({}) }) },
 }));
 
 vi.mock('@nestjs/common', () => ({
@@ -31,15 +40,46 @@ vi.mock('@nestjs/common', () => ({
   },
 }));
 
-vi.mock('../schemas/task.schema', () => ({
-  Task: 'Task',
-  TaskStatus: {
-    TODO: 'todo',
-    IN_PROGRESS: 'in_progress',
-    IN_REVIEW: 'in_review',
-    DONE: 'done',
-  },
-}));
+const mockTaskModel = {
+  create: vi.fn(),
+  find: vi.fn(),
+  findOne: vi.fn(),
+  findOneAndUpdate: vi.fn(),
+  deleteOne: vi.fn(),
+  countDocuments: vi.fn().mockResolvedValue(0),
+};
+
+const createProjectFindOneMock = (result: any) => ({
+  exec: vi.fn().mockResolvedValue(result),
+});
+
+const mockProjectModel = {
+  findOne: vi.fn().mockReturnValue(createProjectFindOneMock(null)),
+  updateOne: vi.fn().mockReturnValue({ exec: vi.fn().mockResolvedValue(undefined) }),
+};
+
+const createQueryChain = (result: any) => ({
+  sort: vi.fn().mockReturnValue({
+    skip: vi.fn().mockReturnValue({
+      limit: vi.fn().mockReturnValue({
+        exec: vi.fn().mockResolvedValue(result),
+      }),
+    }),
+  }),
+  skip: vi.fn().mockReturnValue({
+    limit: vi.fn().mockReturnValue({
+      exec: vi.fn().mockResolvedValue(result),
+    }),
+  }),
+  limit: vi.fn().mockReturnValue({
+    exec: vi.fn().mockResolvedValue(result),
+  }),
+  exec: vi.fn().mockResolvedValue(result),
+});
+
+const createUpdateChain = (result: any) => ({
+  exec: vi.fn().mockResolvedValue(result),
+});
 
 describe('TaskService', () => {
   let service: TaskService;
@@ -68,7 +108,8 @@ describe('TaskService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    service = new TaskService(mockModel as any);
+    mockTaskModel.countDocuments.mockResolvedValue(0);
+    service = new TaskService(mockTaskModel as any, mockProjectModel as any);
   });
 
   describe('create', () => {
@@ -79,11 +120,11 @@ describe('TaskService', () => {
         projectId: 'project-1',
       };
 
-      mockModel.create.mockResolvedValue(mockTask);
+      mockTaskModel.create.mockResolvedValue(mockTask);
 
       const result = await service.create(createDto, tenantId);
 
-      expect(mockModel.create).toHaveBeenCalledWith({
+      expect(mockTaskModel.create).toHaveBeenCalledWith({
         ...createDto,
         tenantId,
       });
@@ -92,22 +133,25 @@ describe('TaskService', () => {
   });
 
   describe('findAll', () => {
-    it('should return all tasks for a tenant', async () => {
+    it('should return all tasks for a tenant with pagination', async () => {
       const mockTasks = [mockTask];
-      mockModel.find.mockReturnValue(createChainableMock(mockTasks));
+      mockTaskModel.countDocuments.mockResolvedValue(1);
+      mockTaskModel.find.mockReturnValue(createQueryChain(mockTasks));
 
       const result = await service.findAll(tenantId);
 
-      expect(mockModel.find).toHaveBeenCalledWith({ tenantId });
-      expect(result).toEqual(mockTasks);
+      expect(mockTaskModel.countDocuments).toHaveBeenCalledWith({ tenantId });
+      expect(result.data).toEqual(mockTasks);
+      expect(result.total).toBe(1);
     });
 
     it('should filter by status when provided', async () => {
-      mockModel.find.mockReturnValue(createChainableMock([]));
+      mockTaskModel.countDocuments.mockResolvedValue(0);
+      mockTaskModel.find.mockReturnValue(createQueryChain([]));
 
       await service.findAll(tenantId, TaskStatus.TODO as any);
 
-      expect(mockModel.find).toHaveBeenCalledWith({
+      expect(mockTaskModel.countDocuments).toHaveBeenCalledWith({
         tenantId,
         status: TaskStatus.TODO,
       });
@@ -117,11 +161,16 @@ describe('TaskService', () => {
   describe('findByProject', () => {
     it('should return tasks for a specific project', async () => {
       const projectId = 'project-1';
-      mockModel.find.mockReturnValue(createChainableMock([mockTask]));
+      const findChain = {
+        sort: vi.fn().mockReturnValue({
+          exec: vi.fn().mockResolvedValue([mockTask]),
+        }),
+      };
+      mockTaskModel.find.mockReturnValue(findChain);
 
       const result = await service.findByProject(projectId, tenantId);
 
-      expect(mockModel.find).toHaveBeenCalledWith({
+      expect(mockTaskModel.find).toHaveBeenCalledWith({
         projectId,
         tenantId,
       });
@@ -131,11 +180,11 @@ describe('TaskService', () => {
 
   describe('findOne', () => {
     it('should return a task by id', async () => {
-      mockModel.findOne.mockReturnValue(createChainableMock(mockTask));
+      mockTaskModel.findOne.mockReturnValue(createQueryChain(mockTask));
 
       const result = await service.findOne('task-1', tenantId);
 
-      expect(mockModel.findOne).toHaveBeenCalledWith({
+      expect(mockTaskModel.findOne).toHaveBeenCalledWith({
         _id: 'task-1',
         tenantId,
       });
@@ -143,7 +192,7 @@ describe('TaskService', () => {
     });
 
     it('should throw NotFoundException when task not found', async () => {
-      mockModel.findOne.mockReturnValue(createChainableMock(null));
+      mockTaskModel.findOne.mockReturnValue(createQueryChain(null));
 
       await expect(service.findOne('nonexistent', tenantId)).rejects.toThrow(
         'Task not found',
@@ -155,11 +204,13 @@ describe('TaskService', () => {
     it('should update and return the task', async () => {
       const updateDto = { title: 'Updated Title' };
       const updatedTask = { ...mockTask, ...updateDto };
-      mockModel.findOneAndUpdate.mockReturnValue(createChainableMock(updatedTask));
+      mockTaskModel.findOne.mockReturnValue(createQueryChain(mockTask));
+      mockTaskModel.findOneAndUpdate.mockReturnValue(createUpdateChain(updatedTask));
+      mockTaskModel.countDocuments.mockResolvedValue(5);
 
       const result = await service.update('task-1', tenantId, updateDto);
 
-      expect(mockModel.findOneAndUpdate).toHaveBeenCalledWith(
+      expect(mockTaskModel.findOneAndUpdate).toHaveBeenCalledWith(
         { _id: 'task-1', tenantId },
         { $set: updateDto },
         { new: true },
@@ -168,7 +219,7 @@ describe('TaskService', () => {
     });
 
     it('should throw NotFoundException when task not found', async () => {
-      mockModel.findOneAndUpdate.mockReturnValue(createChainableMock(null));
+      mockTaskModel.findOne.mockReturnValue(createQueryChain(null));
 
       await expect(
         service.update('nonexistent', tenantId, { title: 'New' }),
@@ -178,11 +229,13 @@ describe('TaskService', () => {
 
   describe('remove', () => {
     it('should delete a task', async () => {
-      mockModel.deleteOne.mockReturnValue(createChainableMock({ deletedCount: 1 }));
+      mockTaskModel.findOne.mockReturnValue(createQueryChain(mockTask));
+      mockTaskModel.deleteOne.mockReturnValue(createUpdateChain({ deletedCount: 1 }));
+      mockTaskModel.countDocuments.mockResolvedValue(2);
 
       const result = await service.remove('task-1', tenantId);
 
-      expect(mockModel.deleteOne).toHaveBeenCalledWith({
+      expect(mockTaskModel.deleteOne).toHaveBeenCalledWith({
         _id: 'task-1',
         tenantId,
       });
@@ -190,7 +243,7 @@ describe('TaskService', () => {
     });
 
     it('should throw NotFoundException when task not found', async () => {
-      mockModel.deleteOne.mockReturnValue(createChainableMock({ deletedCount: 0 }));
+      mockTaskModel.findOne.mockReturnValue(createQueryChain(null));
 
       await expect(service.remove('nonexistent', tenantId)).rejects.toThrow(
         'Task not found',
@@ -200,8 +253,10 @@ describe('TaskService', () => {
 
   describe('updateStatus', () => {
     it('should update task status', async () => {
-      const updatedTask = { ...mockTask, status: TaskStatus.DONE };
-      mockModel.findOneAndUpdate.mockReturnValue(createChainableMock(updatedTask));
+      mockTaskModel.findOne.mockReturnValue(createQueryChain(mockTask));
+      mockTaskModel.findOneAndUpdate.mockReturnValue(createUpdateChain({ ...mockTask, status: TaskStatus.DONE }));
+      mockTaskModel.countDocuments.mockResolvedValue(0);
+      mockProjectModel.findOne.mockReturnValue(createProjectFindOneMock(null));
 
       const result = await service.updateStatus(
         'task-1',
