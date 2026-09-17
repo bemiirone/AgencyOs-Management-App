@@ -6,6 +6,7 @@ import { AdminService } from './admin.service';
 import { PageService } from '../page/page.service';
 import { FaqService } from '../faq/faq.service';
 import { ContentService, ContentEntry } from '../content/content.service';
+import { LandingService } from '../landing/landing.service';
 import { AdminJwtAuthGuard } from '../../common/guards/admin-jwt-auth.guard';
 import { CreatePageDto, UpdatePageDto } from '../page/dto/page.dto';
 
@@ -58,6 +59,7 @@ export class AdminController {
     private readonly pageService: PageService,
     private readonly faqService: FaqService,
     private readonly contentService: ContentService,
+    private readonly landingService: LandingService,
   ) {}
 
   @Get('tenants')
@@ -155,5 +157,39 @@ export class AdminController {
   @ApiOperation({ summary: 'Create a new content entry' })
   async createContent(@Body() entry: ContentEntry) {
     return this.contentService.upsert(entry);
+  }
+
+  @Get('landing-sections')
+  @ApiOperation({ summary: 'Get all landing sections (admin only)' })
+  async findAllLandingSections() {
+    return this.landingService.findAll();
+  }
+
+  @Post('landing-sections')
+  @ApiOperation({ summary: 'Create a landing section item' })
+  async createLandingSection(@Body() data: { section: string; order: number; isActive?: boolean; icon?: string; title?: string; description?: string; name?: string; role?: string; rating?: number; question?: string; answer?: string }) {
+    return this.landingService.create(data);
+  }
+
+  @Patch('landing-sections/:id')
+  @ApiOperation({ summary: 'Update a landing section item' })
+  async updateLandingSection(@Param('id') id: string, @Body() data: { section?: string; order?: number; isActive?: boolean; icon?: string; title?: string; description?: string; name?: string; role?: string; rating?: number; question?: string; answer?: string }) {
+    return this.landingService.update(id, data);
+  }
+
+  @Delete('landing-sections/:id')
+  @ApiOperation({ summary: 'Delete a landing section item' })
+  async deleteLandingSection(@Param('id') id: string) {
+    return this.landingService.delete(id);
+  }
+
+  @Patch('landing-sections/:id/reorder')
+  @ApiOperation({ summary: 'Reorder a landing section item' })
+  async reorderLandingSection(
+    @Param('id') id: string,
+    @Body() body: { direction: 'up' | 'down' },
+  ) {
+    await this.landingService.reorder(id, body.direction);
+    return this.landingService.findAll();
   }
 }

@@ -6,6 +6,7 @@ import { Tenant, TenantSchema } from '../tenant/schemas/tenant.schema';
 import { PageModule } from '../page/page.module';
 import { FaqModule } from '../faq/faq.module';
 import { ContentModule } from '../content/content.module';
+import { LandingModule } from '../landing/landing.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ContentModule } from '../content/content.module';
     PageModule,
     FaqModule,
     ContentModule,
+    LandingModule,
   ],
   controllers: [AdminController],
   providers: [AdminService],
