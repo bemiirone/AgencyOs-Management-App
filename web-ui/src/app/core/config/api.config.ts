@@ -85,4 +85,8 @@ export const API_CONFIG = {
     LIST: (locale?: string) => `/api/content${locale ? `?locale=${locale}` : ''}`,
     BY_CATEGORY: (category: string, locale?: string) => `/api/content/${category}${locale ? `?locale=${locale}` : ''}`,
   },
+  LANDING: {
+    LIST: '/api/landing',
+    BY_SECTION: (section: string) => `/api/landing?section=${encodeURIComponent(section)}`,
+  },
 };

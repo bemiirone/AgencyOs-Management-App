@@ -1,4 +1,9 @@
 <div class="welcome-page">
+  @if (isLoading()) {
+    <div class="loading-screen">
+      <div class="spinner"></div>
+    </div>
+  } @else {
   <!-- Hero Section -->
   <section class="min-h-screen bg-gradient-to-br from-primary to-secondary flex flex-col justify-center items-center px-4 py-16 text-white">
     <div class="text-center max-w-3xl mx-auto mb-12">
@@ -164,4 +169,5 @@
       <p class="text-sm text-white/70">{{ contentStore.content('landing.cta.tagline') }}</p>
     </div>
   </section>
+  }
 </div>
