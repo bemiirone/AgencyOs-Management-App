@@ -2,65 +2,27 @@
   <!-- Hero Section -->
   <section class="min-h-screen bg-gradient-to-br from-primary to-secondary flex flex-col justify-center items-center px-4 py-16 text-white">
     <div class="text-center max-w-3xl mx-auto mb-12">
-      <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">Freelance Smarter. Invoice Faster. Get Paid On Time.</h1>
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">{{ contentStore.content('landing.hero.heading') }}</h1>
       <p class="text-lg md:text-xl text-white/90 mb-8 leading-relaxed">
-        Stop chasing payments and drowning in admin. AgencyOS gives you professional invoicing, time tracking, and a client portal — all for less than a coffee a week.
+        {{ contentStore.content('landing.hero.subtitle') }}
       </p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-        <a routerLink="/register" class="btn bg-white text-primary border-none hover:bg-white/90 btn-lg">Start Free Month</a>
+        <a routerLink="/register" class="btn bg-white text-primary border-none hover:bg-white/90 btn-lg">{{ contentStore.content('landing.hero.cta.primary') }}</a>
         <button class="btn btn-outline border-white text-white hover:bg-white/10 hover:border-white btn-lg" (click)="scrollToFeatures()">
-          See How It Works
+          {{ contentStore.content('landing.hero.cta.secondary') }}
           <fa-icon [icon]="faArrowDown" class="ml-2"></fa-icon>
         </button>
       </div>
-      <p class="text-sm text-white/70">Free for 30 days. Then just £5/month. Cancel anytime.</p>
+      <p class="text-sm text-white/70">{{ contentStore.content('landing.hero.tagline') }}</p>
     </div>
     <div class="w-full max-w-2xl mx-auto mt-8">
-      <div class="dashboard-mockup bg-white rounded-lg overflow-hidden">
-        <div class="bg-base-200 px-4 py-2 flex items-center gap-2">
-          <div class="flex gap-1">
-            <span class="w-3 h-3 rounded-full bg-red-400"></span>
-            <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
-            <span class="w-3 h-3 rounded-full bg-green-400"></span>
-          </div>
-          <div class="text-sm font-medium text-base-content/60 ml-2">AgencyOS</div>
-        </div>
-        <div class="p-6">
-          <div class="bg-base-100 rounded-lg p-4 mb-4 border border-base-200">
-            <div class="flex justify-between items-center mb-2">
-              <span>Invoice #1042</span>
-              <span class="badge badge-success text-white">Sent</span>
-            </div>
-            <div class="flex justify-between items-center mb-0">
-              <span>Client: Acme Corp</span>
-              <span class="text-primary font-bold">£2,450.00</span>
-            </div>
-            <div class="w-full bg-base-200 rounded-full h-2 mt-3">
-              <div class="bg-primary h-2 rounded-full w-3/4"></div>
-            </div>
-          </div>
-          <div class="grid grid-cols-3 gap-4">
-            <div class="text-center">
-              <div class="text-2xl font-bold text-primary">£8,320</div>
-              <div class="text-sm text-base-content/60">Revenue</div>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-primary">42h</div>
-              <div class="text-sm text-base-content/60">Tracked</div>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-primary">3</div>
-              <div class="text-sm text-base-content/60">Pending</div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <app-dashboard-mockup />
     </div>
   </section>
 
   <!-- Pain Points Section -->
   <section class="py-16 md:py-24 px-4 bg-base-200">
-    <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12">Sound Familiar?</h2>
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12">{{ contentStore.content('landing.painPoints.heading') }}</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-8">
       @for (point of painPoints; track point.title) {
         <div class="card p-6 text-center shadow-lg hover:shadow-xl transition-shadow duration-300">
@@ -72,12 +34,12 @@
         </div>
       }
     </div>
-    <p class="text-center text-lg font-medium text-primary mt-8">AgencyOS handles all of this — automatically.</p>
+    <p class="text-center text-lg font-medium text-primary mt-8">{{ contentStore.content('landing.painPoints.closing') }}</p>
   </section>
 
   <!-- Value Proposition Section -->
   <section class="py-16 md:py-24 px-4 bg-base-100">
-    <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12">Everything You Need to Run Your Freelance Business</h2>
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12">{{ contentStore.content('landing.valueProps.heading') }}</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
       @for (prop of valueProps; track prop.title) {
         <div class="card p-6 text-center shadow-md hover:shadow-lg transition-shadow duration-300 border border-base-200">
@@ -93,7 +55,7 @@
 
   <!-- How It Works Section -->
   <section class="py-16 md:py-24 px-4 bg-gradient-to-r from-primary to-secondary text-white">
-    <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 text-white">Up and Running in 5 Minutes</h2>
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 text-white">{{ contentStore.content('landing.steps.heading') }}</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
       @for (step of steps; track step.number) {
         <div class="text-center">
@@ -107,7 +69,7 @@
 
   <!-- Feature Showcase Section -->
   <section id="features" class="py-16 md:py-24 px-4 bg-base-100">
-    <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12">Powerful Features, Simple to Use</h2>
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12">{{ contentStore.content('landing.features.heading') }}</h2>
     @for (feature of features; track feature.title; let i = $index) {
       <div class="flex flex-col md:flex-row items-center gap-8 max-w-5xl mx-auto mb-16" [class.md:flex-row-reverse]="i % 2 === 1">
         <div class="flex-1 flex justify-center">
@@ -125,15 +87,15 @@
 
   <!-- Social Proof Section -->
   <section class="py-16 md:py-24 px-4 bg-base-200">
-    <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12">Loved by Freelancers</h2>
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12">{{ contentStore.content('landing.socialProof.heading') }}</h2>
     <div class="flex flex-wrap items-center justify-center gap-4 mb-10">
-      <span class="badge badge-lg badge-outline">Trusted by 1,000+ freelancers</span>
+      <span class="badge badge-lg badge-outline">{{ contentStore.content('landing.socialProof.badges.trusted') }}</span>
       <div class="flex text-warning">
         @for (star of [1, 2, 3, 4, 5]; track star) {
           <fa-icon [icon]="faStar" class="mr-1"></fa-icon>
         }
       </div>
-      <span class="badge badge-lg badge-outline">No credit card required to start</span>
+      <span class="badge badge-lg badge-outline">{{ contentStore.content('landing.socialProof.badges.noCard') }}</span>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
       @for (t of testimonials; track t.name) {
@@ -155,31 +117,31 @@
 
   <!-- Pricing Section -->
   <section class="py-16 md:py-24 px-4 bg-base-100">
-    <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12">Simple Pricing. No Surprises.</h2>
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12">{{ contentStore.content('landing.pricing.heading') }}</h2>
     <div class="max-w-md mx-auto bg-base-200 rounded-xl shadow-2xl p-8 text-center">
       <div class="mb-6">
-        <span class="text-5xl font-extrabold text-primary">£5</span>
-        <span class="text-2xl text-base-content/70">/ month</span>
-        <span class="block text-base-content/60 mt-2">(after your free month)</span>
+        <span class="text-5xl font-extrabold text-primary">{{ contentStore.content('landing.pricing.price') }}</span>
+        <span class="text-2xl text-base-content/70">{{ contentStore.content('landing.pricing.period') }}</span>
+        <span class="block text-base-content/60 mt-2">{{ contentStore.content('landing.pricing.note') }}</span>
       </div>
       <ul class="text-left space-y-3 mb-8">
-        <li class="flex items-center gap-2"><fa-icon [icon]="faCheck" class="text-success"></fa-icon> Unlimited clients and projects</li>
-        <li class="flex items-center gap-2"><fa-icon [icon]="faCheck" class="text-success"></fa-icon> Time tracking and timesheets</li>
-        <li class="flex items-center gap-2"><fa-icon [icon]="faCheck" class="text-success"></fa-icon> Professional invoicing</li>
-        <li class="flex items-center gap-2"><fa-icon [icon]="faCheck" class="text-success"></fa-icon> Online payments via Stripe</li>
-        <li class="flex items-center gap-2"><fa-icon [icon]="faCheck" class="text-success"></fa-icon> Client portal</li>
-        <li class="flex items-center gap-2"><fa-icon [icon]="faCheck" class="text-success"></fa-icon> Financial reports</li>
-        <li class="flex items-center gap-2"><fa-icon [icon]="faCheck" class="text-success"></fa-icon> Email support</li>
+        <li class="flex items-center gap-2"><fa-icon [icon]="faCheck" class="text-success"></fa-icon> {{ contentStore.content('landing.pricing.listItems.unlimited') }}</li>
+        <li class="flex items-center gap-2"><fa-icon [icon]="faCheck" class="text-success"></fa-icon> {{ contentStore.content('landing.pricing.listItems.timeTracking') }}</li>
+        <li class="flex items-center gap-2"><fa-icon [icon]="faCheck" class="text-success"></fa-icon> {{ contentStore.content('landing.pricing.listItems.invoicing') }}</li>
+        <li class="flex items-center gap-2"><fa-icon [icon]="faCheck" class="text-success"></fa-icon> {{ contentStore.content('landing.pricing.listItems.payments') }}</li>
+        <li class="flex items-center gap-2"><fa-icon [icon]="faCheck" class="text-success"></fa-icon> {{ contentStore.content('landing.pricing.listItems.clientPortal') }}</li>
+        <li class="flex items-center gap-2"><fa-icon [icon]="faCheck" class="text-success"></fa-icon> {{ contentStore.content('landing.pricing.listItems.reports') }}</li>
+        <li class="flex items-center gap-2"><fa-icon [icon]="faCheck" class="text-success"></fa-icon> {{ contentStore.content('landing.pricing.listItems.support') }}</li>
       </ul>
-      <a routerLink="/register" class="btn btn-primary btn-lg btn-block">Start Your Free Month</a>
-      <p class="text-sm text-base-content/70 mt-4 mb-2">No setup fees. No hidden costs. No per-client charges. Cancel anytime with one click.</p>
-      <p class="text-sm text-primary font-medium">That's less than a coffee a week — and it pays for itself by helping you catch just one forgotten billable hour.</p>
+      <a routerLink="/register" class="btn btn-primary btn-lg btn-block">{{ contentStore.content('landing.pricing.cta') }}</a>
+      <p class="text-sm text-base-content/70 mt-4 mb-2">{{ contentStore.content('landing.pricing.footnote') }}</p>
+      <p class="text-sm text-primary font-medium">{{ contentStore.content('landing.pricing.valueProp') }}</p>
     </div>
   </section>
 
   <!-- FAQ Section -->
   <section class="py-16 md:py-24 px-4 bg-base-200">
-    <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12">Frequently Asked Questions</h2>
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12">{{ contentStore.content('landing.faq.heading') }}</h2>
     <div class="max-w-3xl mx-auto space-y-3">
       @for (faq of faqs; track faq.question) {
         <div class="collapse collapse-arrow bg-base-200">
@@ -196,10 +158,10 @@
   <!-- Final CTA Section -->
   <section class="py-16 md:py-24 px-4 bg-gradient-to-br from-primary to-secondary text-white text-center">
     <div class="max-w-3xl mx-auto">
-      <h2 class="text-3xl md:text-4xl font-bold mb-4">Ready to Run Your Freelance Business Like a Pro?</h2>
-      <p class="text-lg text-white/90 mb-8">Join thousands of freelancers saving time, looking more professional, and getting paid faster.</p>
-      <a routerLink="/register" class="btn bg-white text-primary border-none hover:bg-white/90 btn-lg mb-4">Start Your Free Month</a>
-      <p class="text-sm text-white/70">No credit card. No commitment. Just 30 days free.</p>
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">{{ contentStore.content('landing.cta.heading') }}</h2>
+      <p class="text-lg text-white/90 mb-8">{{ contentStore.content('landing.cta.subtitle') }}</p>
+      <a routerLink="/register" class="btn bg-white text-primary border-none hover:bg-white/90 btn-lg mb-4">{{ contentStore.content('landing.cta.ctaText') }}</a>
+      <p class="text-sm text-white/70">{{ contentStore.content('landing.cta.tagline') }}</p>
     </div>
   </section>
 </div>

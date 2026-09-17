@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { ContentStore } from '../../stores/content.store';
+import { DashboardMockupComponent } from './components/dashboard-mockup/dashboard-mockup.component';
 import {
   faClock,
   faPaperPlane,
@@ -59,11 +61,12 @@ interface FaqItem {
 @Component({
   selector: 'app-welcome',
   standalone: true,
-  imports: [CommonModule, RouterLink, FontAwesomeModule],
+  imports: [CommonModule, RouterLink, FontAwesomeModule, DashboardMockupComponent],
   templateUrl: './welcome.component.html',
   styleUrl: './welcome.component.scss',
 })
 export class WelcomeComponent {
+  readonly contentStore = inject(ContentStore);
   readonly faClock = faClock;
   readonly faPaperPlane = faPaperPlane;
   readonly faCreditCard = faCreditCard;

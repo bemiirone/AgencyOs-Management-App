@@ -1,0 +1,33 @@
+<div class="dashboard-mockup bg-white rounded-lg overflow-hidden shadow-xl">
+  <div class="bg-base-200 px-4 py-2 flex items-center gap-2">
+    <div class="flex gap-1">
+      <span class="w-3 h-3 rounded-full bg-red-400"></span>
+      <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+      <span class="w-3 h-3 rounded-full bg-green-400"></span>
+    </div>
+    <div class="text-sm font-medium text-base-content/60 ml-2">{{ contentStore.content(mockData.brand) }}</div>
+  </div>
+  <div class="p-6">
+    <div class="bg-base-100 rounded-lg p-4 mb-4 border border-base-200">
+      <div class="flex justify-between items-center mb-2">
+        <span>Invoice {{ mockData.invoiceNumber }}</span>
+        <span class="badge badge-success text-white">{{ mockData.invoiceStatus }}</span>
+      </div>
+      <div class="flex justify-between items-center mb-0">
+        <span>{{ contentStore.content('landing.mockup.invoice.clientLabel') }} {{ mockData.client }}</span>
+        <span class="text-primary font-bold">{{ mockData.amount }}</span>
+      </div>
+      <div class="w-full bg-base-200 rounded-full h-2 mt-3">
+        <div class="bg-primary h-2 rounded-full" [style.width.%]="mockData.progressPercent"></div>
+      </div>
+    </div>
+    <div class="grid grid-cols-3 gap-4">
+      @for (stat of stats; track stat.labelKey) {
+        <div class="text-center">
+          <div class="text-2xl font-bold text-primary">{{ stat.value }}</div>
+          <div class="text-sm text-base-content/60">{{ contentStore.content(stat.labelKey) }}</div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
