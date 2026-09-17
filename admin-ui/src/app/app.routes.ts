@@ -36,6 +36,10 @@ export const appRoutes: Route[] = [
         path: 'content',
         loadComponent: () => import('./pages/content/content.component').then(m => m.ContentComponent)
       },
+      {
+        path: 'welcome',
+        loadComponent: () => import('./pages/welcome-admin/welcome-admin.component').then(m => m.WelcomeAdminComponent)
+      },
     ]
   },
   {

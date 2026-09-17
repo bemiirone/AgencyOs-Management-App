@@ -6,6 +6,7 @@ import { Tenant } from '../models/tenant.model';
 import { Page, CreatePageRequest, UpdatePageRequest } from '../models/page.model';
 import { Faq, CreateFaqRequest, UpdateFaqRequest } from '../models/faq.model';
 import { NotificationSettings } from '../models/notification-settings.model';
+import { LandingSection, CreateLandingSectionRequest, UpdateLandingSectionRequest } from '../models/landing-section.model';
 
 export interface ContentEntry {
   _id: string;
@@ -95,5 +96,25 @@ export class AdminApiService {
 
   createContent(data: ContentEntry): Observable<ContentEntry> {
     return this.http.post<ContentEntry>(`${this.apiUrl}/content`, data);
+  }
+
+  getLandingSections(): Observable<LandingSection[]> {
+    return this.http.get<LandingSection[]>(`${this.apiUrl}/landing-sections`);
+  }
+
+  createLandingSection(data: CreateLandingSectionRequest): Observable<LandingSection> {
+    return this.http.post<LandingSection>(`${this.apiUrl}/landing-sections`, data);
+  }
+
+  updateLandingSection(id: string, data: UpdateLandingSectionRequest): Observable<LandingSection> {
+    return this.http.patch<LandingSection>(`${this.apiUrl}/landing-sections/${id}`, data);
+  }
+
+  deleteLandingSection(id: string): Observable<{ success: boolean }> {
+    return this.http.delete<{ success: boolean }>(`${this.apiUrl}/landing-sections/${id}`);
+  }
+
+  reorderLandingSection(id: string, direction: 'up' | 'down'): Observable<LandingSection[]> {
+    return this.http.patch<LandingSection[]>(`${this.apiUrl}/landing-sections/${id}/reorder`, { direction });
   }
 }

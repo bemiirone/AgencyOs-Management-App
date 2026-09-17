@@ -1,0 +1,95 @@
+<mat-card>
+  <mat-card-header>
+    <div class="header-content">
+      <mat-card-title>Welcome Page Management</mat-card-title>
+      <mat-card-subtitle>Manage landing page content sections ({{ allSections.length }} total items)</mat-card-subtitle>
+    </div>
+  </mat-card-header>
+
+  <mat-card-content>
+    @if (isLoading) {
+      <div class="loading-state">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    } @else {
+      <mat-tab-group [(selectedIndex)]="selectedTab" animationDuration="0ms">
+        @for (sectionType of sectionTypes; track sectionType; let i = $index) {
+          <mat-tab [label]="getTabLabel(sectionType)">
+            <div class="tab-content">
+              <div class="tab-header">
+                <span>{{ getItemsForTab(sectionType).length }} item(s)</span>
+                <button mat-raised-button color="primary" (click)="openCreateDialog(sectionType)">
+                  <mat-icon>add</mat-icon>
+                  Add Item
+                </button>
+              </div>
+
+              @if (getItemsForTab(sectionType).length === 0) {
+                <div class="empty-state">
+                  <mat-icon>web</mat-icon>
+                  <p>No items yet — click "Add Item" to create one</p>
+                </div>
+              } @else {
+                <table mat-table [dataSource]="getItemsForTab(sectionType)" class="mat-elevation-z0">
+                  <ng-container matColumnDef="title">
+                    <th mat-header-cell *matHeaderCellDef>Title / Question</th>
+                    <td mat-cell *matCellDef="let item">
+                      @if (item.icon) {
+                        <mat-icon class="icon-cell">{{ getSectionIcon(item) }}</mat-icon>
+                      }
+                      {{ getDisplayTitle(item) }}
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="description">
+                    <th mat-header-cell *matHeaderCellDef>Details</th>
+                    <td mat-cell *matCellDef="let item">
+                      <span class="desc-text">{{ getDisplayDescription(item) }}</span>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="order">
+                    <th mat-header-cell *matHeaderCellDef class="w-24">Order</th>
+                    <td mat-cell *matCellDef="let item">
+                      <div class="order-controls">
+                        <button mat-icon-button (click)="moveItemUp(item)" [disabled]="item.order === 0" matTooltip="Move up">
+                          <mat-icon>arrow_upward</mat-icon>
+                        </button>
+                        <span class="order-num">{{ item.order }}</span>
+                        <button mat-icon-button (click)="moveItemDown(item)" matTooltip="Move down">
+                          <mat-icon>arrow_downward</mat-icon>
+                        </button>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="active">
+                    <th mat-header-cell *matHeaderCellDef class="w-20">Active</th>
+                    <td mat-cell *matCellDef="let item">
+                      <mat-slide-toggle [checked]="item.isActive" (change)="toggleActive(item)"></mat-slide-toggle>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef class="w-24">Actions</th>
+                    <td mat-cell *matCellDef="let item">
+                      <button mat-icon-button matTooltip="Edit" (click)="openEditDialog(item)">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button color="warn" matTooltip="Delete" (click)="deleteItem(item)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="['title', 'description', 'order', 'active', 'actions']"></tr>
+                  <tr mat-row *matRowDef="let row; columns: ['title', 'description', 'order', 'active', 'actions'];"></tr>
+                </table>
+              }
+            </div>
+          </mat-tab>
+        }
+      </mat-tab-group>
+    }
+  </mat-card-content>
+</mat-card>

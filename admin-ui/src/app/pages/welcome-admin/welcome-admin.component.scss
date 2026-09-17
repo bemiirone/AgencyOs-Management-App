@@ -1,0 +1,99 @@
+mat-card-header {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-content {
+  flex: 1;
+}
+
+table {
+  width: 100%;
+}
+
+th.mat-header-cell {
+  font-weight: 600;
+}
+
+.tab-content {
+  padding: 16px 0;
+}
+
+.tab-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e0e0e0;
+
+  span {
+    font-weight: 500;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+.desc-text {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.6);
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.icon-cell {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.order-controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.order-num {
+  font-size: 14px;
+  min-width: 24px;
+  text-align: center;
+}
+
+.w-24 {
+  width: 96px;
+}
+
+.w-20 {
+  width: 80px;
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 0;
+  color: rgba(0, 0, 0, 0.5);
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+  }
+}
+
+::ng-deep .mat-mdc-tab-group {
+  .mat-mdc-tab-body-content {
+    overflow: visible;
+  }
+}

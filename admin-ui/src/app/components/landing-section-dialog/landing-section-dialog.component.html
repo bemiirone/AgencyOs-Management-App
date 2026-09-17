@@ -1,0 +1,91 @@
+<h2 mat-dialog-title>
+  {{ isEdit ? 'Edit' : 'Create' }} {{ getDialogLabel() }}
+</h2>
+
+<mat-dialog-content>
+  <form #form="ngForm">
+    @if (isFaq) {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Question</mat-label>
+        <input matInput [(ngModel)]="question" name="question" required placeholder="e.g., Is there really a free month?" />
+      </mat-form-field>
+
+      <div class="editor-label">Answer</div>
+      <quill-editor
+        [(ngModel)]="answer"
+        name="answer"
+        [modules]="editorModules"
+        placeholder="Type the answer..."
+      ></quill-editor>
+    } @else if (isTestimonial) {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Quote</mat-label>
+        <textarea matInput [(ngModel)]="title" name="title" rows="3" required placeholder="Customer testimonial quote..."></textarea>
+      </mat-form-field>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="flex-1">
+          <mat-label>Name</mat-label>
+          <input matInput [(ngModel)]="name" name="name" required placeholder="e.g., Sarah Chen" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="flex-1">
+          <mat-label>Role</mat-label>
+          <input matInput [(ngModel)]="role" name="role" placeholder="e.g., Freelance Designer" />
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="w-32">
+          <mat-label>Rating (1-5)</mat-label>
+          <input matInput type="number" [(ngModel)]="rating" name="rating" min="1" max="5" />
+        </mat-form-field>
+      </div>
+    } @else {
+      @if (isPainPointOrPropOrFeature) {
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Icon</mat-label>
+          <input matInput [(ngModel)]="icon" name="icon" placeholder="e.g., faClock, faFileInvoiceDollar" />
+        </mat-form-field>
+      }
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Title</mat-label>
+        <input matInput [(ngModel)]="title" name="title" required placeholder="e.g., Time Tracking" />
+      </mat-form-field>
+
+      @if (isStep) {
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description</mat-label>
+          <textarea matInput [(ngModel)]="description" name="description" rows="3" placeholder="Step description..."></textarea>
+        </mat-form-field>
+      } @else {
+        <div class="editor-label">Description</div>
+        <quill-editor
+          [(ngModel)]="description"
+          name="description"
+          [modules]="editorModules"
+          placeholder="Description text..."
+        ></quill-editor>
+      }
+    }
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="w-24">
+        <mat-label>Order</mat-label>
+        <input matInput type="number" [(ngModel)]="order" name="order" />
+      </mat-form-field>
+
+      <div class="flex items-center gap-2">
+        <mat-checkbox [(ngModel)]="isActive" name="isActive">Active</mat-checkbox>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="save()" [disabled]="!isFaq && !title.trim()">
+    {{ isEdit ? 'Save' : 'Create' }}
+  </button>
+</mat-dialog-actions>
