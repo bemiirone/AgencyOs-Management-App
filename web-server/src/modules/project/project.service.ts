@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { Project, ProjectStatus } from './schemas/project.schema';
 import { Task, TaskStatus } from './schemas/task.schema';
 import { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
+import { paginate } from '../../common/utils/paginate';
 
 @Injectable()
 export class ProjectService {
@@ -24,20 +25,10 @@ export class ProjectService {
 
   async findAll(tenantId: string, status?: ProjectStatus, page = 1, limit = 10) {
     const query: Record<string, unknown> = { tenantId };
-
     if (status) {
       query.status = status;
     }
-
-    const total = await this.projectModel.countDocuments(query);
-    const data = await this.projectModel
-      .find(query)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .exec();
-
-    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+    return paginate(this.projectModel, query as any, page, limit);
   }
 
   async findOne(id: string, tenantId: string) {

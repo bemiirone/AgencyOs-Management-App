@@ -27,6 +27,7 @@ import { TimeEntriesListComponent } from '../../../shared/components/time-entrie
 import { ContentCardComponent } from '../../../shared/components/content-card/content-card.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { getInitials as _getInitials, getAvatarColor as _getAvatarColor, getAvatarColorById as _getAvatarColorById } from '../../../shared/utils/avatar.utils';
 
 interface StatConfig {
   icon: IconDefinition;
@@ -319,39 +320,14 @@ export class TaskDetailComponent implements OnInit {
   }
 
   getInitials(name: string): string {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
+    return _getInitials(name);
   }
 
   getAvatarColor(name: string): string {
-    const colors = [
-      'bg-primary',
-      'bg-secondary',
-      'bg-accent',
-      'bg-info',
-      'bg-success',
-      'bg-warning',
-      'bg-error',
-    ];
-    const index = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
-    return colors[index];
+    return _getAvatarColor(name);
   }
 
   getAvatarColorById(userId: string): string {
-    const colors = [
-      'bg-primary',
-      'bg-secondary',
-      'bg-accent',
-      'bg-info',
-      'bg-success',
-      'bg-warning',
-      'bg-error',
-    ];
-    const index = userId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
-    return colors[index];
+    return _getAvatarColorById(userId);
   }
 }
