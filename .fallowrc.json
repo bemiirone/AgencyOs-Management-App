@@ -1,0 +1,11 @@
+{
+  "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+  "ignorePatterns": [
+    "**/environments/environment.prod.ts",
+    "**/nx-welcome.ts",
+    "**/src/migrations/migrate-tenant-members.ts",
+    "**/src/seed/seed-landing-sections.ts",
+    "**/src/seed/data/landing-section-seed-data.ts",
+    "**/web-server-e2e/src/support/*.ts"
+  ]
+}

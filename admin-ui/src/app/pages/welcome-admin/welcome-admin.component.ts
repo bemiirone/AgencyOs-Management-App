@@ -12,7 +12,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AdminApiService } from '../../services/admin-api.service';
-import { SectionType } from '../../models/landing-section.model';
+import { LandingSection, SectionType } from '../../models/landing-section.model';
 import { LandingSectionDialogComponent } from '../../components/landing-section-dialog/landing-section-dialog.component';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
@@ -60,7 +60,7 @@ export class WelcomeAdminComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private cdr = inject(ChangeDetectorRef);
 
-  allSections: any[] = [];
+  allSections: LandingSection[] = [];
   selectedTab = 0;
   isLoading = true;
   tabLabels: Record<SectionType, string> = {} as Record<SectionType, string>;
@@ -73,7 +73,7 @@ export class WelcomeAdminComponent implements OnInit {
     return this.tabLabels[sectionType] || SECTION_FALLBACK_LABELS[sectionType];
   }
 
-  getItemsForTab(sectionType: SectionType): any[] {
+  getItemsForTab(sectionType: SectionType): LandingSection[] {
     return this.allSections
       .filter(s => s.section === sectionType)
       .sort((a, b) => a.order - b.order);
@@ -136,7 +136,7 @@ export class WelcomeAdminComponent implements OnInit {
     });
   }
 
-  openEditDialog(item: any): void {
+  openEditDialog(item: LandingSection): void {
     const dialogRef = this.dialog.open(LandingSectionDialogComponent, {
       width: '600px',
       maxWidth: '90vw',
@@ -156,7 +156,7 @@ export class WelcomeAdminComponent implements OnInit {
     });
   }
 
-  deleteItem(item: any): void {
+  deleteItem(item: LandingSection): void {
     const label = item.title || item.question || 'Item';
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
@@ -178,7 +178,7 @@ export class WelcomeAdminComponent implements OnInit {
     });
   }
 
-  toggleActive(item: any): void {
+  toggleActive(item: LandingSection): void {
     this.adminApi.updateLandingSection(item._id, { isActive: !item.isActive }).subscribe({
       next: () => {
         this.snackBar.open(`Item ${item.isActive ? 'disabled' : 'enabled'}`, 'Close', { duration: 2000 });
@@ -188,26 +188,26 @@ export class WelcomeAdminComponent implements OnInit {
     });
   }
 
-  moveItemUp(item: any): void {
+  moveItemUp(item: LandingSection): void {
     this.adminApi.reorderLandingSection(item._id, 'up').subscribe({
       next: () => this.loadSections(),
       error: () => this.snackBar.open('Failed to reorder', 'Close', { duration: 3000 }),
     });
   }
 
-  moveItemDown(item: any): void {
+  moveItemDown(item: LandingSection): void {
     this.adminApi.reorderLandingSection(item._id, 'down').subscribe({
       next: () => this.loadSections(),
       error: () => this.snackBar.open('Failed to reorder', 'Close', { duration: 3000 }),
     });
   }
 
-  getDisplayTitle(item: any): string {
+  getDisplayTitle(item: LandingSection): string {
     if (item.section === 'faqs') return item.question || 'Untitled FAQ';
     return item.title || 'Untitled';
   }
 
-  getDisplayDescription(item: any): string {
+  getDisplayDescription(item: LandingSection): string {
     if (item.section === 'faqs') return this.stripHtml(item.answer || '');
     if (item.section === 'testimonials') return `${item.name || ''}${item.role ? ` — ${item.role}` : ''}`;
     return this.stripHtml(item.description || '');
@@ -217,7 +217,7 @@ export class WelcomeAdminComponent implements OnInit {
     return html.replace(/<[^>]*>/g, '').substring(0, 80);
   }
 
-  getSectionIcon(item: any): string {
+  getSectionIcon(item: LandingSection): string {
     return item.icon || 'label';
   }
 }
