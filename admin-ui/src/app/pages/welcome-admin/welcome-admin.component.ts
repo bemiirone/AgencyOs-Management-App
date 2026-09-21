@@ -95,6 +95,7 @@ export class WelcomeAdminComponent implements OnInit {
           }
         }
       },
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       error: () => {},
     });
   }
