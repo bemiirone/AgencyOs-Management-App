@@ -132,12 +132,7 @@ class BaseInvoiceDto {
   declare notes?: string;
 }
 
-class BaseInvoiceUpdateDto extends OmitType(BaseInvoiceDto, [] as const) {
-  @ApiProperty({ enum: BillingType, required: false })
-  @IsEnum(BillingType)
-  @IsOptional()
-  declare billingType?: BillingType;
-
+class BaseInvoiceUpdateDto extends BaseInvoiceDto {
   @ApiProperty({ required: false })
   @IsNumber()
   @IsOptional()
