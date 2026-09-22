@@ -1,5 +1,6 @@
 import { IsNotEmpty, IsString, IsOptional, IsBoolean, IsDateString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { PartialType } from '@nestjs/mapped-types';
 
 export class CreateTimeEntryDto {
   @ApiProperty()
@@ -23,27 +24,7 @@ export class CreateTimeEntryDto {
   declare isBillable?: boolean;
 }
 
-export class UpdateTimeEntryDto {
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  declare taskId?: string;
-
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  declare projectId?: string;
-
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  declare description?: string;
-
-  @ApiProperty({ required: false })
-  @IsBoolean()
-  @IsOptional()
-  declare isBillable?: boolean;
-
+export class UpdateTimeEntryDto extends PartialType(CreateTimeEntryDto) {
   @ApiProperty({ required: false })
   @IsDateString()
   @IsOptional()

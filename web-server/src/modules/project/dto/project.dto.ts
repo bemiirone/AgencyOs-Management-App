@@ -1,6 +1,7 @@
 import { IsNotEmpty, IsString, IsOptional, IsEnum, IsDateString, IsNumber, IsEmail } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { ProjectStatus } from '../schemas/project.schema';
+import { PartialType } from '@nestjs/mapped-types';
 
 export class CreateProjectDto {
   @ApiProperty({ example: 'Website Redesign' })
@@ -55,55 +56,4 @@ export class CreateProjectDto {
   declare budget?: number;
 }
 
-export class UpdateProjectDto {
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  declare name?: string;
-
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  declare description?: string;
-
-  @ApiProperty({ enum: ProjectStatus, required: false })
-  @IsEnum(ProjectStatus)
-  @IsOptional()
-  declare status?: ProjectStatus;
-
-  @ApiProperty({ type: [String], required: false })
-  @IsString({ each: true })
-  @IsOptional()
-  declare teamMemberIds?: string[];
-
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  declare clientId?: string;
-
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  declare clientName?: string;
-
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  @IsEmail()
-  declare clientEmail?: string;
-
-  @ApiProperty({ required: false })
-  @IsDateString()
-  @IsOptional()
-  declare startDate?: string;
-
-  @ApiProperty({ required: false })
-  @IsDateString()
-  @IsOptional()
-  declare endDate?: string;
-
-  @ApiProperty({ required: false })
-  @IsNumber()
-  @IsOptional()
-  declare budget?: number;
-}
+export class UpdateProjectDto extends PartialType(CreateProjectDto) {}

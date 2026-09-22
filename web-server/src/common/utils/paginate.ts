@@ -1,4 +1,4 @@
-import { Model, FilterQuery } from 'mongoose';
+import { Model } from 'mongoose';
 
 export interface PaginatedResult<T> {
   data: T[];
@@ -10,7 +10,7 @@ export interface PaginatedResult<T> {
 
 export async function paginate<T>(
   model: Model<T>,
-  query: FilterQuery<T>,
+  query: Record<string, unknown>,
   page: number,
   limit: number,
   sort: Record<string, 1 | -1> = { createdAt: -1 },

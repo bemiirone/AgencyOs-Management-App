@@ -2,280 +2,205 @@ import { IsNotEmpty, IsString, IsOptional, IsNumber, IsDateString, IsArray, Vali
 import { ApiProperty } from '@nestjs/swagger';
 import { InvoiceStatus, BillingType } from '../schemas/invoice.schema';
 import { Type } from 'class-transformer';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
 
-export class InvoiceLineItemDto {
+class InvoiceLineItemDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  description: string;
+  declare description: string;
 
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
-  quantity: number;
+  declare quantity: number;
 
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
-  rate: number;
+  declare rate: number;
 
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
-  amount: number;
+  declare amount: number;
 }
 
-export class InvoiceExpenseDto {
+class InvoiceExpenseDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  description: string;
+  declare description: string;
 
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
-  amount: number;
+  declare amount: number;
 
   @ApiProperty({ required: false })
   @IsDateString()
   @IsOptional()
-  date?: string;
+  declare date?: string;
 }
 
-export class DateRangeDto {
+class DateRangeDto {
   @ApiProperty({ required: false })
   @IsDateString()
   @IsOptional()
-  startDate?: string;
+  declare startDate?: string;
 
   @ApiProperty({ required: false })
   @IsDateString()
   @IsOptional()
-  endDate?: string;
+  declare endDate?: string;
 }
 
-export class CreateInvoiceDto {
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  projectId: string;
-
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  clientId?: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  clientName: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  clientEmail: string;
-
+class BaseInvoiceDto {
   @ApiProperty({ enum: BillingType, default: BillingType.BUDGET })
   @IsEnum(BillingType)
   @IsOptional()
-  billingType?: BillingType;
+  declare billingType?: BillingType;
 
   @ApiProperty({ type: [InvoiceLineItemDto], required: false })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => InvoiceLineItemDto)
   @IsOptional()
-  lineItems?: InvoiceLineItemDto[];
+  declare lineItems?: InvoiceLineItemDto[];
 
   @ApiProperty({ type: [InvoiceExpenseDto], required: false })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => InvoiceExpenseDto)
   @IsOptional()
-  expenses?: InvoiceExpenseDto[];
+  declare expenses?: InvoiceExpenseDto[];
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  taskId?: string;
+  declare taskId?: string;
 
   @ApiProperty({ type: DateRangeDto, required: false })
   @ValidateNested()
   @Type(() => DateRangeDto)
   @IsOptional()
-  dateRange?: DateRangeDto;
+  declare dateRange?: DateRangeDto;
 
   @ApiProperty({ required: false })
   @IsNumber()
   @IsOptional()
-  hourlyRate?: number;
+  declare hourlyRate?: number;
 
   @ApiProperty({ required: false })
   @IsNumber()
   @IsOptional()
-  dailyRate?: number;
+  declare dailyRate?: number;
 
   @ApiProperty({ required: false })
   @IsNumber()
   @IsOptional()
-  totalHours?: number;
+  declare totalHours?: number;
 
   @ApiProperty({ required: false })
   @IsNumber()
   @IsOptional()
-  totalDays?: number;
+  declare totalDays?: number;
 
   @ApiProperty({ required: false })
   @IsNumber()
   @IsNotEmpty()
-  subtotal: number;
+  declare subtotal: number;
 
   @ApiProperty({ required: false })
   @IsNumber()
   @IsNotEmpty()
-  amount: number;
+  declare amount: number;
 
   @ApiProperty({ required: false })
   @IsNumber()
   @IsOptional()
-  tax?: number;
+  declare tax?: number;
 
   @ApiProperty({ required: false })
   @IsDateString()
   @IsOptional()
-  dueDate?: string;
-
-  @ApiProperty({ type: [String], required: false })
-  @IsArray()
-  @IsOptional()
-  timeEntryIds?: string[];
-
-  @ApiProperty({ type: [String], required: false })
-  @IsArray()
-  @IsOptional()
-  taskIds?: string[];
+  declare dueDate?: string;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  notes?: string;
+  declare notes?: string;
 }
 
-export class UpdateInvoiceDto {
+class BaseInvoiceUpdateDto extends OmitType(BaseInvoiceDto, ['billingType'] as const) {
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
+  declare total?: number;
+}
+
+export class CreateInvoiceDto extends BaseInvoiceDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  declare projectId: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  declare clientId?: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  declare clientName: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  declare clientEmail: string;
+
+  @ApiProperty({ type: [String], required: false })
+  @IsArray()
+  @IsOptional()
+  declare timeEntryIds?: string[];
+
+  @ApiProperty({ type: [String], required: false })
+  @IsArray()
+  @IsOptional()
+  declare taskIds?: string[];
+}
+
+export class UpdateInvoiceDto extends PartialType(BaseInvoiceUpdateDto) {
   @ApiProperty({ enum: InvoiceStatus, required: false })
-  @IsString()
+  @IsEnum(InvoiceStatus)
   @IsOptional()
-  status?: InvoiceStatus;
-
-  @ApiProperty({ enum: BillingType, required: false })
-  @IsEnum(BillingType)
-  @IsOptional()
-  billingType?: BillingType;
-
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  clientId?: string;
-
-  @ApiProperty({ type: [InvoiceLineItemDto], required: false })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => InvoiceLineItemDto)
-  @IsOptional()
-  lineItems?: InvoiceLineItemDto[];
-
-  @ApiProperty({ type: [InvoiceExpenseDto], required: false })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => InvoiceExpenseDto)
-  @IsOptional()
-  expenses?: InvoiceExpenseDto[];
-
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  taskId?: string;
-
-  @ApiProperty({ type: DateRangeDto, required: false })
-  @ValidateNested()
-  @Type(() => DateRangeDto)
-  @IsOptional()
-  dateRange?: DateRangeDto;
-
-  @ApiProperty({ required: false })
-  @IsNumber()
-  @IsOptional()
-  hourlyRate?: number;
-
-  @ApiProperty({ required: false })
-  @IsNumber()
-  @IsOptional()
-  dailyRate?: number;
-
-  @ApiProperty({ required: false })
-  @IsNumber()
-  @IsOptional()
-  totalHours?: number;
-
-  @ApiProperty({ required: false })
-  @IsNumber()
-  @IsOptional()
-  totalDays?: number;
-
-  @ApiProperty({ required: false })
-  @IsNumber()
-  @IsOptional()
-  subtotal?: number;
-
-  @ApiProperty({ required: false })
-  @IsNumber()
-  @IsOptional()
-  amount?: number;
-
-  @ApiProperty({ required: false })
-  @IsNumber()
-  @IsOptional()
-  tax?: number;
-
-  @ApiProperty({ required: false })
-  @IsNumber()
-  @IsOptional()
-  total?: number;
-
-  @ApiProperty({ required: false })
-  @IsDateString()
-  @IsOptional()
-  dueDate?: string;
-
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  notes?: string;
+  declare status?: InvoiceStatus;
 }
 
 export class TimeAggregationQueryDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  projectId: string;
+  declare projectId: string;
 
   @ApiProperty()
   @IsDateString()
   @IsNotEmpty()
-  startDate: string;
+  declare startDate: string;
 
   @ApiProperty()
   @IsDateString()
   @IsNotEmpty()
-  endDate: string;
+  declare endDate: string;
 
   @ApiProperty({ enum: ['hourly', 'daily'] })
   @IsEnum(['hourly', 'daily'])
   @IsNotEmpty()
-  rateType: 'hourly' | 'daily';
+  declare rateType: 'hourly' | 'daily';
 
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
-  rate: number;
+  declare rate: number;
 }
