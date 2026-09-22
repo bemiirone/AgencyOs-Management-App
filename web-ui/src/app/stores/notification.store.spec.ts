@@ -93,13 +93,12 @@ describe('NotificationStore', () => {
 
   describe('markAsRead', () => {
     it('should mark a notification as read', () => {
-      // First load the notification
       store.loadNotifications().subscribe();
       httpMock.expectOne(API_CONFIG.NOTIFICATIONS.LIST).flush([mockNotification]);
 
       store.markAsRead('notif-1').subscribe(() => {
         const notif = store.notifications().find((n) => n._id === 'notif-1');
-        expect(notif?.status).toBe('sent');
+        expect(notif).toBeUndefined();
       });
 
       const req = httpMock.expectOne(API_CONFIG.NOTIFICATIONS.MARK_READ('notif-1'));
@@ -145,6 +144,35 @@ describe('NotificationStore', () => {
 
       const req = httpMock.expectOne(API_CONFIG.NOTIFICATIONS.MARK_READ('notif-1'));
       req.flush({ message: 'Not found' }, { status: 404, statusText: 'Not Found' });
+    });
+  });
+
+  describe('dismissNotifications', () => {
+    it('should clear all notifications', () => {
+      store.loadNotifications().subscribe();
+      httpMock.expectOne(API_CONFIG.NOTIFICATIONS.LIST).flush([mockNotification]);
+
+      expect(store.notifications().length).toBe(1);
+
+      store.dismissNotifications();
+
+      expect(store.notifications()).toEqual([]);
+    });
+
+    it('should reset unread count to zero', () => {
+      const notifications = [
+        { ...mockNotification, _id: 'notif-1', status: 'pending' as const },
+        { ...mockNotification, _id: 'notif-2', status: 'pending' as const },
+      ];
+
+      store.loadNotifications().subscribe();
+      httpMock.expectOne(API_CONFIG.NOTIFICATIONS.LIST).flush(notifications);
+
+      expect(store.unreadCount()).toBe(2);
+
+      store.dismissNotifications();
+
+      expect(store.unreadCount()).toBe(0);
     });
   });
 });

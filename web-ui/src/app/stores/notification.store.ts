@@ -36,7 +36,7 @@ export class NotificationStore {
     return this.http.patch<Notification>(API_CONFIG.NOTIFICATIONS.MARK_READ(id), {}).pipe(
       tap(() => {
         this._notifications.update((notifications) =>
-          notifications.map((n) => (n._id === id ? { ...n, status: 'sent' as const } : n))
+          notifications.filter((n) => n._id !== id)
         );
         this._unreadCount.update((count) => Math.max(0, count - 1));
       }),
@@ -44,5 +44,10 @@ export class NotificationStore {
         return throwError(() => error);
       })
     );
+  }
+
+  dismissNotifications() {
+    this._notifications.set([]);
+    this._unreadCount.set(0);
   }
 }

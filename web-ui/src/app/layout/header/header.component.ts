@@ -67,8 +67,14 @@ export class HeaderComponent implements OnInit {
   }
 
   toggleNotifications(): void {
+    const wasOpen = this.showNotifications();
     this.showNotifications.update((v) => !v);
     this.showWorkspaceDropdown.set(false);
+    
+    if (wasOpen) {
+      this.notificationStore.dismissNotifications();
+      this.unreadCount.set(0);
+    }
   }
 
   toggleWorkspaceDropdown(): void {
