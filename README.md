@@ -64,6 +64,6 @@ agency-os/
 - **Project & Task Management**: Full CRUD with status workflows
 - **Dashboard**: At-a-glance view of agency metrics, recent activity, and team members
 
-## Demo Site:
+## Live Site:
 
 [AgencyOs Demo](https://agencyos.nsmultimedia.co.uk/)
