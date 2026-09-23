@@ -36,9 +36,9 @@ export class NotificationStore {
     return this.http.patch<Notification>(API_CONFIG.NOTIFICATIONS.MARK_READ(id), {}).pipe(
       tap(() => {
         this._notifications.update((notifications) =>
-          notifications.filter((n) => n._id !== id)
+          notifications.map((n) => (n._id === id ? { ...n, status: 'sent' as const } : n))
         );
-        this._unreadCount.update((count) => Math.max(0, count - 1));
+        this._unreadCount.set(this._notifications().filter((n) => n.status === 'pending').length);
       }),
       catchError((error) => {
         return throwError(() => error);
@@ -46,8 +46,10 @@ export class NotificationStore {
     );
   }
 
-  dismissNotifications() {
-    this._notifications.set([]);
-    this._unreadCount.set(0);
+  dismissReadNotifications() {
+    this._notifications.update((notifications) =>
+      notifications.filter((n) => n.status === 'pending')
+    );
+    this._unreadCount.set(this._notifications().filter((n) => n.status === 'pending').length);
   }
 }

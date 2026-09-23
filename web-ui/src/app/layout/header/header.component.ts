@@ -72,8 +72,8 @@ export class HeaderComponent implements OnInit {
     this.showWorkspaceDropdown.set(false);
     
     if (wasOpen) {
-      this.notificationStore.dismissNotifications();
-      this.unreadCount.set(0);
+      this.notificationStore.dismissReadNotifications();
+      this.unreadCount.set(this.notificationStore.unreadCount());
     }
   }
 

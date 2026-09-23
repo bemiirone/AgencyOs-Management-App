@@ -98,7 +98,7 @@ describe('NotificationStore', () => {
 
       store.markAsRead('notif-1').subscribe(() => {
         const notif = store.notifications().find((n) => n._id === 'notif-1');
-        expect(notif).toBeUndefined();
+        expect(notif?.status).toBe('sent');
       });
 
       const req = httpMock.expectOne(API_CONFIG.NOTIFICATIONS.MARK_READ('notif-1'));
@@ -147,22 +147,31 @@ describe('NotificationStore', () => {
     });
   });
 
-  describe('dismissNotifications', () => {
-    it('should clear all notifications', () => {
-      store.loadNotifications().subscribe();
-      httpMock.expectOne(API_CONFIG.NOTIFICATIONS.LIST).flush([mockNotification]);
-
-      expect(store.notifications().length).toBe(1);
-
-      store.dismissNotifications();
-
-      expect(store.notifications()).toEqual([]);
-    });
-
-    it('should reset unread count to zero', () => {
+  describe('dismissReadNotifications', () => {
+    it('should remove only sent notifications', () => {
       const notifications = [
         { ...mockNotification, _id: 'notif-1', status: 'pending' as const },
-        { ...mockNotification, _id: 'notif-2', status: 'pending' as const },
+        { ...mockNotification, _id: 'notif-2', status: 'sent' as const },
+        { ...mockNotification, _id: 'notif-3', status: 'pending' as const },
+      ];
+
+      store.loadNotifications().subscribe();
+      httpMock.expectOne(API_CONFIG.NOTIFICATIONS.LIST).flush(notifications);
+
+      expect(store.notifications().length).toBe(2);
+
+      store.dismissReadNotifications();
+
+      expect(store.notifications().length).toBe(2);
+      expect(store.notifications()[0]._id).toBe('notif-1');
+      expect(store.notifications()[1]._id).toBe('notif-3');
+    });
+
+    it('should reset unread count to reflect only pending notifications', () => {
+      const notifications = [
+        { ...mockNotification, _id: 'notif-1', status: 'pending' as const },
+        { ...mockNotification, _id: 'notif-2', status: 'sent' as const },
+        { ...mockNotification, _id: 'notif-3', status: 'pending' as const },
       ];
 
       store.loadNotifications().subscribe();
@@ -170,9 +179,9 @@ describe('NotificationStore', () => {
 
       expect(store.unreadCount()).toBe(2);
 
-      store.dismissNotifications();
+      store.dismissReadNotifications();
 
-      expect(store.unreadCount()).toBe(0);
+      expect(store.unreadCount()).toBe(2);
     });
   });
 });
