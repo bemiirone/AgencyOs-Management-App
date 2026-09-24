@@ -71,3 +71,5 @@ agency-os/
 ## Screenshots
 
 ![AgencyOS Dashboard](assets/web-ui.png)
+
+![AgencyOS tasks](assets/task-ui.png)
