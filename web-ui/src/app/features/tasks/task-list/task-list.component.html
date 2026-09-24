@@ -124,7 +124,18 @@
                       <span class="text-sm">{{ getCreatorName(task) }}</span>
                     </div>
                   </td>
-                  <td class="text-sm">{{ formatDate(task.dueDate) }}</td>
+                  <td class="text-sm">
+                    <div class="flex items-center gap-2">
+                      @if (getTaskUrgency(task) === 'overdue') {
+                        <fa-icon [icon]="faExclamationCircle" class="text-error" title="Overdue"></fa-icon>
+                      } @else if (getTaskUrgency(task) === 'soon') {
+                        <fa-icon [icon]="faExclamationTriangle" class="text-warning" title="Due within a week"></fa-icon>
+                      }
+                      <span [class.text-error]="getTaskUrgency(task) === 'overdue'" [class.text-warning]="getTaskUrgency(task) === 'soon'">
+                        {{ formatDate(task.dueDate) }}
+                      </span>
+                    </div>
+                  </td>
                    <td>
                     <div class="flex gap-2">
                       <a [routerLink]="['/tasks', task._id, 'edit']" queryParamsHandling="preserve" class="btn btn-ghost btn-xs">

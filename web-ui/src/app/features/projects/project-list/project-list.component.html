@@ -59,7 +59,18 @@
                   </td>
                   <td>{{ project.clientName || 'Unknown' }}</td>
                   <td class="font-medium">{{ formatCurrency(project.budget) }}</td>
-                  <td>{{ formatDate(project.endDate) }}</td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      @if (getProjectUrgency(project) === 'overdue') {
+                        <fa-icon [icon]="faExclamationCircle" class="text-error" title="Past end date"></fa-icon>
+                      } @else if (getProjectUrgency(project) === 'soon') {
+                        <fa-icon [icon]="faExclamationTriangle" class="text-warning" title="Ending within a week"></fa-icon>
+                      }
+                      <span [class.text-error]="getProjectUrgency(project) === 'overdue'" [class.text-warning]="getProjectUrgency(project) === 'soon'">
+                        {{ formatDate(project.endDate) }}
+                      </span>
+                    </div>
+                  </td>
                    <td>
                     <div class="flex gap-2">
                       @if (isAdmin()) {

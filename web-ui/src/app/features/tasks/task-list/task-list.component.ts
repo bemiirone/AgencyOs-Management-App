@@ -9,6 +9,8 @@ import {
   faTrash,
   faSpinner,
   faFilter,
+  faExclamationTriangle,
+  faExclamationCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import { Task } from '../../../shared/models/task.model';
 import { Project } from '../../../shared/models/project.model';
@@ -57,6 +59,8 @@ export class TaskListComponent implements OnInit {
   readonly faTrash = faTrash;
   readonly faSpinner = faSpinner;
   readonly faFilter = faFilter;
+  readonly faExclamationTriangle = faExclamationTriangle;
+  readonly faExclamationCircle = faExclamationCircle;
 
   ngOnInit(): void {
     const queryParams = this.route.snapshot.queryParams;
@@ -198,6 +202,22 @@ export class TaskListComponent implements OnInit {
   formatDate(date: string | Date | undefined): string {
     if (!date) return 'N/A';
     return new Date(date).toLocaleDateString();
+  }
+
+  getTaskUrgency(task: Task): 'normal' | 'soon' | 'overdue' {
+    if (!task.dueDate || task.status === 'done') return 'normal';
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const dueDate = new Date(task.dueDate);
+    dueDate.setHours(0, 0, 0, 0);
+
+    const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) return 'overdue';
+    if (diffDays <= 7) return 'soon';
+    return 'normal';
   }
 
   getStatusBadgeClass(status: string): string {

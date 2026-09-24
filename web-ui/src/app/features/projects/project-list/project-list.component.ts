@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faPlus, faEdit, faTrash, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEdit, faTrash, faSpinner, faExclamationTriangle, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import { Project } from '../../../shared/models/project.model';
 import { ProjectStore } from '../../../stores/project.store';
 import { AuthService } from '../../../core/services/auth.service';
@@ -42,6 +42,8 @@ export class ProjectListComponent implements OnInit {
   readonly faEdit = faEdit;
   readonly faTrash = faTrash;
   readonly faSpinner = faSpinner;
+  readonly faExclamationTriangle = faExclamationTriangle;
+  readonly faExclamationCircle = faExclamationCircle;
 
   ngOnInit(): void {
     const search = this.route.snapshot.queryParams['search'] || '';
@@ -143,6 +145,22 @@ export class ProjectListComponent implements OnInit {
   formatDate(date: string | Date | undefined): string {
     if (!date) return 'N/A';
     return new Date(date).toLocaleDateString();
+  }
+
+  getProjectUrgency(project: Project): 'normal' | 'soon' | 'overdue' {
+    if (!project.endDate || project.status !== 'active') return 'normal';
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(project.endDate);
+    endDate.setHours(0, 0, 0, 0);
+
+    const diffDays = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) return 'overdue';
+    if (diffDays <= 7) return 'soon';
+    return 'normal';
   }
 
   formatCurrency(amount: number | undefined): string {
