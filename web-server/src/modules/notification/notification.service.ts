@@ -23,7 +23,7 @@ export class NotificationService {
     title: string,
     message: string,
     type: NotificationType = NotificationType.WEBSOCKET,
-    entityType?: 'project' | 'task',
+    entityType?: 'project' | 'task' | 'invoice',
     entityId?: string,
   ) {
     const notification = await this.notificationModel.create({

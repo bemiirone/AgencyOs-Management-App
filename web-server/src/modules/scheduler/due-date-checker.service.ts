@@ -140,22 +140,23 @@ export class DueDateCheckerService {
       if (!invoice.dueDate) continue;
 
       const dueDate = new Date(invoice.dueDate);
-      const lastReminder = invoice.lastDueDateReminderSent;
+      const lastDueSoonReminder = invoice.lastDueSoonReminderSent;
+      const lastOverdueReminder = invoice.lastOverdueReminderSent;
 
       const isDueSoon =
         dueDate <= sevenDaysFromNow &&
         dueDate > now &&
-        (!lastReminder || lastReminder < now);
+        (!lastDueSoonReminder || lastDueSoonReminder < now);
 
       const isOverdue =
         dueDate < now &&
-        (!lastReminder || lastReminder < now);
+        (!lastOverdueReminder || lastOverdueReminder < now);
 
       if (isDueSoon && settings.invoiceDueSoon?.enabled) {
-        await this.notifyInvoiceRecipients(invoice, tenantId, settings.invoiceDueSoon);
+        await this.notifyInvoiceRecipients(invoice, tenantId, 'dueSoon', settings.invoiceDueSoon);
         count++;
       } else if (isOverdue && settings.invoiceOverdue?.enabled) {
-        await this.notifyInvoiceRecipients(invoice, tenantId, settings.invoiceOverdue);
+        await this.notifyInvoiceRecipients(invoice, tenantId, 'overdue', settings.invoiceOverdue);
         count++;
       }
     }
@@ -236,11 +237,12 @@ export class DueDateCheckerService {
   private async notifyInvoiceRecipients(
     invoice: Invoice,
     tenantId: string,
+    type: 'dueSoon' | 'overdue',
     config: { titleTemplate: string; messageTemplate: string },
   ) {
     const adminMembers = await this.tenantMemberModel.find({
       tenantId,
-      role: { $in: [UserRole.ADMIN, UserRole.MANAGER] },
+      role: UserRole.ADMIN,
       isActive: true,
     }).exec();
 
@@ -260,8 +262,9 @@ export class DueDateCheckerService {
       );
     }
 
+    const reminderField = type === 'dueSoon' ? 'lastDueSoonReminderSent' : 'lastOverdueReminderSent';
     await this.invoiceModel.findByIdAndUpdate(invoice._id, {
-      $set: { lastDueDateReminderSent: new Date() },
+      $set: { lastDueDateReminderSent: new Date(), [reminderField]: new Date() },
     });
   }
 }
