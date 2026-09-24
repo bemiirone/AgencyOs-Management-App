@@ -78,7 +78,18 @@
                       {{ getStatusLabel(invoice.status) }}
                     </span>
                   </td>
-                  <td>{{ formatDate(invoice.dueDate) }}</td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      @if (getInvoiceUrgency(invoice) === 'overdue') {
+                        <fa-icon [icon]="faExclamationCircle" class="text-error" title="Overdue"></fa-icon>
+                      } @else if (getInvoiceUrgency(invoice) === 'soon') {
+                        <fa-icon [icon]="faExclamationTriangle" class="text-warning" title="Due within a week"></fa-icon>
+                      }
+                      <span [class.text-error]="getInvoiceUrgency(invoice) === 'overdue'" [class.text-warning]="getInvoiceUrgency(invoice) === 'soon'">
+                        {{ formatDate(invoice.dueDate) }}
+                      </span>
+                    </div>
+                  </td>
                   <td>
                     <div class="flex gap-2">
                       <a [routerLink]="['/invoices', invoice._id]" queryParamsHandling="preserve" class="btn btn-ghost btn-xs">

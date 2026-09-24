@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faPlus, faEye, faEdit, faTrash, faSearch, faSpinner, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEye, faEdit, faTrash, faSearch, faSpinner, faPaperPlane, faExclamationTriangle, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import { Invoice } from '../../shared/models/invoice.model';
 import { InvoiceStore } from '../../stores/invoice.store';
 import { ProjectStore } from '../../stores/project.store';
@@ -37,6 +37,8 @@ export class InvoicesComponent implements OnInit {
   readonly faSearch = faSearch;
   readonly faSpinner = faSpinner;
   readonly faPaperPlane = faPaperPlane;
+  readonly faExclamationTriangle = faExclamationTriangle;
+  readonly faExclamationCircle = faExclamationCircle;
 
   @ViewChild('confirmDialog') confirmDialog!: ConfirmDialogComponent;
   readonly pendingInvoiceId = signal<string | null>(null);
@@ -108,6 +110,22 @@ export class InvoicesComponent implements OnInit {
   formatDate(date: string | Date | undefined): string {
     if (!date) return 'N/A';
     return new Date(date).toLocaleDateString('en-GB');
+  }
+
+  getInvoiceUrgency(invoice: Invoice): 'normal' | 'soon' | 'overdue' {
+    if (invoice.status === 'paid' || invoice.status === 'cancelled' || invoice.status === 'draft') return 'normal';
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const dueDate = new Date(invoice.dueDate);
+    dueDate.setHours(0, 0, 0, 0);
+    
+    const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) return 'overdue';
+    if (diffDays <= 7) return 'soon';
+    return 'normal';
   }
 
   deleteInvoice(id: string): void {
