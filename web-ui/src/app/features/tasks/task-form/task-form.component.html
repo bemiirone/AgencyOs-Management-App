@@ -65,6 +65,15 @@
             ></textarea>
           </div>
 
+          @if (mode() === 'edit' && selectedProjectName()) {
+            <div class="form-control mb-4">
+              <label class="label">
+                <span class="label-text font-medium">Current Project</span>
+              </label>
+              <input type="text" [value]="selectedProjectName()" class="input input-bordered w-full" disabled />
+            </div>
+          }
+
           <div class="form-control mb-4">
             <label for="task-project" class="label">
               <span class="label-text font-medium">Project</span>

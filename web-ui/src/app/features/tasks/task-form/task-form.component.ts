@@ -50,6 +50,17 @@ export class TaskFormComponent implements OnInit {
     this.projects().filter((p) => p.status === 'active' || p.status === 'draft')
   );
 
+  readonly selectedProjectName = computed(() => {
+    if (this.mode() === 'edit') {
+      const task = this.loadedTask();
+      if (task?.projectId) {
+        const project = this.projects().find(p => p._id === task.projectId);
+        return project?.name || '';
+      }
+    }
+    return '';
+  });
+
   taskForm: FormGroup = this.fb.group({
     title: ['', Validators.required],
     description: [''],
