@@ -73,3 +73,5 @@ agency-os/
 ![AgencyOS Dashboard](assets/web-ui.png)
 
 ![AgencyOS tasks](assets/task-ui.png)
+
+![AgencyOS timer](assets/timer-ui.png)
