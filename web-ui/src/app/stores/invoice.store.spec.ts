@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
-import { InvoiceStore, CreateInvoicePayload, UpdateInvoicePayload } from './invoice.store';
+import { InvoiceStore } from './invoice.store';
+import { CreateInvoicePayload, UpdateInvoicePayload } from './invoice.types';
 import { ToastService } from '../core/services/toast.service';
 import { API_CONFIG } from '../core/config/api.config';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';

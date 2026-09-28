@@ -2,30 +2,7 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { catchError, tap, throwError } from 'rxjs';
 import { UserAdminService } from '../core/services/user-admin.service';
 import { ToastService } from '../core/services/toast.service';
-
-export interface UserWithRole {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateUserDto {
-  name: string;
-  email: string;
-  password: string;
-  role?: string;
-}
-
-export interface UpdateUserDto {
-  name?: string;
-  email?: string;
-  role?: string;
-}
-
+import { UserWithRole, CreateUserDto, UpdateUserDto } from './user.types';
 @Injectable({ providedIn: 'root' })
 export class UserStore {
   private service = inject(UserAdminService);

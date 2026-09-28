@@ -4,29 +4,7 @@ import { catchError, tap, throwError } from 'rxjs';
 import { User } from '../shared/models/user.model';
 import { API_CONFIG } from '../core/config/api.config';
 import { StorageService } from '../core/services/storage.service';
-
-export interface WorkspaceInfo {
-  tenantId: string;
-  tenantName: string;
-  role: string;
-  isLastUsed: boolean;
-}
-
-export interface AuthResponse {
-  user: User;
-  accessToken: string;
-  refreshToken: string;
-  requiresWorkspaceSelection?: boolean;
-  workspaces?: WorkspaceInfo[];
-}
-
-export interface AuthState {
-  user: User | null;
-  token: string | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  error: string | null;
-}
+import { AuthResponse, AuthState } from './auth.types';
 
 @Injectable({ providedIn: 'root' })
 export class AuthStore {
