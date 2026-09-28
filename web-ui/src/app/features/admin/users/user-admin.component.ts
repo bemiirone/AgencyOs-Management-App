@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { UserStore, UserWithRole } from '../../../stores/user.store';
+import { UserStore } from '../../../stores/user.store';
+import {  UserWithRole } from '../../../stores/user.types';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { ToastService } from '../../../core/services/toast.service';

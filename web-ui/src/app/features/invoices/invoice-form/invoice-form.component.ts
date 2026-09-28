@@ -5,7 +5,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowLeft, faSpinner, faSave, faPlus, faTrash, faClock, faCheckSquare, faSquare } from '@fortawesome/free-solid-svg-icons';
-import { InvoiceStore, CreateInvoicePayload, UpdateInvoicePayload, TimeCalculationResult } from '../../../stores/invoice.store';
+import { InvoiceStore } from '../../../stores/invoice.store';
+import { CreateInvoicePayload, UpdateInvoicePayload, TimeCalculationResult } from '../../../stores/invoice.types';
 import { ProjectStore } from '../../../stores/project.store';
 import { TaskStore } from '../../../stores/task.store';
 import { ContentStore } from '../../../stores/content.store';
@@ -410,8 +411,6 @@ export class InvoiceFormComponent implements OnInit {
     this.invoiceForm.get('subtotal')?.setValue(baseAmount + expensesTotal, { emitEvent: false });
   }
 
-  updateTotals(): void {
-  }
 
   onLineItemChange(): void {
     this.updateLineItemAmounts();

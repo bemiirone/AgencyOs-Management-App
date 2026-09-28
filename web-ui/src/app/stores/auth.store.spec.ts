@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
-import { AuthStore, AuthResponse } from './auth.store';
+import { AuthStore } from './auth.store';
+import { AuthResponse } from './auth.types';
 import { StorageService } from '../core/services/storage.service';
 import { API_CONFIG } from '../core/config/api.config';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
