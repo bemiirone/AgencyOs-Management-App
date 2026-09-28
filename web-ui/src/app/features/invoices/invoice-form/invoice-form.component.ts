@@ -500,20 +500,16 @@ export class InvoiceFormComponent implements OnInit {
         this.calculationDetails.set(result.entries);
 
         if (rateType === 'hourly') {
-          const roundedBillable = this.roundToHalfHour(result.totalBillableHours);
-          const roundedOvertime = this.roundToHalfHour(result.totalOvertimeHours);
-          const overtimeMultiplier = this.invoiceForm.get('overtimeRate')?.value || 1.5;
-          const amount = (roundedBillable * rate) + (roundedOvertime * rate * overtimeMultiplier);
           this.invoiceForm.patchValue({
-            totalHours: roundedBillable + roundedOvertime,
-            amount: Math.round(amount * 100) / 100,
-            subtotal: Math.round(amount * 100) / 100,
+            totalHours: result.totalBillableHours + result.totalOvertimeHours,
+            amount: result.amount,
+            subtotal: result.amount,
           });
         } else {
           this.invoiceForm.patchValue({
             totalDays: result.totalDays,
-            amount: Math.round(result.amount * 100) / 100,
-            subtotal: Math.round(result.amount * 100) / 100,
+            amount: result.amount,
+            subtotal: result.amount,
           });
         }
 

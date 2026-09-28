@@ -177,6 +177,30 @@ export class InvoiceService {
     };
   }
 
+  private extractDaysFromHours(hours: number, workDayHours: number): { days: number; billableHours: number; overtimeHours: number } {
+    if (hours <= 0) {
+      return { days: 0, billableHours: 0, overtimeHours: 0 };
+    }
+
+    const fullPeriods = Math.floor(hours / 24);
+    const remainder = hours - (fullPeriods * 24);
+
+    let extraDays = 0;
+    if (remainder >= workDayHours) {
+      extraDays = 1;
+    } else if (remainder >= workDayHours / 2) {
+      extraDays = 0.5;
+    } else if (remainder > 0) {
+      extraDays = 0.25;
+    }
+
+    const totalDays = fullPeriods + extraDays;
+    const billableHours = totalDays * workDayHours;
+    const overtimeHours = Math.max(0, hours - billableHours);
+
+    return { days: totalDays, billableHours, overtimeHours };
+  }
+
   async calculateTimeEntries(query: CalculateTimeEntriesDto, tenantId: string): Promise<TimeCalculationResult> {
     const timeEntries = await this.timeEntryModel
       .find({
@@ -206,76 +230,58 @@ export class InvoiceService {
     const rate = query.rateType === 'hourly' ? (query.hourlyRate ?? 0) : (query.dailyRate ?? 0);
 
     const entries: TimeEntryCalculationDetail[] = [];
-    const automaticEntriesByDate = new Map<string, TimeEntry[]>();
+    const automaticEntries: TimeEntry[] = [];
+    let totalAutomaticHours = 0;
+    let totalManualHours = 0;
 
     for (const entry of timeEntries) {
       const entryDate = new Date(entry.startTime).toISOString().split('T')[0];
+      const entryHours = entry.duration / 3600;
 
       if (entry.calculationMode === 'automatic') {
-        if (!automaticEntriesByDate.has(entryDate)) {
-          automaticEntriesByDate.set(entryDate, []);
-        }
-        automaticEntriesByDate.get(entryDate)!.push(entry);
+        totalAutomaticHours += entryHours;
+        automaticEntries.push(entry);
       } else {
-        const totalHours = entry.duration / 3600;
+        totalManualHours += entryHours;
         entries.push({
           timeEntryId: entry._id.toString(),
           description: entry.description || '',
           date: entryDate,
-          totalHours: Math.round(totalHours * 100) / 100,
-          billableHours: Math.round(totalHours * 100) / 100,
+          totalHours: Math.round(entryHours * 100) / 100,
+          billableHours: Math.round(entryHours * 100) / 100,
           overtimeHours: 0,
           calculationMode: 'manual',
         });
       }
     }
 
-    for (const [date, dayEntries] of automaticEntriesByDate.entries()) {
-      const totalSecondsForDay = dayEntries.reduce((sum, e) => sum + e.duration, 0);
-      let totalHoursForDay = totalSecondsForDay / 3600;
+    let automaticDays = 0;
+    let automaticBillableHours = 0;
+    let automaticOvertimeHours = 0;
 
-      totalHoursForDay = Math.min(totalHoursForDay, 24);
+    if (totalAutomaticHours > 0) {
+      const extraction = this.extractDaysFromHours(totalAutomaticHours, workDayHours);
+      automaticDays = extraction.days;
+      automaticBillableHours = extraction.billableHours;
+      automaticOvertimeHours = extraction.overtimeHours;
 
-      let billableHours: number;
-      let overtimeHours: number;
-
-      if (totalHoursForDay <= workDayHours) {
-        billableHours = totalHoursForDay;
-        overtimeHours = 0;
-      } else {
-        billableHours = workDayHours;
-        overtimeHours = Math.min(totalHoursForDay - workDayHours, 24 - workDayHours);
-      }
-
-      for (const entry of dayEntries) {
+      const totalAutoH = totalAutomaticHours;
+      for (const entry of automaticEntries) {
         const entryHours = entry.duration / 3600;
+        const proportion = entryHours / totalAutoH;
+        const entryBillable = proportion * automaticBillableHours;
+        const entryOvertime = proportion * automaticOvertimeHours;
+        const entryDate = new Date(entry.startTime).toISOString().split('T')[0];
+
         entries.push({
           timeEntryId: entry._id.toString(),
           description: entry.description || '',
-          date,
+          date: entryDate,
           totalHours: Math.round(entryHours * 100) / 100,
-          billableHours: 0,
-          overtimeHours: 0,
+          billableHours: Math.round(entryBillable * 100) / 100,
+          overtimeHours: Math.round(entryOvertime * 100) / 100,
           calculationMode: 'automatic',
         });
-      }
-
-      const dayEntryIds = dayEntries.map((e) => e._id.toString());
-      for (const entry of entries) {
-        if (dayEntryIds.includes(entry.timeEntryId)) {
-          const entryHours = entry.totalHours;
-          if (billableHours > 0) {
-            const allocatedBillable = Math.min(entryHours, billableHours);
-            entry.billableHours = Math.round(allocatedBillable * 100) / 100;
-            billableHours -= allocatedBillable;
-            const remainingHours = entryHours - allocatedBillable;
-            if (overtimeHours > 0 && remainingHours > 0) {
-              const allocatedOvertime = Math.min(remainingHours, overtimeHours);
-              entry.overtimeHours = Math.round(allocatedOvertime * 100) / 100;
-              overtimeHours -= allocatedOvertime;
-            }
-          }
-        }
       }
     }
 
@@ -285,31 +291,17 @@ export class InvoiceService {
     const totalOvertimeHours = entries.reduce((sum, e) => sum + e.overtimeHours, 0);
 
     let amount = 0;
+    let totalDays = automaticDays;
+
     if (query.rateType === 'hourly') {
       const regularAmount = totalBillableHours * rate;
       const overtimeAmount = totalOvertimeHours * rate * overtimeRate;
       amount = regularAmount + overtimeAmount;
     } else {
-      const dateMap = new Map<string, number>();
-      for (const entry of entries) {
-        if (!dateMap.has(entry.date)) {
-          dateMap.set(entry.date, 0);
-        }
-        dateMap.set(entry.date, dateMap.get(entry.date)! + entry.billableHours);
-      }
-
-      let totalDays = 0;
-      for (const hours of dateMap.values()) {
-        if (hours >= workDayHours) {
-          totalDays += 1;
-        } else if (hours >= workDayHours / 2) {
-          totalDays += 0.5;
-        } else if (hours > 0) {
-          totalDays += hours / workDayHours;
-        }
-      }
-
+      const manualEntry = this.extractDaysFromHours(totalManualHours, workDayHours);
+      totalDays += manualEntry.days;
       amount = totalDays * rate;
+
       entries.forEach((e) => {
         e.overtimeHours = 0;
       });
@@ -320,7 +312,7 @@ export class InvoiceService {
       totalHours: Math.round(totalHours * 100) / 100,
       totalBillableHours: Math.round(totalBillableHours * 100) / 100,
       totalOvertimeHours: Math.round(totalOvertimeHours * 100) / 100,
-      totalDays: query.rateType === 'daily' ? Math.round((amount / (rate || 1)) * 100) / 100 : 0,
+      totalDays: Math.round(totalDays * 100) / 100,
       entryCount: timeEntries.length,
       amount: Math.round(amount * 100) / 100,
       timeEntryIds: timeEntries.map((e) => e._id.toString()),

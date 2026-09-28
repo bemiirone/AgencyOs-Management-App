@@ -245,15 +245,15 @@ export class CalculateTimeEntriesDto {
   @IsNotEmpty()
   declare rateType: 'hourly' | 'daily';
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   @Min(0)
   declare hourlyRate?: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   @Min(0)
   declare dailyRate?: number;
 
