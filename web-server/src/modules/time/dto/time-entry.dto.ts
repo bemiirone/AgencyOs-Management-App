@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsOptional, IsBoolean, IsDateString } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsBoolean, IsDateString, IsEnum } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { PartialType } from '@nestjs/mapped-types';
 
@@ -22,6 +22,11 @@ export class CreateTimeEntryDto {
   @IsBoolean()
   @IsOptional()
   declare isBillable?: boolean;
+
+  @ApiProperty({ enum: ['automatic', 'manual'], default: 'automatic', required: false })
+  @IsEnum(['automatic', 'manual'])
+  @IsOptional()
+  declare calculationMode?: 'automatic' | 'manual';
 }
 
 export class UpdateTimeEntryDto extends PartialType(CreateTimeEntryDto) {

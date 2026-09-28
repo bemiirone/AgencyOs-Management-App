@@ -13,6 +13,7 @@ export interface TimeEntry {
   isBillable: boolean;
   isRunning: boolean;
   hourlyRate?: number;
+  calculationMode?: 'automatic' | 'manual';
   createdAt: Date;
   updatedAt: Date;
 }

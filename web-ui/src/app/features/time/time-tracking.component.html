@@ -75,6 +75,34 @@
             </label>
           </div>
 
+          <div class="form-control">
+            <span class="label">
+              <span class="label-text font-medium">Calculation</span>
+            </span>
+            <div class="flex gap-2">
+              <label class="label cursor-pointer gap-1">
+                <input
+                  type="radio"
+                  name="calcMode"
+                  [(ngModel)]="calculationMode"
+                  value="automatic"
+                  class="radio radio-primary radio-sm"
+                />
+                <span class="label-text text-xs">Auto</span>
+              </label>
+              <label class="label cursor-pointer gap-1">
+                <input
+                  type="radio"
+                  name="calcMode"
+                  [(ngModel)]="calculationMode"
+                  value="manual"
+                  class="radio radio-primary radio-sm"
+                />
+                <span class="label-text text-xs">Manual</span>
+              </label>
+            </div>
+          </div>
+
           <div class="flex flex-col items-end gap-2">
             @if (timeEntryStore.runningEntry()) {
               <div class="text-xs text-base-content/60">
@@ -104,6 +132,7 @@
         </div>
         <div class="text-xs text-base-content/40 mt-2">
           Starting a new timer will automatically stop any currently running timer.
+          <span class="ml-2">Auto mode caps billable time at working day hours.</span>
         </div>
       </div>
     </div>
@@ -142,6 +171,15 @@
                         </span>
                       }
                       <span class="font-medium">{{ entry.description || 'No description' }}</span>
+                      @if (entry.calculationMode) {
+                        <span
+                          class="badge badge-sm"
+                          [class.badge-success]="entry.calculationMode === 'automatic'"
+                          [class.badge-ghost]="entry.calculationMode === 'manual'"
+                        >
+                          {{ entry.calculationMode === 'automatic' ? 'Auto' : 'Manual' }}
+                        </span>
+                      }
                     </div>
                     <div class="text-sm text-base-content/60 mt-1">
                       {{ getProjectName(entry.projectId) }}

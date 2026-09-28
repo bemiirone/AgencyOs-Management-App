@@ -25,6 +25,7 @@ interface CreateTimeEntryPayload {
   taskId?: string;
   description: string;
   isBillable: boolean;
+  calculationMode?: 'automatic' | 'manual';
 }
 
 @Component({
@@ -52,6 +53,7 @@ export class TimeTrackingComponent implements OnInit {
   readonly selectedTaskId = signal('');
   readonly timerDescription = signal('');
   readonly isBillable = signal(false);
+  readonly calculationMode = signal<'automatic' | 'manual'>('automatic');
   readonly searchQuery = signal('');
 
   readonly showRunningBanner = signal(false);
@@ -98,6 +100,9 @@ export class TimeTrackingComponent implements OnInit {
           if (entry.taskId) this.selectedTaskId.set(entry.taskId);
           this.timerDescription.set(entry.description || '');
           this.isBillable.set(entry.isBillable);
+          if (entry.calculationMode) {
+            this.calculationMode.set(entry.calculationMode);
+          }
 
           const projectName = this.getProjectName(entry.projectId);
           const startedAgo = this.timeAgo(new Date(entry.startTime));
@@ -130,6 +135,7 @@ export class TimeTrackingComponent implements OnInit {
       projectId,
       description: this.timerDescription(),
       isBillable: this.isBillable(),
+      calculationMode: this.calculationMode(),
     };
 
     if (this.selectedTaskId()) {

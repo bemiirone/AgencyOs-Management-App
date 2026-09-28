@@ -36,6 +36,9 @@ export class TimeEntry extends BaseDocument {
 
   @Prop()
   declare approvedBy: string;
+
+  @Prop({ enum: ['automatic', 'manual'], default: 'manual' })
+  declare calculationMode: 'automatic' | 'manual';
 }
 
 export const TimeEntrySchema = SchemaFactory.createForClass(TimeEntry);

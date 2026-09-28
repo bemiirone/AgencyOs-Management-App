@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsOptional, IsNumber, IsDateString, IsArray, ValidateNested, IsEnum } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsNumber, IsDateString, IsArray, ValidateNested, IsEnum, IsIn, Min, Max } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { InvoiceStatus, BillingType } from '../schemas/invoice.schema';
 import { Type } from 'class-transformer';
@@ -106,6 +106,19 @@ class BaseInvoiceDto {
   @IsOptional()
   declare totalDays?: number;
 
+  @ApiProperty({ required: false, default: 8 })
+  @IsNumber()
+  @IsOptional()
+  @Min(1)
+  @Max(24)
+  declare workDayHours?: number;
+
+  @ApiProperty({ required: false, default: 1.5 })
+  @IsNumber()
+  @IsOptional()
+  @Min(1)
+  declare overtimeRate?: number;
+
   @ApiProperty({ required: false })
   @IsNumber()
   @IsNotEmpty()
@@ -203,4 +216,50 @@ export class TimeAggregationQueryDto {
   @IsNumber()
   @IsNotEmpty()
   declare rate: number;
+}
+
+export class TimeEntryCalculationOptionsDto {
+  @ApiProperty({ required: false, default: 8, description: 'Working day length in hours (1-24)' })
+  @IsNumber()
+  @IsOptional()
+  @Min(1)
+  @Max(24)
+  declare workDayHours?: number;
+
+  @ApiProperty({ required: false, default: 1.5, description: 'Overtime rate multiplier (e.g., 1.5 for time-and-a-half)' })
+  @IsNumber()
+  @IsOptional()
+  @Min(1)
+  declare overtimeRate?: number;
+}
+
+export class CalculateTimeEntriesDto {
+  @ApiProperty({ type: [String], description: 'Array of time entry IDs to calculate' })
+  @IsArray()
+  @IsString({ each: true })
+  @IsNotEmpty({ each: true })
+  declare timeEntryIds: string[];
+
+  @ApiProperty({ enum: ['hourly', 'daily'] })
+  @IsEnum(['hourly', 'daily'])
+  @IsNotEmpty()
+  declare rateType: 'hourly' | 'daily';
+
+  @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(0)
+  declare hourlyRate?: number;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(0)
+  declare dailyRate?: number;
+
+  @ApiProperty({ required: false })
+  @ValidateNested()
+  @Type(() => TimeEntryCalculationOptionsDto)
+  @IsOptional()
+  declare calculationOptions?: TimeEntryCalculationOptionsDto;
 }

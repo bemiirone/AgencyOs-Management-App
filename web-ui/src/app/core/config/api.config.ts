@@ -44,6 +44,7 @@ export const API_CONFIG = {
   TIME_ENTRIES: {
     LIST: '/api/time-entries',
     BY_PROJECT: (projectId: string) => `/api/time-entries?projectId=${projectId}`,
+    BILLABLE_BY_PROJECT: (projectId: string) => `/api/time-entries?projectId=${projectId}&isBillable=true&isRunning=false`,
     BY_TASK: (taskId: string) => `/api/time-entries?taskId=${taskId}`,
     RUNNING: '/api/time-entries/running',
     CLEANUP_ORPHANED: '/api/time-entries/cleanup-orphaned',
@@ -63,6 +64,7 @@ export const API_CONFIG = {
     PAY: (id: string) => `/api/invoices/${id}/pay`,
     DELETE: (id: string) => `/api/invoices/${id}`,
     AGGREGATE_TIME: '/api/invoices/aggregate-time',
+    CALCULATE_TIME: '/api/invoices/calculate-time',
   },
   USERS: {
     LIST: '/api/users',

@@ -20,6 +20,8 @@ export interface Invoice {
   dailyRate?: number;
   totalHours?: number;
   totalDays?: number;
+  workDayHours?: number;
+  overtimeRate?: number;
   subtotal: number;
   amount: number;
   tax: number;
@@ -46,11 +48,24 @@ export interface InvoiceExpense {
   date?: Date;
 }
 
+export interface TimeEntryCalculationDetail {
+  timeEntryId: string;
+  description: string;
+  date: string;
+  totalHours: number;
+  billableHours: number;
+  overtimeHours: number;
+  calculationMode: 'automatic' | 'manual';
+}
+
 export interface TimeAggregationResult {
   totalSeconds: number;
   totalHours: number;
+  totalBillableHours: number;
+  totalOvertimeHours: number;
   totalDays: number;
   entryCount: number;
   amount: number;
   timeEntryIds: string[];
+  entries: TimeEntryCalculationDetail[];
 }

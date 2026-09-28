@@ -3,9 +3,31 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { Invoice, InvoiceStatus } from './schemas/invoice.schema';
-import { CreateInvoiceDto, UpdateInvoiceDto, TimeAggregationQueryDto } from './dto/invoice.dto';
+import { CreateInvoiceDto, UpdateInvoiceDto, TimeAggregationQueryDto, CalculateTimeEntriesDto } from './dto/invoice.dto';
 import { TimeEntry } from '../time/schemas/time-entry.schema';
 import { Project } from '../project/schemas/project.schema';
+
+interface TimeEntryCalculationDetail {
+  timeEntryId: string;
+  description: string;
+  date: string;
+  totalHours: number;
+  billableHours: number;
+  overtimeHours: number;
+  calculationMode: 'automatic' | 'manual';
+}
+
+interface TimeCalculationResult {
+  totalSeconds: number;
+  totalHours: number;
+  totalBillableHours: number;
+  totalOvertimeHours: number;
+  totalDays: number;
+  entryCount: number;
+  amount: number;
+  timeEntryIds: string[];
+  entries: TimeEntryCalculationDetail[];
+}
 
 @Injectable()
 export class InvoiceService {
@@ -152,6 +174,157 @@ export class InvoiceService {
       entryCount: timeEntries.length,
       amount: Math.round(amount * 100) / 100,
       timeEntryIds: timeEntries.map((e) => e._id.toString()),
+    };
+  }
+
+  async calculateTimeEntries(query: CalculateTimeEntriesDto, tenantId: string): Promise<TimeCalculationResult> {
+    const timeEntries = await this.timeEntryModel
+      .find({
+        tenantId,
+        _id: { $in: query.timeEntryIds },
+        isBillable: true,
+        isRunning: false,
+      })
+      .exec();
+
+    if (timeEntries.length === 0) {
+      return {
+        totalSeconds: 0,
+        totalHours: 0,
+        totalBillableHours: 0,
+        totalOvertimeHours: 0,
+        totalDays: 0,
+        entryCount: 0,
+        amount: 0,
+        timeEntryIds: [],
+        entries: [],
+      };
+    }
+
+    const workDayHours = query.calculationOptions?.workDayHours ?? 8;
+    const overtimeRate = query.calculationOptions?.overtimeRate ?? 1.5;
+    const rate = query.rateType === 'hourly' ? (query.hourlyRate ?? 0) : (query.dailyRate ?? 0);
+
+    const entries: TimeEntryCalculationDetail[] = [];
+    const automaticEntriesByDate = new Map<string, TimeEntry[]>();
+
+    for (const entry of timeEntries) {
+      const entryDate = new Date(entry.startTime).toISOString().split('T')[0];
+
+      if (entry.calculationMode === 'automatic') {
+        if (!automaticEntriesByDate.has(entryDate)) {
+          automaticEntriesByDate.set(entryDate, []);
+        }
+        automaticEntriesByDate.get(entryDate)!.push(entry);
+      } else {
+        const totalHours = entry.duration / 3600;
+        entries.push({
+          timeEntryId: entry._id.toString(),
+          description: entry.description || '',
+          date: entryDate,
+          totalHours: Math.round(totalHours * 100) / 100,
+          billableHours: Math.round(totalHours * 100) / 100,
+          overtimeHours: 0,
+          calculationMode: 'manual',
+        });
+      }
+    }
+
+    for (const [date, dayEntries] of automaticEntriesByDate.entries()) {
+      const totalSecondsForDay = dayEntries.reduce((sum, e) => sum + e.duration, 0);
+      let totalHoursForDay = totalSecondsForDay / 3600;
+
+      totalHoursForDay = Math.min(totalHoursForDay, 24);
+
+      let billableHours: number;
+      let overtimeHours: number;
+
+      if (totalHoursForDay <= workDayHours) {
+        billableHours = totalHoursForDay;
+        overtimeHours = 0;
+      } else {
+        billableHours = workDayHours;
+        overtimeHours = Math.min(totalHoursForDay - workDayHours, 24 - workDayHours);
+      }
+
+      for (const entry of dayEntries) {
+        const entryHours = entry.duration / 3600;
+        entries.push({
+          timeEntryId: entry._id.toString(),
+          description: entry.description || '',
+          date,
+          totalHours: Math.round(entryHours * 100) / 100,
+          billableHours: 0,
+          overtimeHours: 0,
+          calculationMode: 'automatic',
+        });
+      }
+
+      const dayEntryIds = dayEntries.map((e) => e._id.toString());
+      for (const entry of entries) {
+        if (dayEntryIds.includes(entry.timeEntryId)) {
+          const entryHours = entry.totalHours;
+          if (billableHours > 0) {
+            const allocatedBillable = Math.min(entryHours, billableHours);
+            entry.billableHours = Math.round(allocatedBillable * 100) / 100;
+            billableHours -= allocatedBillable;
+            const remainingHours = entryHours - allocatedBillable;
+            if (overtimeHours > 0 && remainingHours > 0) {
+              const allocatedOvertime = Math.min(remainingHours, overtimeHours);
+              entry.overtimeHours = Math.round(allocatedOvertime * 100) / 100;
+              overtimeHours -= allocatedOvertime;
+            }
+          }
+        }
+      }
+    }
+
+    const totalSeconds = timeEntries.reduce((sum, entry) => sum + entry.duration, 0);
+    const totalHours = totalSeconds / 3600;
+    const totalBillableHours = entries.reduce((sum, e) => sum + e.billableHours, 0);
+    const totalOvertimeHours = entries.reduce((sum, e) => sum + e.overtimeHours, 0);
+
+    let amount = 0;
+    if (query.rateType === 'hourly') {
+      const regularAmount = totalBillableHours * rate;
+      const overtimeAmount = totalOvertimeHours * rate * overtimeRate;
+      amount = regularAmount + overtimeAmount;
+    } else {
+      const dateMap = new Map<string, number>();
+      for (const entry of entries) {
+        if (!dateMap.has(entry.date)) {
+          dateMap.set(entry.date, 0);
+        }
+        dateMap.set(entry.date, dateMap.get(entry.date)! + entry.billableHours);
+      }
+
+      let totalDays = 0;
+      for (const hours of dateMap.values()) {
+        if (hours >= workDayHours) {
+          totalDays += 1;
+        } else if (hours >= workDayHours / 2) {
+          totalDays += 0.5;
+        } else if (hours > 0) {
+          totalDays += hours / workDayHours;
+        }
+      }
+
+      amount = totalDays * rate;
+      entries.forEach((e) => {
+        e.overtimeHours = 0;
+      });
+    }
+
+    return {
+      totalSeconds,
+      totalHours: Math.round(totalHours * 100) / 100,
+      totalBillableHours: Math.round(totalBillableHours * 100) / 100,
+      totalOvertimeHours: Math.round(totalOvertimeHours * 100) / 100,
+      totalDays: query.rateType === 'daily' ? Math.round((amount / (rate || 1)) * 100) / 100 : 0,
+      entryCount: timeEntries.length,
+      amount: Math.round(amount * 100) / 100,
+      timeEntryIds: timeEntries.map((e) => e._id.toString()),
+      entries,
     };
   }
 

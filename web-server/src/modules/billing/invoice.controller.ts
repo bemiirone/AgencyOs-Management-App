@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { InvoiceService } from './invoice.service';
-import { CreateInvoiceDto, UpdateInvoiceDto, TimeAggregationQueryDto } from './dto/invoice.dto';
+import { CreateInvoiceDto, UpdateInvoiceDto, TimeAggregationQueryDto, CalculateTimeEntriesDto } from './dto/invoice.dto';
 import { InvoiceStatus } from './schemas/invoice.schema';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -71,12 +71,21 @@ export class InvoiceController {
   }
 
   @Post('aggregate-time')
-  @ApiOperation({ summary: 'Aggregate billable time entries for invoice generation' })
+  @ApiOperation({ summary: 'Aggregate billable time entries for invoice generation (by date range)' })
   async aggregateTime(
     @Body() query: TimeAggregationQueryDto,
     @TenantId() tenantId: string,
   ) {
     return this.invoiceService.aggregateTime(query, tenantId);
+  }
+
+  @Post('calculate-time')
+  @ApiOperation({ summary: 'Calculate billable time for selected time entries with automatic/manual mode support' })
+  async calculateTime(
+    @Body() query: CalculateTimeEntriesDto,
+    @TenantId() tenantId: string,
+  ) {
+    return this.invoiceService.calculateTimeEntries(query, tenantId);
   }
 
   @Delete(':id')

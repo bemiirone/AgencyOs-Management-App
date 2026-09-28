@@ -239,40 +239,12 @@
                   {{ contentStore.content('invoice.form.section.fetchTime') }}
                 </h3>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                  <div class="form-control">
-                    <div class="label">
-                      <span class="label-text">{{
-                        contentStore.content('invoice.form.label.startDate')
-                      }}</span>
-                    </div>
-                    <input
-                      type="date"
-                      formControlName="startDate"
-                      class="input input-bordered w-full"
-                    />
-                  </div>
-
-                  <div class="form-control">
-                    <div class="label">
-                      <span class="label-text">{{
-                        contentStore.content('invoice.form.label.endDate')
-                      }}</span>
-                    </div>
-                    <input
-                      type="date"
-                      formControlName="endDate"
-                      class="input input-bordered w-full"
-                    />
-                  </div>
-
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                   <div class="form-control">
                     <div class="label">
                       <span class="label-text">{{
                         billingType === 'hourly'
-                          ? contentStore.content(
-                              'invoice.form.label.hourlyRate'
-                            )
+                          ? contentStore.content('invoice.form.label.hourlyRate')
                           : contentStore.content('invoice.form.label.dailyRate')
                       }}</span>
                     </div>
@@ -286,38 +258,178 @@
                       step="0.01"
                     />
                   </div>
+
+                  <div class="form-control">
+                    <div class="label">
+                      <span class="label-text">{{
+                        contentStore.content('invoice.form.label.workDayLength')
+                      }}</span>
+                    </div>
+                    <input
+                      type="number"
+                      formControlName="workDayHours"
+                      class="input input-bordered w-full"
+                      min="1"
+                      max="24"
+                      step="0.5"
+                      placeholder="e.g., 8"
+                    />
+                  </div>
+
+                  <div class="form-control">
+                    <div class="label">
+                      <span class="label-text">{{
+                        contentStore.content('invoice.form.label.overtimeRate')
+                      }}</span>
+                    </div>
+                    <input
+                      type="number"
+                      formControlName="overtimeRate"
+                      class="input input-bordered w-full"
+                      min="1"
+                      step="0.1"
+                      placeholder="e.g., 1.5"
+                    />
+                  </div>
+
+                  <div class="form-control">
+                    <div class="label">
+                      <span class="label-text">&nbsp;</span>
+                    </div>
+                    <div class="flex gap-2">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-secondary flex-1"
+                        (click)="toggleSelectAll()"
+                        [disabled]="timeEntries().length === 0"
+                      >
+                        <fa-icon [icon]="allSelected ? faCheckSquare : faSquare" class="mr-2"></fa-icon>
+                        {{ allSelected ? 'Deselect All' : 'Select All' }}
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
-                <button
-                  type="button"
-                  class="btn btn-secondary btn-sm"
-                  (click)="aggregateTime()"
-                  [disabled]="aggregatingTime()"
-                >
-                  @if (aggregatingTime()) {
-                    <fa-icon
-                      [icon]="faSpinner"
-                      class="animate-spin mr-2"
-                    ></fa-icon>
-                    {{
-                      contentStore.content('invoice.form.button.aggregating')
-                    }}
-                  } @else {
-                    <fa-icon [icon]="faClock" class="mr-2"></fa-icon>
-                    {{ contentStore.content('invoice.form.button.fetchTime') }}
-                  }
-                </button>
-
-                @if (billingType === 'hourly') {
-                  <div class="mt-2 text-sm text-base-content/70">
-                    {{ contentStore.content('invoice.form.info.totalHours') }}
-                    {{ invoiceForm.get('totalHours')?.value || 0 }}
+                @if (loadingTimeEntries()) {
+                  <div class="flex justify-center py-8">
+                    <fa-icon [icon]="faSpinner" class="animate-spin text-2xl text-primary"></fa-icon>
+                  </div>
+                } @else if (timeEntries().length === 0) {
+                  <div class="text-center py-8 text-base-content/50">
+                    <p>No billable time entries found for this project.</p>
+                  </div>
+                } @else {
+                  <div class="overflow-x-auto">
+                    <table class="table table-sm w-full">
+                      <thead>
+                        <tr>
+                          <th class="w-10"></th>
+                          <th>Date</th>
+                          <th>Description</th>
+                          <th>Duration</th>
+                          <th>Mode</th>
+                          @if (billingType === 'hourly' && calculationResult()) {
+                            <th>Billable</th>
+                            <th>Overtime</th>
+                          } @else if (billingType === 'daily' && calculationResult()) {
+                            <th>Billable Hrs</th>
+                          }
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (entry of timeEntries(); track entry._id) {
+                          <tr class="hover cursor-pointer" (click)="toggleEntry(entry._id)">
+                            <td>
+                              <fa-icon
+                                [icon]="isEntrySelected(entry._id) ? faCheckSquare : faSquare"
+                                [class.text-primary]="isEntrySelected(entry._id)"
+                              ></fa-icon>
+                            </td>
+                            <td>{{ formatDate(entry.startTime) }}</td>
+                            <td>{{ entry.description || 'No description' }}</td>
+                            <td>{{ formatDuration(entry.duration) }}</td>
+                            <td>
+                              <span
+                                class="badge badge-sm"
+                                [class.badge-success]="entry.calculationMode === 'automatic'"
+                                [class.badge-ghost]="entry.calculationMode === 'manual'"
+                              >
+                                {{ entry.calculationMode === 'automatic' ? 'Auto' : 'Manual' }}
+                              </span>
+                            </td>
+                            @if (billingType === 'hourly' && calculationResult()) {
+                              @let detail = getEntryDetail(entry._id);
+                              <td>{{ detail?.billableHours || 0 }}h</td>
+                              <td>{{ detail?.overtimeHours || 0 }}h</td>
+                            } @else if (billingType === 'daily' && calculationResult()) {
+                              @let detail = getEntryDetail(entry._id);
+                              <td>{{ detail?.billableHours || 0 }}h</td>
+                            }
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
                   </div>
                 }
-                @if (billingType === 'daily') {
-                  <div class="mt-2 text-sm text-base-content/70">
-                    {{ contentStore.content('invoice.form.info.totalDays') }}
-                    {{ invoiceForm.get('totalDays')?.value || 0 }}
+
+                <div class="flex items-center gap-4 mt-4">
+                  <button
+                    type="button"
+                    class="btn btn-secondary btn-sm"
+                    (click)="calculateSelectedEntries()"
+                    [disabled]="aggregatingTime() || selectedEntryIds().size === 0"
+                  >
+                    @if (aggregatingTime()) {
+                      <fa-icon [icon]="faSpinner" class="animate-spin mr-2"></fa-icon>
+                      {{ contentStore.content('invoice.form.button.aggregating') }}
+                    } @else {
+                      <fa-icon [icon]="faClock" class="mr-2"></fa-icon>
+                      {{ contentStore.content('invoice.form.button.calculate') || 'Calculate Selected' }}
+                    }
+                  </button>
+                  @if (selectedEntryIds().size > 0) {
+                    <span class="text-sm text-base-content/70">
+                      {{ selectedCount }} entries selected
+                    </span>
+                  }
+                </div>
+
+                @if (calculationResult()) {
+                  <div class="mt-4 p-4 bg-base-100 rounded-lg">
+                    <h4 class="font-medium mb-2">Calculation Summary</h4>
+                    @if (billingType === 'hourly') {
+                      <div class="grid grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <span class="text-base-content/70">Total Hours:</span>
+                          <span class="ml-2 font-medium">{{ calculationResult()!.totalHours }}h</span>
+                        </div>
+                        <div>
+                          <span class="text-base-content/70">Billable Hours:</span>
+                          <span class="ml-2 font-medium">{{ calculationResult()!.totalBillableHours }}h</span>
+                        </div>
+                        <div>
+                          <span class="text-base-content/70">Overtime Hours:</span>
+                          <span class="ml-2 font-medium">{{ calculationResult()!.totalOvertimeHours }}h</span>
+                        </div>
+                      </div>
+                    } @else if (billingType === 'daily') {
+                      <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span class="text-base-content/70">Total Hours:</span>
+                          <span class="ml-2 font-medium">{{ calculationResult()!.totalHours }}h</span>
+                        </div>
+                        <div>
+                          <span class="text-base-content/70">Total Days:</span>
+                          <span class="ml-2 font-medium">{{ calculationResult()!.totalDays }}</span>
+                        </div>
+                      </div>
+                    }
+                    <div class="mt-2 text-sm">
+                      <span class="text-base-content/70">Calculated Amount:</span>
+                      <span class="ml-2 font-medium text-lg">
+                        {{ calculationResult()!.amount | currency: 'GBP' : 'symbol' : '1.2-2' }}
+                      </span>
+                    </div>
                   </div>
                 }
               </div>
@@ -423,6 +535,7 @@
                         formControlName="workDayHours"
                         class="input input-bordered w-full"
                         min="1"
+                        max="24"
                         step="0.5"
                         placeholder="e.g., 8"
                       />

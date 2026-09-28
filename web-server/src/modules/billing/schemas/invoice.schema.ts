@@ -97,6 +97,12 @@ export class Invoice extends BaseDocument {
   @Prop()
   declare totalDays: number;
 
+  @Prop({ default: 8 })
+  declare workDayHours: number;
+
+  @Prop({ default: 1.5 })
+  declare overtimeRate: number;
+
   @Prop({ required: true })
   declare subtotal: number;
 

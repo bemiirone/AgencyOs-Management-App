@@ -1,7 +1,8 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, tap, throwError } from 'rxjs';
-import { Invoice, TimeAggregationResult } from '../shared/models/invoice.model';
+import { Invoice, TimeAggregationResult, TimeEntryCalculationDetail } from '../shared/models/invoice.model';
+import { TimeEntry } from '../shared/models/time-entry.model';
 import { API_CONFIG } from '../core/config/api.config';
 import { ToastService } from '../core/services/toast.service';
 
@@ -27,6 +28,8 @@ export interface CreateInvoicePayload {
   totalDays?: number;
   manualHours?: number;
   manualDays?: number;
+  workDayHours?: number;
+  overtimeRate?: number;
   subtotal: number;
   amount: number;
   tax?: number;
@@ -48,12 +51,38 @@ export interface UpdateInvoicePayload {
   dailyRate?: number;
   totalHours?: number;
   totalDays?: number;
+  workDayHours?: number;
+  overtimeRate?: number;
   subtotal?: number;
   amount?: number;
   tax?: number;
   total?: number;
   dueDate?: string;
+  timeEntryIds?: string[];
   notes?: string;
+}
+
+export interface CalculateTimePayload {
+  timeEntryIds: string[];
+  rateType: 'hourly' | 'daily';
+  hourlyRate?: number;
+  dailyRate?: number;
+  calculationOptions?: {
+    workDayHours?: number;
+    overtimeRate?: number;
+  };
+}
+
+export interface TimeCalculationResult {
+  totalSeconds: number;
+  totalHours: number;
+  totalBillableHours: number;
+  totalOvertimeHours: number;
+  totalDays: number;
+  entryCount: number;
+  amount: number;
+  timeEntryIds: string[];
+  entries: TimeEntryCalculationDetail[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -221,6 +250,24 @@ export class InvoiceStore {
     return this.http.post<TimeAggregationResult>(API_CONFIG.INVOICES.AGGREGATE_TIME, data).pipe(
       catchError((error: ErrorResponse) => {
         this.toast.error('Failed to aggregate time entries');
+        return throwError(() => error);
+      })
+    );
+  }
+
+  calculateTimeEntries(data: CalculateTimePayload) {
+    return this.http.post<TimeCalculationResult>(API_CONFIG.INVOICES.CALCULATE_TIME, data).pipe(
+      catchError((error: ErrorResponse) => {
+        this.toast.error('Failed to calculate time entries');
+        return throwError(() => error);
+      })
+    );
+  }
+
+  loadTimeEntriesForProject(projectId: string) {
+    return this.http.get<TimeEntry[]>(API_CONFIG.TIME_ENTRIES.BILLABLE_BY_PROJECT(projectId)).pipe(
+      catchError((error: ErrorResponse) => {
+        this.toast.error('Failed to load time entries');
         return throwError(() => error);
       })
     );
