@@ -67,9 +67,9 @@
 
           @if (mode() === 'edit' && selectedProjectName()) {
             <div class="form-control mb-4">
-              <label class="label">
+              <span class="label">
                 <span class="label-text font-medium">Current Project</span>
-              </label>
+              </span>
               <input type="text" [value]="selectedProjectName()" class="input input-bordered w-full" disabled />
             </div>
           }
