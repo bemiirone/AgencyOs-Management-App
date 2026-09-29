@@ -124,4 +124,60 @@ export class InvoiceDetailComponent implements OnInit {
       error: (err) => console.error('Failed to mark invoice as paid:', err),
     });
   }
+
+  get billableAmount(): number {
+    const inv = this.invoice();
+    if (!inv) return 0;
+    if (inv.billingType === 'hourly') {
+      return (inv.totalHours || 0) * (inv.hourlyRate || 0);
+    }
+    if (inv.billingType === 'daily') {
+      return (inv.totalDays || 0) * (inv.dailyRate || 0);
+    }
+    if (inv.billingType === 'budget') {
+      return inv.amount || 0;
+    }
+    return 0;
+  }
+
+  get effectiveOvertimeRate(): number {
+    const inv = this.invoice();
+    if (!inv) return 0;
+    const overtimeMultiplier = inv.overtimeRate || 1.5;
+    if (inv.billingType === 'hourly') {
+      return (inv.hourlyRate || 0) * overtimeMultiplier;
+    }
+    if (inv.billingType === 'daily') {
+      const workDayHours = inv.workDayHours || 8;
+      const hourlyBaseRate = workDayHours > 0 ? (inv.dailyRate || 0) / workDayHours : 0;
+      return hourlyBaseRate * overtimeMultiplier;
+    }
+    return 0;
+  }
+
+  get overtimeAmount(): number {
+    const inv = this.invoice();
+    if (!inv) return 0;
+    const overtimeHours = inv.overtimeHours || 0;
+    if (overtimeHours <= 0) return 0;
+    return overtimeHours * this.effectiveOvertimeRate;
+  }
+
+  get lineItemSubtotal(): number {
+    return this.invoice()?.lineItems?.reduce((sum, item) => sum + item.amount, 0) || 0;
+  }
+
+  get expensesTotal(): number {
+    return this.invoice()?.expenses?.reduce((sum, expense) => sum + expense.amount, 0) || 0;
+  }
+
+  get showDetailSummary(): boolean {
+    const inv = this.invoice();
+    return inv && (inv.billingType === 'budget' || inv.billingType === 'hourly' || inv.billingType === 'daily') || false;
+  }
+
+  get showManualLineItems(): boolean {
+    const inv = this.invoice();
+    return inv && inv.billingType === 'manual' && inv.lineItems && inv.lineItems.length > 0 || false;
+  }
 }

@@ -799,21 +799,72 @@
             </div>
           }
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div class="form-control">
-              <div class="label">
-                <span class="label-text font-medium">{{
-                  contentStore.content('invoice.form.label.subtotal')
-                }}</span>
-              </div>
-              <input
-                type="number"
-                formControlName="subtotal"
-                class="input input-bordered w-full"
-                readonly
-              />
-            </div>
+          @if (billingType !== 'manual') {
+            <div class="card bg-base-200 mb-4">
+              <div class="card-body p-4">
+                <h3 class="card-title text-lg mb-3">Invoice Summary</h3>
 
+                @if (billingType === 'budget') {
+                  <div class="flex justify-between text-sm py-2 border-b border-base-300">
+                    <span class="text-base-content/70">Project Budget:</span>
+                    <span class="font-medium">{{ billableAmount | currency: 'GBP' : 'symbol' : '1.2-2' }}</span>
+                  </div>
+                }
+
+                @if (billingType === 'hourly') {
+                  @if (billableAmount > 0) {
+                    <div class="flex justify-between text-sm py-2 border-b border-base-300">
+                      <span class="text-base-content/70">
+                        Billable Hours ({{ invoiceForm.get('totalHours')?.value || 0 }}h × {{ invoiceForm.get('hourlyRate')?.value | currency: 'GBP' : 'symbol' : '1.2-2' }}/h):
+                      </span>
+                      <span class="font-medium">{{ billableAmount | currency: 'GBP' : 'symbol' : '1.2-2' }}</span>
+                    </div>
+                  }
+                  @if (overtimeAmount > 0) {
+                    <div class="flex justify-between text-sm py-2 border-b border-base-300">
+                      <span class="text-base-content/70">
+                        Overtime Hours ({{ effectiveOvertimeHours }}h × rate {{ effectiveOvertimeRate | currency: 'GBP' : 'symbol' : '1.2-2' }}):
+                      </span>
+                      <span class="font-medium">{{ overtimeAmount | currency: 'GBP' : 'symbol' : '1.2-2' }}</span>
+                    </div>
+                  }
+                }
+
+                @if (billingType === 'daily') {
+                  @if (billableAmount > 0) {
+                    <div class="flex justify-between text-sm py-2 border-b border-base-300">
+                      <span class="text-base-content/70">
+                        Working Days ({{ invoiceForm.get('totalDays')?.value || 0 }} days × {{ invoiceForm.get('dailyRate')?.value | currency: 'GBP' : 'symbol' : '1.2-2' }}/day):
+                      </span>
+                      <span class="font-medium">{{ billableAmount | currency: 'GBP' : 'symbol' : '1.2-2' }}</span>
+                    </div>
+                  }
+                  @if (overtimeAmount > 0) {
+                    <div class="flex justify-between text-sm py-2 border-b border-base-300">
+                      <span class="text-base-content/70">
+                        Overtime Hours ({{ effectiveOvertimeHours }}h × rate {{ effectiveOvertimeRate | currency: 'GBP' : 'symbol' : '1.2-2' }}):
+                      </span>
+                      <span class="font-medium">{{ overtimeAmount | currency: 'GBP' : 'symbol' : '1.2-2' }}</span>
+                    </div>
+                  }
+                }
+
+                @if (expensesTotal > 0) {
+                  <div class="flex justify-between text-sm py-2 border-b border-base-300">
+                    <span class="text-base-content/70">Expenses:</span>
+                    <span class="font-medium">{{ expensesTotal | currency: 'GBP' : 'symbol' : '1.2-2' }}</span>
+                  </div>
+                }
+
+                <div class="flex justify-between text-sm py-2 font-semibold border-t border-base-300 mt-2">
+                  <span>{{ contentStore.content('invoice.form.label.subtotal') }}:</span>
+                  <span>{{ subtotal | currency: 'GBP' : 'symbol' : '1.2-2' }}</span>
+                </div>
+              </div>
+            </div>
+          }
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div class="form-control">
               <div class="label">
                 <span class="label-text font-medium">{{
@@ -828,6 +879,22 @@
                 step="0.01"
               />
             </div>
+
+            @if (billingType === 'manual') {
+              <div class="form-control">
+                <div class="label">
+                  <span class="label-text font-medium">{{
+                    contentStore.content('invoice.form.label.subtotal')
+                  }}</span>
+                </div>
+                <input
+                  type="number"
+                  formControlName="subtotal"
+                  class="input input-bordered w-full"
+                  readonly
+                />
+              </div>
+            }
           </div>
 
           <div class="alert alert-info mb-4">

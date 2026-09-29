@@ -126,6 +126,89 @@ export class InvoiceFormComponent implements OnInit {
     return this.subtotal + this.tax;
   }
 
+  get billableAmount(): number {
+    if (this.billingType === 'hourly') {
+      const hours = this.invoiceForm.get('totalHours')?.value || 0;
+      const rate = this.invoiceForm.get('hourlyRate')?.value || 0;
+      return hours * rate;
+    }
+    if (this.billingType === 'daily') {
+      const days = this.invoiceForm.get('totalDays')?.value || 0;
+      const rate = this.invoiceForm.get('dailyRate')?.value || 0;
+      return days * rate;
+    }
+    if (this.billingType === 'budget') {
+      return this.invoiceForm.get('amount')?.value || 0;
+    }
+    return 0;
+  }
+
+  get overtimeRateValue(): number {
+    return this.invoiceForm.get('overtimeRate')?.value || 1.5;
+  }
+
+  get overtimeAmount(): number {
+    if (!this.calculationResult() || this.calculationResult()!.totalOvertimeHours <= 0) {
+      return 0;
+    }
+    if (this.billingType === 'hourly') {
+      const rate = this.invoiceForm.get('hourlyRate')?.value || 0;
+      const overtimeHours = this.invoiceForm.get('overtimeHours')?.value || 0;
+      const availableOvertime = this.availableOvertimeHours;
+      const cappedHours = Math.min(overtimeHours, availableOvertime);
+      return cappedHours * rate * this.overtimeRateValue;
+    }
+    if (this.billingType === 'daily') {
+      const dailyRate = this.invoiceForm.get('dailyRate')?.value || 0;
+      const workDayHours = this.invoiceForm.get('workDayHours')?.value || 8;
+      const overtimeHours = this.invoiceForm.get('overtimeHours')?.value || 0;
+      const availableOvertime = this.availableOvertimeHours;
+      const cappedHours = Math.min(overtimeHours, availableOvertime);
+      const hourlyBaseRate = workDayHours > 0 ? dailyRate / workDayHours : 0;
+      return cappedHours * hourlyBaseRate * this.overtimeRateValue;
+    }
+    return 0;
+  }
+
+  get effectiveOvertimeRate(): number {
+    if (this.billingType === 'hourly') {
+      const rate = this.invoiceForm.get('hourlyRate')?.value || 0;
+      return rate * this.overtimeRateValue;
+    }
+    if (this.billingType === 'daily') {
+      const dailyRate = this.invoiceForm.get('dailyRate')?.value || 0;
+      const workDayHours = this.invoiceForm.get('workDayHours')?.value || 8;
+      const hourlyBaseRate = workDayHours > 0 ? dailyRate / workDayHours : 0;
+      return hourlyBaseRate * this.overtimeRateValue;
+    }
+    return 0;
+  }
+
+  get effectiveOvertimeHours(): number {
+    if (!this.calculationResult()) return 0;
+    const overtimeHours = this.invoiceForm.get('overtimeHours')?.value || 0;
+    return Math.min(overtimeHours, this.availableOvertimeHours);
+  }
+
+  get lineItemSubtotal(): number {
+    if (this.billingType === 'manual') {
+      return this.lineItems.controls.reduce(
+        (sum, control) => sum + (control.get('amount')?.value || 0), 0
+      );
+    }
+    return 0;
+  }
+
+  get expensesTotal(): number {
+    return this.expenses.controls.reduce(
+      (sum, control) => sum + (control.get('amount')?.value || 0), 0
+    );
+  }
+
+  get showSummaryBreakdown(): boolean {
+    return this.billingType !== 'manual';
+  }
+
   get allSelected(): boolean {
     const entries = this.timeEntries();
     if (entries.length === 0) return false;
@@ -172,6 +255,7 @@ export class InvoiceFormComponent implements OnInit {
           totalDays: invoice.totalDays || 0,
           workDayHours: invoice.workDayHours || 8,
           overtimeRate: invoice.overtimeRate || 1.5,
+          overtimeHours: invoice.overtimeHours || 0,
           subtotal: invoice.subtotal,
           amount: invoice.amount,
           tax: invoice.tax || 0,
@@ -278,6 +362,7 @@ export class InvoiceFormComponent implements OnInit {
         if (this.timeInputMode() === 'manual' && this.billingType === 'hourly') {
           this.calculateManualAmount();
         }
+        this.calculateSelectedEntriesAmount();
       });
 
     this.invoiceForm.get('dailyRate')?.valueChanges
@@ -286,7 +371,12 @@ export class InvoiceFormComponent implements OnInit {
         if (this.timeInputMode() === 'manual' && this.billingType === 'daily') {
           this.calculateManualAmount();
         }
+        this.calculateSelectedEntriesAmount();
       });
+
+    this.invoiceForm.get('workDayHours')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.calculateSelectedEntriesAmount());
 
     this.invoiceForm.get('overtimeHours')?.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -668,6 +758,7 @@ export class InvoiceFormComponent implements OnInit {
         payload.totalDays = formValue.totalDays;
         payload.workDayHours = formValue.workDayHours;
         payload.overtimeRate = formValue.overtimeRate;
+        payload.overtimeHours = formValue.overtimeHours;
         if (formValue.startDate && formValue.endDate) {
           payload.dateRange = {
             startDate: new Date(formValue.startDate).toISOString(),
@@ -731,6 +822,7 @@ export class InvoiceFormComponent implements OnInit {
         payload.totalDays = formValue.totalDays;
         payload.workDayHours = formValue.workDayHours;
         payload.overtimeRate = formValue.overtimeRate;
+        payload.overtimeHours = formValue.overtimeHours;
         if (formValue.startDate && formValue.endDate) {
           payload.dateRange = {
             startDate: new Date(formValue.startDate).toISOString(),

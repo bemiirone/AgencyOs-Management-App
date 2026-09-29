@@ -119,6 +119,12 @@ class BaseInvoiceDto {
   @Min(1)
   declare overtimeRate?: number;
 
+  @ApiProperty({ required: false, default: 0 })
+  @IsNumber()
+  @IsOptional()
+  @Min(0)
+  declare overtimeHours?: number;
+
   @ApiProperty({ required: false })
   @IsNumber()
   @IsNotEmpty()
@@ -160,6 +166,12 @@ class BaseInvoiceUpdateDto extends BaseInvoiceDto {
   @IsNumber()
   @IsOptional()
   declare amount?: number;
+
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
+  @Min(0)
+  declare overtimeHours?: number;
 
   @ApiProperty({ type: [String], required: false })
   @IsArray()

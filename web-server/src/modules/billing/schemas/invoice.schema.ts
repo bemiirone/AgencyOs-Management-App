@@ -103,6 +103,9 @@ export class Invoice extends BaseDocument {
   @Prop({ default: 1.5 })
   declare overtimeRate: number;
 
+  @Prop({ default: 0 })
+  declare overtimeHours: number;
+
   @Prop({ required: true })
   declare subtotal: number;
 

@@ -12,6 +12,7 @@ export interface InvoiceBillingDetails {
   totalDays?: number;
   workDayHours?: number;
   overtimeRate?: number;
+  overtimeHours?: number;
 }
 
 export interface CreateInvoicePayload extends InvoiceBillingDetails {

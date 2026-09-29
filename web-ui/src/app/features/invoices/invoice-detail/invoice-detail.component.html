@@ -79,31 +79,71 @@
           </div>
         </div>
 
-        @if (inv.billingType === 'hourly' || inv.billingType === 'daily') {
-          <div class="divider">{{ contentStore.content('invoice.detail.section.timeAggregation') }}</div>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            @if (inv.dateRange) {
-              <div>
-                <h4 class="text-sm font-medium text-base-content/60">{{ contentStore.content('invoice.detail.label.dateRange') }}</h4>
-                <p>{{ formatDate(inv.dateRange.startDate) }} - {{ formatDate(inv.dateRange.endDate) }}</p>
+        @if (inv.billingType === 'hourly' || inv.billingType === 'daily' || inv.billingType === 'budget') {
+          <div class="divider">{{ contentStore.content('invoice.detail.section.summary') }}</div>
+          <div class="card bg-base-200">
+            <div class="card-body p-4">
+              @if (inv.billingType === 'budget') {
+                <div class="flex justify-between text-sm py-2 border-b border-base-300">
+                  <span class="text-base-content/70">Project Budget:</span>
+                  <span class="font-medium">{{ formatCurrency(billableAmount) }}</span>
+                </div>
+              }
+
+              @if (inv.billingType === 'hourly') {
+                @if (inv.totalHours) {
+                  <div class="flex justify-between text-sm py-2 border-b border-base-300">
+                    <span class="text-base-content/70">
+                      Billable Hours ({{ inv.totalHours }}h × {{ formatCurrency(inv.hourlyRate) }}/h):
+                    </span>
+                    <span class="font-medium">{{ formatCurrency(billableAmount) }}</span>
+                  </div>
+                }
+                @if (overtimeAmount > 0) {
+                  <div class="flex justify-between text-sm py-2 border-b border-base-300">
+                    <span class="text-base-content/70">
+                      Overtime Hours ({{ inv.overtimeHours || 0 }}h × rate {{ formatCurrency(effectiveOvertimeRate) }}):
+                    </span>
+                    <span class="font-medium">{{ formatCurrency(overtimeAmount) }}</span>
+                  </div>
+                }
+              }
+
+              @if (inv.billingType === 'daily') {
+                @if (inv.totalDays) {
+                  <div class="flex justify-between text-sm py-2 border-b border-base-300">
+                    <span class="text-base-content/70">
+                      Working Days ({{ inv.totalDays }} days × {{ formatCurrency(inv.dailyRate) }}/day):
+                    </span>
+                    <span class="font-medium">{{ formatCurrency(billableAmount) }}</span>
+                  </div>
+                }
+                @if (overtimeAmount > 0) {
+                  <div class="flex justify-between text-sm py-2 border-b border-base-300">
+                    <span class="text-base-content/70">
+                      Overtime Hours ({{ inv.overtimeHours || 0 }}h × rate {{ formatCurrency(effectiveOvertimeRate) }}):
+                    </span>
+                    <span class="font-medium">{{ formatCurrency(overtimeAmount) }}</span>
+                  </div>
+                }
+              }
+
+              @if (expensesTotal > 0) {
+                <div class="flex justify-between text-sm py-2 border-b border-base-300">
+                  <span class="text-base-content/70">Expenses:</span>
+                  <span class="font-medium">{{ formatCurrency(expensesTotal) }}</span>
+                </div>
+              }
+
+              <div class="flex justify-between text-sm py-2 font-semibold border-t border-base-300 mt-2">
+                <span>{{ contentStore.content('invoice.detail.summary.subtotal') }}:</span>
+                <span>{{ formatCurrency(inv.subtotal) }}</span>
               </div>
-            }
-            @if (inv.billingType === 'hourly') {
-              <div>
-                <h4 class="text-sm font-medium text-base-content/60">{{ contentStore.content('invoice.detail.label.totalHours') }}</h4>
-                <p>{{ inv.totalHours || 0 }} {{ contentStore.content('invoice.detail.unit.hours') }} @ {{ formatCurrency(inv.hourlyRate || 0) }}{{ contentStore.content('invoice.detail.unit.perHour') }}</p>
-              </div>
-            }
-            @if (inv.billingType === 'daily') {
-              <div>
-                <h4 class="text-sm font-medium text-base-content/60">{{ contentStore.content('invoice.detail.label.totalDays') }}</h4>
-                <p>{{ inv.totalDays || 0 }} {{ contentStore.content('invoice.detail.unit.days') }} @ {{ formatCurrency(inv.dailyRate || 0) }}{{ contentStore.content('invoice.detail.unit.perDay') }}</p>
-              </div>
-            }
+            </div>
           </div>
         }
 
-        @if (inv.lineItems && inv.lineItems.length > 0) {
+        @if (showManualLineItems) {
           <div class="divider">{{ contentStore.content('invoice.detail.section.lineItems') }}</div>
           <div class="overflow-x-auto">
             <table class="table">

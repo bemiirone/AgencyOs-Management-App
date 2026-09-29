@@ -22,6 +22,7 @@ export interface Invoice {
   totalDays?: number;
   workDayHours?: number;
   overtimeRate?: number;
+  overtimeHours?: number;
   subtotal: number;
   amount: number;
   tax: number;
