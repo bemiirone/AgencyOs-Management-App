@@ -14,6 +14,7 @@ import { Project } from '../../../shared/models/project.model';
 import { Task } from '../../../shared/models/task.model';
 import { TimeEntry } from '../../../shared/models/time-entry.model';
 import { Invoice, InvoiceLineItem, InvoiceExpense, TimeEntryCalculationDetail } from '../../../shared/models/invoice.model';
+import { extractId, InvoiceFormValue, InvoiceFormExpense, InvoicePayload, InvoiceExpensePayload } from './invoice-form.types';
 
 @Component({
   selector: 'app-invoice-form',
@@ -231,8 +232,8 @@ export class InvoiceFormComponent implements OnInit {
 
     this.invoiceStore.loadInvoice(id).subscribe({
       next: (invoice: Invoice) => {
-        const projectId = typeof invoice.projectId === 'string' ? invoice.projectId : (invoice.projectId as any)?._id;
-        const taskId = typeof invoice.taskId === 'string' ? invoice.taskId : (invoice.taskId as any)?._id;
+        const projectId = extractId(invoice.projectId) || '';
+        const taskId = extractId(invoice.taskId);
 
         this.invoiceForm.patchValue({
           projectId: projectId || '',
@@ -580,7 +581,7 @@ export class InvoiceFormComponent implements OnInit {
     return true;
   }
 
-  private buildBillingFields(formValue: any, payload: any): void {
+  private buildBillingFields(formValue: InvoiceFormValue, payload: InvoicePayload): void {
     if (formValue.billingType === 'hourly' || formValue.billingType === 'daily') {
       payload.hourlyRate = formValue.hourlyRate;
       payload.dailyRate = formValue.dailyRate;
@@ -598,16 +599,17 @@ export class InvoiceFormComponent implements OnInit {
       if (this.selectedEntryIds().size > 0) {
         payload.timeEntryIds = Array.from(this.selectedEntryIds());
       }
-      if (this.timeInputMode() === 'manual') {
+      if (this.timeInputMode() === 'manual' && 'manualHours' in payload) {
         payload.manualHours = formValue.manualHours;
         payload.manualDays = formValue.manualDays;
       }
     }
   }
 
-  private mapExpenses(expenses: any[]): any[] {
-    return expenses.map((expense: any) => ({
-      ...expense,
+  private mapExpenses(expenses: InvoiceFormExpense[]): InvoiceExpensePayload[] {
+    return expenses.map((expense) => ({
+      description: expense.description || '',
+      amount: expense.amount || 0,
       date: expense.date ? new Date(expense.date).toISOString() : undefined,
     }));
   }
@@ -742,7 +744,7 @@ export class InvoiceFormComponent implements OnInit {
     });
   }
 
-  private buildCommonPayloadFields(formValue: any, payload: any, project: Project | undefined): void {
+  private buildCommonPayloadFields(formValue: InvoiceFormValue, payload: InvoicePayload, project: Project | undefined): void {
     if (project?.clientId) {
       payload.clientId = project.clientId;
     }
@@ -754,7 +756,12 @@ export class InvoiceFormComponent implements OnInit {
     this.buildBillingFields(formValue, payload);
 
     if (formValue.billingType === 'manual' && formValue.lineItems?.length) {
-      payload.lineItems = formValue.lineItems;
+      payload.lineItems = formValue.lineItems.map((item) => ({
+        description: item.description || '',
+        quantity: item.quantity ?? 1,
+        rate: item.rate ?? 0,
+        amount: item.amount ?? 0,
+      }));
     }
 
     if (formValue.expenses?.length) {
