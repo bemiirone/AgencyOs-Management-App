@@ -66,14 +66,15 @@ export class InvoiceFormComponent implements OnInit {
     expenses: this.fb.array([]),
     startDate: [''],
     endDate: [''],
-    hourlyRate: [0],
-    dailyRate: [0],
+    hourlyRate: [0, Validators.required],
+    dailyRate: [0, Validators.required],
     totalHours: [0],
     totalDays: [0],
     manualHours: [0],
     manualDays: [0],
     workDayHours: [8],
     overtimeRate: [1.5],
+    overtimeHours: [0],
     subtotal: [0, Validators.required],
     amount: [0, Validators.required],
     tax: [0],
@@ -133,6 +134,15 @@ export class InvoiceFormComponent implements OnInit {
 
   get selectedCount(): number {
     return this.selectedEntryIds().size;
+  }
+
+  get availableOvertimeHours(): number {
+    return this.calculationResult()?.totalOvertimeHours || 0;
+  }
+
+  get overtimeExceedsAvailable(): boolean {
+    const overtimeHours = this.invoiceForm.get('overtimeHours')?.value || 0;
+    return overtimeHours > this.availableOvertimeHours && this.availableOvertimeHours >= 0;
   }
 
   ngOnInit(): void {
@@ -277,6 +287,14 @@ export class InvoiceFormComponent implements OnInit {
           this.calculateManualAmount();
         }
       });
+
+    this.invoiceForm.get('overtimeHours')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.calculateSelectedEntriesAmount());
+
+    this.invoiceForm.get('overtimeRate')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.calculateSelectedEntriesAmount());
   }
 
   loadTimeEntriesForProject(projectId: string): void {
@@ -484,6 +502,7 @@ export class InvoiceFormComponent implements OnInit {
 
     this.aggregatingTime.set(true);
     this.error.set('');
+    this.invoiceForm.get('overtimeHours')?.setValue(0, { emitEvent: false });
 
     this.invoiceStore.calculateTimeEntries({
       timeEntryIds: selectedIds,
@@ -506,10 +525,12 @@ export class InvoiceFormComponent implements OnInit {
             subtotal: result.amount,
           });
         } else {
+          const dailyRate = this.invoiceForm.get('dailyRate')?.value || 0;
+          const baseAmount = result.totalDays * dailyRate;
           this.invoiceForm.patchValue({
             totalDays: result.totalDays,
-            amount: result.amount,
-            subtotal: result.amount,
+            amount: Math.round(baseAmount * 100) / 100,
+            subtotal: Math.round(baseAmount * 100) / 100,
           });
         }
 
@@ -521,6 +542,30 @@ export class InvoiceFormComponent implements OnInit {
         this.aggregatingTime.set(false);
       },
     });
+  }
+
+  calculateSelectedEntriesAmount(): void {
+    if (this.billingType !== 'daily' || !this.calculationResult()) {
+      return;
+    }
+
+    const result = this.calculationResult()!;
+    const dailyRate = this.invoiceForm.get('dailyRate')?.value || 0;
+    const overtimeHours = this.invoiceForm.get('overtimeHours')?.value || 0;
+    const workDayHours = this.invoiceForm.get('workDayHours')?.value || 8;
+    const overtimeRateMultiplier = this.invoiceForm.get('overtimeRate')?.value || 1.5;
+
+    const cappedOvertimeHours = Math.min(overtimeHours, result.totalOvertimeHours);
+    const hourlyBaseRate = workDayHours > 0 ? dailyRate / workDayHours : 0;
+    const baseAmount = result.totalDays * dailyRate;
+    const overtimeAmount = cappedOvertimeHours * hourlyBaseRate * overtimeRateMultiplier;
+    const totalAmount = baseAmount + overtimeAmount;
+
+    this.invoiceForm.patchValue({
+      totalDays: result.totalDays,
+      amount: Math.round(totalAmount * 100) / 100,
+      subtotal: Math.round(totalAmount * 100) / 100,
+    }, { emitEvent: false });
   }
 
   aggregateTime(): void {

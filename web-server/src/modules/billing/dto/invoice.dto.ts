@@ -150,8 +150,23 @@ class BaseInvoiceUpdateDto extends BaseInvoiceDto {
   @IsNumber()
   @IsOptional()
   declare total?: number;
-}
 
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
+  declare subtotal?: number;
+
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
+  declare amount?: number;
+
+  @ApiProperty({ type: [String], required: false })
+  @IsArray()
+  @IsOptional()
+  @IsString({ each: true })
+  declare timeEntryIds?: string[];
+}
 export class CreateInvoiceDto extends BaseInvoiceDto {
   @ApiProperty()
   @IsString()
