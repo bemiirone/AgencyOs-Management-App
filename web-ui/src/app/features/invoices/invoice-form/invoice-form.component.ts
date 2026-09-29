@@ -147,30 +147,7 @@ export class InvoiceFormComponent implements OnInit {
     return this.invoiceForm.get('overtimeRate')?.value || 1.5;
   }
 
-  get overtimeAmount(): number {
-    if (!this.calculationResult() || this.calculationResult()!.totalOvertimeHours <= 0) {
-      return 0;
-    }
-    if (this.billingType === 'hourly') {
-      const rate = this.invoiceForm.get('hourlyRate')?.value || 0;
-      const overtimeHours = this.invoiceForm.get('overtimeHours')?.value || 0;
-      const availableOvertime = this.availableOvertimeHours;
-      const cappedHours = Math.min(overtimeHours, availableOvertime);
-      return cappedHours * rate * this.overtimeRateValue;
-    }
-    if (this.billingType === 'daily') {
-      const dailyRate = this.invoiceForm.get('dailyRate')?.value || 0;
-      const workDayHours = this.invoiceForm.get('workDayHours')?.value || 8;
-      const overtimeHours = this.invoiceForm.get('overtimeHours')?.value || 0;
-      const availableOvertime = this.availableOvertimeHours;
-      const cappedHours = Math.min(overtimeHours, availableOvertime);
-      const hourlyBaseRate = workDayHours > 0 ? dailyRate / workDayHours : 0;
-      return cappedHours * hourlyBaseRate * this.overtimeRateValue;
-    }
-    return 0;
-  }
-
-  get effectiveOvertimeRate(): number {
+  private getHourlyOvertimeRate(): number {
     if (this.billingType === 'hourly') {
       const rate = this.invoiceForm.get('hourlyRate')?.value || 0;
       return rate * this.overtimeRateValue;
@@ -182,6 +159,19 @@ export class InvoiceFormComponent implements OnInit {
       return hourlyBaseRate * this.overtimeRateValue;
     }
     return 0;
+  }
+
+  get overtimeAmount(): number {
+    if (!this.calculationResult() || this.calculationResult()!.totalOvertimeHours <= 0) {
+      return 0;
+    }
+    const overtimeHours = this.invoiceForm.get('overtimeHours')?.value || 0;
+    const cappedHours = Math.min(overtimeHours, this.availableOvertimeHours);
+    return cappedHours * this.getHourlyOvertimeRate();
+  }
+
+  get effectiveOvertimeRate(): number {
+    return this.getHourlyOvertimeRate();
   }
 
   get effectiveOvertimeHours(): number {
@@ -519,7 +509,6 @@ export class InvoiceFormComponent implements OnInit {
     this.invoiceForm.get('subtotal')?.setValue(baseAmount + expensesTotal, { emitEvent: false });
   }
 
-
   onLineItemChange(): void {
     this.updateLineItemAmounts();
   }
@@ -573,6 +562,56 @@ export class InvoiceFormComponent implements OnInit {
     }
   }
 
+  private getRateForBillingType(): number {
+    const rateType = this.billingType;
+    return rateType === 'hourly'
+      ? this.invoiceForm.get('hourlyRate')?.value || 0
+      : this.invoiceForm.get('dailyRate')?.value || 0;
+  }
+
+  private validateRateForAggregation(): boolean {
+    const rate = this.getRateForBillingType();
+    if (!rate) {
+      this.error.set(this.contentStore.content('invoice.form.error.enterRate'));
+      return false;
+    }
+    this.aggregatingTime.set(true);
+    this.error.set('');
+    return true;
+  }
+
+  private buildBillingFields(formValue: any, payload: any): void {
+    if (formValue.billingType === 'hourly' || formValue.billingType === 'daily') {
+      payload.hourlyRate = formValue.hourlyRate;
+      payload.dailyRate = formValue.dailyRate;
+      payload.totalHours = formValue.totalHours;
+      payload.totalDays = formValue.totalDays;
+      payload.workDayHours = formValue.workDayHours;
+      payload.overtimeRate = formValue.overtimeRate;
+      payload.overtimeHours = formValue.overtimeHours;
+      if (formValue.startDate && formValue.endDate) {
+        payload.dateRange = {
+          startDate: new Date(formValue.startDate).toISOString(),
+          endDate: new Date(formValue.endDate).toISOString(),
+        };
+      }
+      if (this.selectedEntryIds().size > 0) {
+        payload.timeEntryIds = Array.from(this.selectedEntryIds());
+      }
+      if (this.timeInputMode() === 'manual') {
+        payload.manualHours = formValue.manualHours;
+        payload.manualDays = formValue.manualDays;
+      }
+    }
+  }
+
+  private mapExpenses(expenses: any[]): any[] {
+    return expenses.map((expense: any) => ({
+      ...expense,
+      date: expense.date ? new Date(expense.date).toISOString() : undefined,
+    }));
+  }
+
   calculateSelectedEntries(): void {
     const selectedIds = Array.from(this.selectedEntryIds());
     if (selectedIds.length === 0) {
@@ -580,19 +619,12 @@ export class InvoiceFormComponent implements OnInit {
       return;
     }
 
-    const rateType = this.billingType;
-    const rate = rateType === 'hourly'
-      ? this.invoiceForm.get('hourlyRate')?.value || 0
-      : this.invoiceForm.get('dailyRate')?.value || 0;
+    if (!this.validateRateForAggregation()) return;
 
-    if (!rate) {
-      this.error.set(this.contentStore.content('invoice.form.error.enterRate'));
-      return;
-    }
-
-    this.aggregatingTime.set(true);
-    this.error.set('');
     this.invoiceForm.get('overtimeHours')?.setValue(0, { emitEvent: false });
+
+    const rateType = this.billingType;
+    const rate = this.getRateForBillingType();
 
     this.invoiceStore.calculateTimeEntries({
       timeEntryIds: selectedIds,
@@ -668,18 +700,10 @@ export class InvoiceFormComponent implements OnInit {
       return;
     }
 
+    if (!this.validateRateForAggregation()) return;
+
     const rateType = this.billingType;
-    const rate = rateType === 'hourly'
-      ? this.invoiceForm.get('hourlyRate')?.value || 0
-      : this.invoiceForm.get('dailyRate')?.value || 0;
-
-    if (!rate) {
-      this.error.set(this.contentStore.content('invoice.form.error.enterRate'));
-      return;
-    }
-
-    this.aggregatingTime.set(true);
-    this.error.set('');
+    const rate = this.getRateForBillingType();
 
     this.invoiceStore.aggregateTime({
       projectId,
@@ -718,6 +742,26 @@ export class InvoiceFormComponent implements OnInit {
     });
   }
 
+  private buildCommonPayloadFields(formValue: any, payload: any, project: Project | undefined): void {
+    if (project?.clientId) {
+      payload.clientId = project.clientId;
+    }
+
+    if (formValue.taskId) {
+      payload.taskId = formValue.taskId;
+    }
+
+    this.buildBillingFields(formValue, payload);
+
+    if (formValue.billingType === 'manual' && formValue.lineItems?.length) {
+      payload.lineItems = formValue.lineItems;
+    }
+
+    if (formValue.expenses?.length) {
+      payload.expenses = this.mapExpenses(formValue.expenses);
+    }
+  }
+
   onSubmit(): void {
     if (this.invoiceForm.invalid) {
       this.invoiceForm.markAllAsTouched();
@@ -743,47 +787,7 @@ export class InvoiceFormComponent implements OnInit {
         notes: formValue.notes || undefined,
       };
 
-      if (project?.clientId) {
-        payload.clientId = project.clientId;
-      }
-
-      if (formValue.taskId) {
-        payload.taskId = formValue.taskId;
-      }
-
-      if (formValue.billingType === 'hourly' || formValue.billingType === 'daily') {
-        payload.hourlyRate = formValue.hourlyRate;
-        payload.dailyRate = formValue.dailyRate;
-        payload.totalHours = formValue.totalHours;
-        payload.totalDays = formValue.totalDays;
-        payload.workDayHours = formValue.workDayHours;
-        payload.overtimeRate = formValue.overtimeRate;
-        payload.overtimeHours = formValue.overtimeHours;
-        if (formValue.startDate && formValue.endDate) {
-          payload.dateRange = {
-            startDate: new Date(formValue.startDate).toISOString(),
-            endDate: new Date(formValue.endDate).toISOString(),
-          };
-        }
-        if (this.selectedEntryIds().size > 0) {
-          payload.timeEntryIds = Array.from(this.selectedEntryIds());
-        }
-        if (this.timeInputMode() === 'manual') {
-          payload.manualHours = formValue.manualHours;
-          payload.manualDays = formValue.manualDays;
-        }
-      }
-
-      if (formValue.billingType === 'manual' && formValue.lineItems?.length) {
-        payload.lineItems = formValue.lineItems;
-      }
-
-      if (formValue.expenses?.length) {
-        payload.expenses = formValue.expenses.map((expense: any) => ({
-          ...expense,
-          date: expense.date ? new Date(expense.date).toISOString() : undefined,
-        }));
-      }
+      this.buildCommonPayloadFields(formValue, payload, project);
 
       this.invoiceStore.createInvoice(payload).subscribe({
         next: () => {
@@ -807,43 +811,7 @@ export class InvoiceFormComponent implements OnInit {
         notes: formValue.notes || undefined,
       };
 
-      if (project?.clientId) {
-        payload.clientId = project.clientId;
-      }
-
-      if (formValue.taskId) {
-        payload.taskId = formValue.taskId;
-      }
-
-      if (formValue.billingType === 'hourly' || formValue.billingType === 'daily') {
-        payload.hourlyRate = formValue.hourlyRate;
-        payload.dailyRate = formValue.dailyRate;
-        payload.totalHours = formValue.totalHours;
-        payload.totalDays = formValue.totalDays;
-        payload.workDayHours = formValue.workDayHours;
-        payload.overtimeRate = formValue.overtimeRate;
-        payload.overtimeHours = formValue.overtimeHours;
-        if (formValue.startDate && formValue.endDate) {
-          payload.dateRange = {
-            startDate: new Date(formValue.startDate).toISOString(),
-            endDate: new Date(formValue.endDate).toISOString(),
-          };
-        }
-        if (this.selectedEntryIds().size > 0) {
-          payload.timeEntryIds = Array.from(this.selectedEntryIds());
-        }
-      }
-
-      if (formValue.billingType === 'manual' && formValue.lineItems?.length) {
-        payload.lineItems = formValue.lineItems;
-      }
-
-      if (formValue.expenses?.length) {
-        payload.expenses = formValue.expenses.map((expense: any) => ({
-          ...expense,
-          date: expense.date ? new Date(expense.date).toISOString() : undefined,
-        }));
-      }
+      this.buildCommonPayloadFields(formValue, payload, project);
 
       this.invoiceStore.updateInvoice(id, payload).subscribe({
         next: () => {
