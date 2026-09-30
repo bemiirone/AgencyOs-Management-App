@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCheckSquare, faSquare, faClock, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { TimeEntry } from '../../../../shared/models/time-entry.model';
@@ -20,7 +20,7 @@ export class InvoiceTimeEntryTableComponent {
   readonly faCheckSquare = faCheckSquare;
   readonly faSquare = faSquare;
 
-  form = input.required<any>();
+  form = input.required<FormGroup>();
   entries = input<TimeEntry[]>([]);
   selectedIds = input<Set<string>>(new Set());
   loading = input(false);
@@ -35,7 +35,8 @@ export class InvoiceTimeEntryTableComponent {
   isRateInvalid(): boolean {
     const form = this.form();
     const field = this.billingType() === 'hourly' ? 'hourlyRate' : 'dailyRate';
-    return form.get(field)?.touched && !form.get(field)?.value;
+    const control = form.get(field);
+    return !!control?.touched && !control?.value;
   }
 
   showBillable(): boolean {

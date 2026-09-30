@@ -1,16 +1,19 @@
 import { Component, ChangeDetectionStrategy, inject, input, output } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
+import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { ContentStore } from '../../../../stores/content.store';
 
 @Component({
   selector: 'app-invoice-summary',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe],
+  imports: [CommonModule, CurrencyPipe, ReactiveFormsModule],
   templateUrl: './invoice-summary.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InvoiceSummaryComponent {
   readonly content = inject(ContentStore);
+
+  form = input.required<FormGroup>();
 
   billingType = input<string>('budget');
   billableAmount = input(0);
