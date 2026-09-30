@@ -1,65 +1,65 @@
 import { Injectable, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DestroyRef } from '@angular/core';
 import { Project } from '../../../shared/models/project.model';
 import { InvoiceLineItem, InvoiceExpense } from '../../../shared/models/invoice.model';
 
 export interface InvoiceFormControls {
-  projectId: string;
-  taskId: string;
-  clientName: string;
-  clientEmail: string;
-  billingType: string;
-  lineItems: any[];
-  expenses: any[];
-  startDate: string;
-  endDate: string;
-  hourlyRate: number;
-  dailyRate: number;
-  totalHours: number;
-  totalDays: number;
-  manualHours: number;
-  manualDays: number;
-  workDayHours: number;
-  overtimeRate: number;
-  overtimeHours: number;
-  subtotal: number;
-  amount: number;
-  tax: number;
-  dueDate: string;
-  notes: string;
+  projectId: FormControl<string>;
+  taskId: FormControl<string>;
+  clientName: FormControl<string>;
+  clientEmail: FormControl<string>;
+  billingType: FormControl<string>;
+  lineItems: FormArray;
+  expenses: FormArray;
+  startDate: FormControl<string>;
+  endDate: FormControl<string>;
+  hourlyRate: FormControl<number>;
+  dailyRate: FormControl<number>;
+  totalHours: FormControl<number>;
+  totalDays: FormControl<number>;
+  manualHours: FormControl<number>;
+  manualDays: FormControl<number>;
+  workDayHours: FormControl<number>;
+  overtimeRate: FormControl<number>;
+  overtimeHours: FormControl<number>;
+  subtotal: FormControl<number>;
+  amount: FormControl<number>;
+  tax: FormControl<number>;
+  dueDate: FormControl<string>;
+  notes: FormControl<string>;
 }
 
 @Injectable({ providedIn: 'root' })
 export class InvoiceFormBuilderService {
   private readonly fb = inject(FormBuilder);
 
-  createForm(): FormGroup {
-    return this.fb.group({
-      projectId: ['', Validators.required],
-      taskId: [''],
-      clientName: ['', Validators.required],
-      clientEmail: ['', [Validators.required, Validators.email]],
-      billingType: ['budget', Validators.required],
+  createForm(): FormGroup<InvoiceFormControls> {
+    return this.fb.group<InvoiceFormControls>({
+      projectId: this.fb.nonNullable.control('', Validators.required),
+      taskId: this.fb.nonNullable.control(''),
+      clientName: this.fb.nonNullable.control('', Validators.required),
+      clientEmail: this.fb.nonNullable.control('', [Validators.required, Validators.email]),
+      billingType: this.fb.nonNullable.control('budget', Validators.required),
       lineItems: this.fb.array<FormGroup<any>[]>([]),
       expenses: this.fb.array<FormGroup<any>[]>([]),
-      startDate: [''],
-      endDate: [''],
-      hourlyRate: [0, Validators.required],
-      dailyRate: [0, Validators.required],
-      totalHours: [0],
-      totalDays: [0],
-      manualHours: [0],
-      manualDays: [0],
-      workDayHours: [8],
-      overtimeRate: [1.5],
-      overtimeHours: [0],
-      subtotal: [0, Validators.required],
-      amount: [0, Validators.required],
-      tax: [0],
-      dueDate: [''],
-      notes: [''],
+      startDate: this.fb.nonNullable.control(''),
+      endDate: this.fb.nonNullable.control(''),
+      hourlyRate: this.fb.nonNullable.control(0, Validators.required),
+      dailyRate: this.fb.nonNullable.control(0, Validators.required),
+      totalHours: this.fb.nonNullable.control(0),
+      totalDays: this.fb.nonNullable.control(0),
+      manualHours: this.fb.nonNullable.control(0),
+      manualDays: this.fb.nonNullable.control(0),
+      workDayHours: this.fb.nonNullable.control(8),
+      overtimeRate: this.fb.nonNullable.control(1.5),
+      overtimeHours: this.fb.nonNullable.control(0),
+      subtotal: this.fb.nonNullable.control(0, Validators.required),
+      amount: this.fb.nonNullable.control(0, Validators.required),
+      tax: this.fb.nonNullable.control(0),
+      dueDate: this.fb.nonNullable.control(''),
+      notes: this.fb.nonNullable.control(''),
     });
   }
 
@@ -117,7 +117,7 @@ export class InvoiceFormBuilderService {
   }
 
   setupFormSubscriptions(
-    form: FormGroup,
+    form: FormGroup<InvoiceFormControls>,
     callbacks: {
       onProjectChange: (projectId: string) => void;
       onBillingTypeChange: (billingType: string) => void;
@@ -127,44 +127,44 @@ export class InvoiceFormBuilderService {
     },
     destroyRef: DestroyRef
   ): void {
-    form.get('projectId')?.valueChanges
+    form.controls.projectId.valueChanges
       .pipe(takeUntilDestroyed(destroyRef))
-      .subscribe((projectId: string) => callbacks.onProjectChange(projectId));
+      .subscribe((projectId) => callbacks.onProjectChange(projectId));
 
-    form.get('billingType')?.valueChanges
+    form.controls.billingType.valueChanges
       .pipe(takeUntilDestroyed(destroyRef))
       .subscribe((billingType) => callbacks.onBillingTypeChange(billingType));
 
-    form.get('manualHours')?.valueChanges
+    form.controls.manualHours.valueChanges
       .pipe(takeUntilDestroyed(destroyRef))
       .subscribe(() => callbacks.onManualTimeChange());
 
-    form.get('manualDays')?.valueChanges
+    form.controls.manualDays.valueChanges
       .pipe(takeUntilDestroyed(destroyRef))
       .subscribe(() => callbacks.onManualTimeChange());
 
-    form.get('hourlyRate')?.valueChanges
+    form.controls.hourlyRate.valueChanges
       .pipe(takeUntilDestroyed(destroyRef))
       .subscribe(() => callbacks.onRateChange());
 
-    form.get('dailyRate')?.valueChanges
+    form.controls.dailyRate.valueChanges
       .pipe(takeUntilDestroyed(destroyRef))
       .subscribe(() => callbacks.onRateChange());
 
-    form.get('workDayHours')?.valueChanges
+    form.controls.workDayHours.valueChanges
       .pipe(takeUntilDestroyed(destroyRef))
       .subscribe(() => callbacks.onOvertimeChange());
 
-    form.get('overtimeHours')?.valueChanges
+    form.controls.overtimeHours.valueChanges
       .pipe(takeUntilDestroyed(destroyRef))
       .subscribe(() => callbacks.onOvertimeChange());
 
-    form.get('overtimeRate')?.valueChanges
+    form.controls.overtimeRate.valueChanges
       .pipe(takeUntilDestroyed(destroyRef))
       .subscribe(() => callbacks.onOvertimeChange());
   }
 
-  populateFromProject(form: FormGroup, project: Project): void {
+  populateFromProject(form: FormGroup<InvoiceFormControls>, project: Project): void {
     form.patchValue({
       clientName: project.clientName || '',
       clientEmail: project.clientEmail || '',

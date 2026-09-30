@@ -12,7 +12,7 @@ import { Project } from '../../../shared/models/project.model';
 import { Task } from '../../../shared/models/task.model';
 import { Invoice, InvoiceLineItem, InvoiceExpense } from '../../../shared/models/invoice.model';
 import { extractId, InvoiceFormValue } from './invoice-form.types';
-import { InvoiceFormBuilderService } from '../services/invoice-form-builder.service';
+import { InvoiceFormBuilderService, InvoiceFormControls } from '../services/invoice-form-builder.service';
 import { InvoiceFormCalculationsService } from '../services/invoice-form-calculations.service';
 import { TimeEntryManagerService } from '../services/time-entry-manager.service';
 import { InvoicePayloadBuilderService } from '../services/invoice-payload-builder.service';
@@ -59,15 +59,15 @@ export class InvoiceFormComponent implements OnInit {
   readonly faSquare = faSquare;
 
   get lineItems(): FormArray {
-    return this.invoiceForm.get('lineItems') as FormArray;
+    return this.invoiceForm.controls.lineItems;
   }
 
   get expenses(): FormArray {
-    return this.invoiceForm.get('expenses') as FormArray;
+    return this.invoiceForm.controls.expenses;
   }
 
   get billingType(): string {
-    return this.invoiceForm.get('billingType')?.value;
+    return this.invoiceForm.controls.billingType.value;
   }
 
   readonly timeInputMode = computed(() => this.timeManager.timeInputMode());
@@ -99,11 +99,11 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   get subtotal(): number {
-    return this.invoiceForm.get('subtotal')?.value || 0;
+    return this.invoiceForm.controls.subtotal.value;
   }
 
   get tax(): number {
-    return this.invoiceForm.get('tax')?.value || 0;
+    return this.invoiceForm.controls.tax.value;
   }
 
   get total(): number {
@@ -115,7 +115,7 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   get overtimeRateValue(): number {
-    return this.invoiceForm.get('overtimeRate')?.value || 1.5;
+    return this.invoiceForm.controls.overtimeRate.value;
   }
 
   get overtimeAmount(): number {
@@ -166,7 +166,7 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   get overtimeExceedsAvailable(): boolean {
-    const overtimeHours = this.invoiceForm.get('overtimeHours')?.value || 0;
+    const overtimeHours = this.invoiceForm.controls.overtimeHours.value;
     return overtimeHours > this.availableOvertimeHours && this.availableOvertimeHours >= 0;
   }
 
@@ -186,7 +186,7 @@ export class InvoiceFormComponent implements OnInit {
           this.loadInvoiceData(id);
         } else {
           this.mode.set('create');
-          if (this.invoiceForm.get('billingType')?.value === 'manual') {
+          if (this.invoiceForm.controls.billingType.value === 'manual') {
             this.addLineItem();
           }
         }
@@ -220,7 +220,7 @@ export class InvoiceFormComponent implements OnInit {
     } else {
       this.tasks.set([]);
       this.timeManager.clearSelection();
-      this.invoiceForm.get('taskId')?.setValue('');
+      this.invoiceForm.controls.taskId.setValue('');
     }
   }
 
@@ -304,7 +304,7 @@ export class InvoiceFormComponent implements OnInit {
   loadTasksForProject(projectId: string): void {
     if (!projectId) {
       this.tasks.set([]);
-      this.invoiceForm.get('taskId')?.setValue('');
+      this.invoiceForm.controls.taskId.setValue('');
       return;
     }
     this.taskStore.loadTasksByProject(projectId).subscribe({
@@ -358,14 +358,14 @@ export class InvoiceFormComponent implements OnInit {
 
   updateLineItemAmounts(): void {
     this.formBuilder.updateLineItemAmounts(this.lineItems, this.billingType, (total) => {
-      this.invoiceForm.get('subtotal')?.setValue(total, { emitEvent: false });
+      this.invoiceForm.controls.subtotal.setValue(total, { emitEvent: false });
     });
   }
 
   updateExpenseTotals(): void {
-    const baseAmount = this.invoiceForm.get('amount')?.value || 0;
+    const baseAmount = this.invoiceForm.controls.amount.value;
     this.formBuilder.updateExpenseTotals(this.expenses, baseAmount, (total) => {
-      this.invoiceForm.get('subtotal')?.setValue(total, { emitEvent: false });
+      this.invoiceForm.controls.subtotal.setValue(total, { emitEvent: false });
     });
   }
 
@@ -399,8 +399,8 @@ export class InvoiceFormComponent implements OnInit {
 
   calculateSelectedEntries(): void {
     const rate = this.calculations.getRateForBillingType(this.invoiceForm, this.billingType);
-    const workDayHours = this.invoiceForm.get('workDayHours')?.value || 8;
-    const overtimeRate = this.invoiceForm.get('overtimeRate')?.value || 1.5;
+    const workDayHours = this.invoiceForm.controls.workDayHours.value;
+    const overtimeRate = this.invoiceForm.controls.overtimeRate.value;
 
     this.timeManager.calculateSelectedEntries(
       this.billingType as 'hourly' | 'daily',
@@ -415,7 +415,7 @@ export class InvoiceFormComponent implements OnInit {
             subtotal: result.amount,
           });
         } else {
-          const dailyRate = this.invoiceForm.get('dailyRate')?.value || 0;
+          const dailyRate = this.invoiceForm.controls.dailyRate.value;
           const baseAmount = result.totalDays * dailyRate;
           this.invoiceForm.patchValue({
             totalDays: result.totalDays,
@@ -428,9 +428,9 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   aggregateTime(): void {
-    const projectId = this.invoiceForm.get('projectId')?.value;
-    const startDate = this.invoiceForm.get('startDate')?.value;
-    const endDate = this.invoiceForm.get('endDate')?.value;
+    const projectId = this.invoiceForm.controls.projectId.value;
+    const startDate = this.invoiceForm.controls.startDate.value;
+    const endDate = this.invoiceForm.controls.endDate.value;
     const rate = this.calculations.getRateForBillingType(this.invoiceForm, this.billingType);
 
     this.timeManager.aggregateTime(
@@ -448,7 +448,7 @@ export class InvoiceFormComponent implements OnInit {
           roundedHours = this.calculations.roundToHalfHour(result.totalHours);
           amount = roundedHours * rate;
         } else {
-          const workDayHours = this.invoiceForm.get('workDayHours')?.value || 8;
+          const workDayHours = this.invoiceForm.controls.workDayHours.value;
           roundedDays = this.calculations.roundToHalfDay(result.totalHours, workDayHours);
           amount = roundedDays * rate;
         }

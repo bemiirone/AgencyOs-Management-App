@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { InvoiceFormControls } from './invoice-form-builder.service';
 
 @Injectable({ providedIn: 'root' })
 export class InvoiceFormCalculationsService {
@@ -16,12 +17,12 @@ export class InvoiceFormCalculationsService {
   }
 
   calculateManualAmount(
-    form: FormGroup,
+    form: FormGroup<InvoiceFormControls>,
     billingType: string
   ): void {
     if (billingType === 'hourly') {
-      const hours = form.get('manualHours')?.value || 0;
-      const rate = form.get('hourlyRate')?.value || 0;
+      const hours = form.controls.manualHours.value;
+      const rate = form.controls.hourlyRate.value;
       const roundedHours = this.roundToHalfHour(hours);
       const amount = roundedHours * rate;
       form.patchValue({
@@ -30,9 +31,9 @@ export class InvoiceFormCalculationsService {
         subtotal: Math.round(amount * 100) / 100,
       }, { emitEvent: false });
     } else if (billingType === 'daily') {
-      const hours = form.get('manualHours')?.value || 0;
-      const workDayHours = form.get('workDayHours')?.value || 8;
-      const rate = form.get('dailyRate')?.value || 0;
+      const hours = form.controls.manualHours.value;
+      const workDayHours = form.controls.workDayHours.value;
+      const rate = form.controls.dailyRate.value;
       const roundedDays = this.roundToHalfDay(hours, workDayHours);
       const amount = roundedDays * rate;
       form.patchValue({
@@ -43,22 +44,22 @@ export class InvoiceFormCalculationsService {
     }
   }
 
-  getRateForBillingType(form: FormGroup, billingType: string): number {
+  getRateForBillingType(form: FormGroup<InvoiceFormControls>, billingType: string): number {
     return billingType === 'hourly'
-      ? form.get('hourlyRate')?.value || 0
-      : form.get('dailyRate')?.value || 0;
+      ? form.controls.hourlyRate.value
+      : form.controls.dailyRate.value;
   }
 
-  getHourlyOvertimeRate(form: FormGroup, billingType: string): number {
-    const overtimeRateMultiplier = form.get('overtimeRate')?.value || 1.5;
+  getHourlyOvertimeRate(form: FormGroup<InvoiceFormControls>, billingType: string): number {
+    const overtimeRateMultiplier = form.controls.overtimeRate.value;
 
     if (billingType === 'hourly') {
-      const rate = form.get('hourlyRate')?.value || 0;
+      const rate = form.controls.hourlyRate.value;
       return rate * overtimeRateMultiplier;
     }
     if (billingType === 'daily') {
-      const dailyRate = form.get('dailyRate')?.value || 0;
-      const workDayHours = form.get('workDayHours')?.value || 8;
+      const dailyRate = form.controls.dailyRate.value;
+      const workDayHours = form.controls.workDayHours.value;
       const hourlyBaseRate = workDayHours > 0 ? dailyRate / workDayHours : 0;
       return hourlyBaseRate * overtimeRateMultiplier;
     }
@@ -66,48 +67,48 @@ export class InvoiceFormCalculationsService {
   }
 
   calculateBillableAmount(
-    form: FormGroup,
+    form: FormGroup<InvoiceFormControls>,
     billingType: string
   ): number {
     if (billingType === 'hourly') {
-      const hours = form.get('totalHours')?.value || 0;
-      const rate = form.get('hourlyRate')?.value || 0;
+      const hours = form.controls.totalHours.value;
+      const rate = form.controls.hourlyRate.value;
       return hours * rate;
     }
     if (billingType === 'daily') {
-      const days = form.get('totalDays')?.value || 0;
-      const rate = form.get('dailyRate')?.value || 0;
+      const days = form.controls.totalDays.value;
+      const rate = form.controls.dailyRate.value;
       return days * rate;
     }
     if (billingType === 'budget') {
-      return form.get('amount')?.value || 0;
+      return form.controls.amount.value;
     }
     return 0;
   }
 
   calculateOvertimeAmount(
-    form: FormGroup,
+    form: FormGroup<InvoiceFormControls>,
     billingType: string,
     totalOvertimeHours: number
   ): number {
     if (totalOvertimeHours <= 0) return 0;
 
-    const overtimeHours = form.get('overtimeHours')?.value || 0;
+    const overtimeHours = form.controls.overtimeHours.value;
     const cappedHours = Math.min(overtimeHours, totalOvertimeHours);
     return cappedHours * this.getHourlyOvertimeRate(form, billingType);
   }
 
   calculateSelectedEntriesAmount(
-    form: FormGroup,
+    form: FormGroup<InvoiceFormControls>,
     billingType: string,
     calculationResult: { totalDays: number; totalOvertimeHours: number } | null
   ): void {
     if (billingType !== 'daily' || !calculationResult) return;
 
-    const dailyRate = form.get('dailyRate')?.value || 0;
-    const overtimeHours = form.get('overtimeHours')?.value || 0;
-    const workDayHours = form.get('workDayHours')?.value || 8;
-    const overtimeRateMultiplier = form.get('overtimeRate')?.value || 1.5;
+    const dailyRate = form.controls.dailyRate.value;
+    const overtimeHours = form.controls.overtimeHours.value;
+    const workDayHours = form.controls.workDayHours.value;
+    const overtimeRateMultiplier = form.controls.overtimeRate.value;
 
     const cappedOvertimeHours = Math.min(overtimeHours, calculationResult.totalOvertimeHours);
     const hourlyBaseRate = workDayHours > 0 ? dailyRate / workDayHours : 0;
@@ -123,10 +124,10 @@ export class InvoiceFormCalculationsService {
   }
 
   getEffectiveOvertimeHours(
-    form: FormGroup,
+    form: FormGroup<InvoiceFormControls>,
     totalOvertimeHours: number
   ): number {
-    const overtimeHours = form.get('overtimeHours')?.value || 0;
+    const overtimeHours = form.controls.overtimeHours.value;
     return Math.min(overtimeHours, totalOvertimeHours);
   }
 
