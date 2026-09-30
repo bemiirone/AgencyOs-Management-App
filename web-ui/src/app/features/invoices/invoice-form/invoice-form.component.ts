@@ -1,21 +1,22 @@
-import { Component, signal, inject, OnInit, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
+import { Component, signal, inject, OnInit, ChangeDetectionStrategy, DestroyRef, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { ReactiveFormsModule, FormArray } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Observable } from 'rxjs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowLeft, faSpinner, faSave, faPlus, faTrash, faClock, faCheckSquare, faSquare } from '@fortawesome/free-solid-svg-icons';
 import { InvoiceStore } from '../../../stores/invoice.store';
-import { CreateInvoicePayload, UpdateInvoicePayload, TimeCalculationResult } from '../../../stores/invoice.types';
 import { ProjectStore } from '../../../stores/project.store';
 import { TaskStore } from '../../../stores/task.store';
 import { ContentStore } from '../../../stores/content.store';
 import { Project } from '../../../shared/models/project.model';
 import { Task } from '../../../shared/models/task.model';
-import { TimeEntry } from '../../../shared/models/time-entry.model';
-import { Invoice, InvoiceLineItem, InvoiceExpense, TimeEntryCalculationDetail } from '../../../shared/models/invoice.model';
-import { extractId, InvoiceFormValue, InvoiceFormExpense, InvoicePayload, InvoiceExpensePayload } from './invoice-form.types';
+import { Invoice, InvoiceLineItem, InvoiceExpense } from '../../../shared/models/invoice.model';
+import { extractId, InvoiceFormValue } from './invoice-form.types';
+import { InvoiceFormBuilderService } from '../services/invoice-form-builder.service';
+import { InvoiceFormCalculationsService } from '../services/invoice-form-calculations.service';
+import { TimeEntryManagerService } from '../services/time-entry-manager.service';
+import { InvoicePayloadBuilderService } from '../services/invoice-payload-builder.service';
+import { InvoiceSubmissionService } from '../services/invoice-submission.service';
 
 @Component({
   selector: 'app-invoice-form',
@@ -30,24 +31,23 @@ export class InvoiceFormComponent implements OnInit {
   private readonly invoiceStore = inject(InvoiceStore);
   private readonly projectStore = inject(ProjectStore);
   private readonly taskStore = inject(TaskStore);
-  private readonly fb = inject(FormBuilder);
-  private readonly destroyRef = inject(DestroyRef);
   readonly contentStore = inject(ContentStore);
+  private readonly destroyRef = inject(DestroyRef);
+
+  private readonly formBuilder = inject(InvoiceFormBuilderService);
+  private readonly calculations = inject(InvoiceFormCalculationsService);
+  private readonly timeManager = inject(TimeEntryManagerService);
+  private readonly payloadBuilder = inject(InvoicePayloadBuilderService);
+  private readonly submission = inject(InvoiceSubmissionService);
+
+  readonly invoiceForm = this.formBuilder.createForm();
 
   readonly mode = signal<'create' | 'edit'>('create');
   readonly loading = signal(false);
-  readonly saving = signal(false);
   readonly error = signal('');
   readonly invoiceId = signal('');
   readonly projects = signal<Project[]>([]);
   readonly tasks = signal<Task[]>([]);
-  readonly aggregatingTime = signal(false);
-  readonly timeInputMode = signal<'fetch' | 'manual'>('fetch');
-  readonly timeEntries = signal<TimeEntry[]>([]);
-  readonly selectedEntryIds = signal<Set<string>>(new Set());
-  readonly loadingTimeEntries = signal(false);
-  readonly calculationResult = signal<TimeCalculationResult | null>(null);
-  readonly calculationDetails = signal<TimeEntryCalculationDetail[]>([]);
 
   readonly faArrowLeft = faArrowLeft;
   readonly faSpinner = faSpinner;
@@ -57,32 +57,6 @@ export class InvoiceFormComponent implements OnInit {
   readonly faClock = faClock;
   readonly faCheckSquare = faCheckSquare;
   readonly faSquare = faSquare;
-
-  invoiceForm: FormGroup = this.fb.group({
-    projectId: ['', Validators.required],
-    taskId: [''],
-    clientName: ['', Validators.required],
-    clientEmail: ['', [Validators.required, Validators.email]],
-    billingType: ['budget', Validators.required],
-    lineItems: this.fb.array([]),
-    expenses: this.fb.array([]),
-    startDate: [''],
-    endDate: [''],
-    hourlyRate: [0, Validators.required],
-    dailyRate: [0, Validators.required],
-    totalHours: [0],
-    totalDays: [0],
-    manualHours: [0],
-    manualDays: [0],
-    workDayHours: [8],
-    overtimeRate: [1.5],
-    overtimeHours: [0],
-    subtotal: [0, Validators.required],
-    amount: [0, Validators.required],
-    tax: [0],
-    dueDate: [''],
-    notes: [''],
-  });
 
   get lineItems(): FormArray {
     return this.invoiceForm.get('lineItems') as FormArray;
@@ -95,6 +69,14 @@ export class InvoiceFormComponent implements OnInit {
   get billingType(): string {
     return this.invoiceForm.get('billingType')?.value;
   }
+
+  readonly timeInputMode = computed(() => this.timeManager.timeInputMode());
+  readonly timeEntries = computed(() => this.timeManager.timeEntries());
+  readonly selectedEntryIds = computed(() => this.timeManager.selectedEntryIds());
+  readonly loadingTimeEntries = computed(() => this.timeManager.loadingTimeEntries());
+  readonly calculationResult = computed(() => this.timeManager.calculationResult());
+  readonly calculationDetails = computed(() => this.timeManager.calculationDetails());
+  readonly aggregatingTime = computed(() => this.timeManager.aggregatingTime());
 
   get showLineItems(): boolean {
     return this.billingType === 'manual';
@@ -129,59 +111,27 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   get billableAmount(): number {
-    if (this.billingType === 'hourly') {
-      const hours = this.invoiceForm.get('totalHours')?.value || 0;
-      const rate = this.invoiceForm.get('hourlyRate')?.value || 0;
-      return hours * rate;
-    }
-    if (this.billingType === 'daily') {
-      const days = this.invoiceForm.get('totalDays')?.value || 0;
-      const rate = this.invoiceForm.get('dailyRate')?.value || 0;
-      return days * rate;
-    }
-    if (this.billingType === 'budget') {
-      return this.invoiceForm.get('amount')?.value || 0;
-    }
-    return 0;
+    return this.calculations.calculateBillableAmount(this.invoiceForm, this.billingType);
   }
 
   get overtimeRateValue(): number {
     return this.invoiceForm.get('overtimeRate')?.value || 1.5;
   }
 
-  private getHourlyOvertimeRate(): number {
-    if (this.billingType === 'hourly') {
-      const rate = this.invoiceForm.get('hourlyRate')?.value || 0;
-      return rate * this.overtimeRateValue;
-    }
-    if (this.billingType === 'daily') {
-      const dailyRate = this.invoiceForm.get('dailyRate')?.value || 0;
-      const workDayHours = this.invoiceForm.get('workDayHours')?.value || 8;
-      const hourlyBaseRate = workDayHours > 0 ? dailyRate / workDayHours : 0;
-      return hourlyBaseRate * this.overtimeRateValue;
-    }
-    return 0;
-  }
-
   get overtimeAmount(): number {
     const result = this.calculationResult();
-    if (!result || result.totalOvertimeHours <= 0) {
-      return 0;
-    }
-    const overtimeHours = this.invoiceForm.get('overtimeHours')?.value || 0;
-    const cappedHours = Math.min(overtimeHours, this.availableOvertimeHours);
-    return cappedHours * this.getHourlyOvertimeRate();
+    if (!result || result.totalOvertimeHours <= 0) return 0;
+    return this.calculations.calculateOvertimeAmount(this.invoiceForm, this.billingType, result.totalOvertimeHours);
   }
 
   get effectiveOvertimeRate(): number {
-    return this.getHourlyOvertimeRate();
+    return this.calculations.getHourlyOvertimeRate(this.invoiceForm, this.billingType);
   }
 
   get effectiveOvertimeHours(): number {
     const result = this.calculationResult();
     if (!result) return 0;
-    const overtimeHours = this.invoiceForm.get('overtimeHours')?.value || 0;
-    return Math.min(overtimeHours, this.availableOvertimeHours);
+    return this.calculations.getEffectiveOvertimeHours(this.invoiceForm, result.totalOvertimeHours);
   }
 
   get lineItemSubtotal(): number {
@@ -204,17 +154,15 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   get allSelected(): boolean {
-    const entries = this.timeEntries();
-    if (entries.length === 0) return false;
-    return this.selectedEntryIds().size === entries.length;
+    return this.timeManager.allSelected;
   }
 
   get selectedCount(): number {
-    return this.selectedEntryIds().size;
+    return this.timeManager.selectedCount;
   }
 
   get availableOvertimeHours(): number {
-    return this.calculationResult()?.totalOvertimeHours || 0;
+    return this.timeManager.availableOvertimeHours;
   }
 
   get overtimeExceedsAvailable(): boolean {
@@ -222,10 +170,76 @@ export class InvoiceFormComponent implements OnInit {
     return overtimeHours > this.availableOvertimeHours && this.availableOvertimeHours >= 0;
   }
 
+  readonly saving = computed(() => this.submission.saving());
+
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     this.loadInitialData(id);
     this.setupFormSubscriptions();
+  }
+
+  private loadInitialData(id: string | null): void {
+    this.projectStore.loadAllProjects().subscribe({
+      next: (response) => {
+        this.projects.set(response.data);
+        if (id) {
+          this.loadInvoiceData(id);
+        } else {
+          this.mode.set('create');
+          if (this.invoiceForm.get('billingType')?.value === 'manual') {
+            this.addLineItem();
+          }
+        }
+      },
+      error: (err) => console.error('Failed to load projects:', err),
+    });
+  }
+
+  private setupFormSubscriptions(): void {
+    this.formBuilder.setupFormSubscriptions(
+      this.invoiceForm,
+      {
+        onProjectChange: (projectId: string) => this.onProjectChange(projectId),
+        onBillingTypeChange: (billingType: string) => this.onBillingTypeChange(billingType),
+        onManualTimeChange: () => this.calculateManualAmount(),
+        onRateChange: () => this.onRateChange(),
+        onOvertimeChange: () => this.calculateSelectedEntriesAmount(),
+      },
+      this.destroyRef
+    );
+  }
+
+  private onProjectChange(projectId: string): void {
+    if (projectId) {
+      const project = this.projects().find((p) => p._id === projectId);
+      if (project) {
+        this.formBuilder.populateFromProject(this.invoiceForm, project);
+      }
+      this.loadTasksForProject(projectId);
+      this.timeManager.loadTimeEntries(projectId);
+    } else {
+      this.tasks.set([]);
+      this.timeManager.clearSelection();
+      this.invoiceForm.get('taskId')?.setValue('');
+    }
+  }
+
+  private onBillingTypeChange(billingType: string): void {
+    if (billingType !== 'manual') {
+      this.formBuilder.clearArray(this.lineItems);
+    } else if (this.lineItems.length === 0) {
+      this.addLineItem();
+    }
+    if (billingType === 'hourly' || billingType === 'daily') {
+      this.timeManager.timeInputMode.set('fetch');
+    }
+  }
+
+  private onRateChange(): void {
+    if (this.timeInputMode() === 'manual' && this.billingType === 'hourly' || this.billingType === 'daily') {
+      this.calculateManualAmount();
+    }
+    this.calculateSelectedEntriesAmount();
   }
 
   loadInvoiceData(id: string): void {
@@ -275,7 +289,7 @@ export class InvoiceFormComponent implements OnInit {
         }
 
         if (invoice.timeEntryIds?.length) {
-          this.selectedEntryIds.set(new Set(invoice.timeEntryIds));
+          this.timeManager.selectedEntryIds.set(new Set(invoice.timeEntryIds));
         }
 
         this.loading.set(false);
@@ -285,171 +299,6 @@ export class InvoiceFormComponent implements OnInit {
         this.loading.set(false);
       },
     });
-  }
-
-  private loadInitialData(id: string | null): void {
-    this.projectStore.loadAllProjects().subscribe({
-      next: (response) => {
-        this.projects.set(response.data);
-
-        if (id) {
-          this.loadInvoiceData(id);
-        } else {
-          this.mode.set('create');
-          if (this.invoiceForm.get('billingType')?.value === 'manual') {
-            this.addLineItem();
-          }
-        }
-      },
-      error: (err) => console.error('Failed to load projects:', err),
-    });
-  }
-
-  private setupFormSubscriptions(): void {
-    this.invoiceForm.get('projectId')?.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((projectId: string) => {
-        if (projectId) {
-          const project = this.projects().find((p) => p._id === projectId);
-          if (project) {
-            this.invoiceForm.patchValue({
-              clientName: project.clientName || '',
-              clientEmail: project.clientEmail || '',
-              amount: project.budget || 0,
-              subtotal: project.budget || 0,
-            });
-          }
-          this.loadTasksForProject(projectId);
-          this.loadTimeEntriesForProject(projectId);
-        } else {
-          this.tasks.set([]);
-          this.timeEntries.set([]);
-          this.selectedEntryIds.set(new Set());
-          this.invoiceForm.get('taskId')?.setValue('');
-        }
-      });
-
-    this.invoiceForm.get('billingType')?.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((billingType) => {
-        if (billingType !== 'manual') {
-          this.clearLineItems();
-        } else if (this.lineItems.length === 0) {
-          this.addLineItem();
-        }
-        if (billingType === 'hourly' || billingType === 'daily') {
-          this.timeInputMode.set('fetch');
-        }
-      });
-
-    this.invoiceForm.get('manualHours')?.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.calculateManualAmount());
-
-    this.invoiceForm.get('manualDays')?.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.calculateManualAmount());
-
-    this.invoiceForm.get('hourlyRate')?.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        if (this.timeInputMode() === 'manual' && this.billingType === 'hourly') {
-          this.calculateManualAmount();
-        }
-        this.calculateSelectedEntriesAmount();
-      });
-
-    this.invoiceForm.get('dailyRate')?.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        if (this.timeInputMode() === 'manual' && this.billingType === 'daily') {
-          this.calculateManualAmount();
-        }
-        this.calculateSelectedEntriesAmount();
-      });
-
-    this.invoiceForm.get('workDayHours')?.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.calculateSelectedEntriesAmount());
-
-    this.invoiceForm.get('overtimeHours')?.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.calculateSelectedEntriesAmount());
-
-    this.invoiceForm.get('overtimeRate')?.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.calculateSelectedEntriesAmount());
-  }
-
-  loadTimeEntriesForProject(projectId: string): void {
-    if (!projectId) {
-      this.timeEntries.set([]);
-      this.selectedEntryIds.set(new Set());
-      this.calculationResult.set(null);
-      this.calculationDetails.set([]);
-      return;
-    }
-
-    this.loadingTimeEntries.set(true);
-    this.invoiceStore.loadTimeEntriesForProject(projectId).subscribe({
-      next: (entries: TimeEntry[]) => {
-        this.timeEntries.set(entries);
-        this.loadingTimeEntries.set(false);
-      },
-      error: () => {
-        this.loadingTimeEntries.set(false);
-      },
-    });
-  }
-
-  toggleEntry(entryId: string): void {
-    const current = new Set(this.selectedEntryIds());
-    if (current.has(entryId)) {
-      current.delete(entryId);
-    } else {
-      current.add(entryId);
-    }
-    this.selectedEntryIds.set(current);
-  }
-
-  toggleSelectAll(): void {
-    if (this.allSelected) {
-      this.selectedEntryIds.set(new Set());
-    } else {
-      this.selectedEntryIds.set(new Set(this.timeEntries().map((e) => e._id)));
-    }
-  }
-
-  isEntrySelected(entryId: string): boolean {
-    return this.selectedEntryIds().has(entryId);
-  }
-
-  getEntryDetail(entryId: string): TimeEntryCalculationDetail | undefined {
-    return this.calculationDetails().find((d) => d.timeEntryId === entryId);
-  }
-
-  addLineItem(item?: InvoiceLineItem): void {
-    this.lineItems.push(
-      this.fb.group({
-        description: [item?.description || '', Validators.required],
-        quantity: [item?.quantity || 1, [Validators.required, Validators.min(0)]],
-        rate: [item?.rate || 0, [Validators.required, Validators.min(0)]],
-        amount: [item?.amount || 0, [Validators.required, Validators.min(0)]],
-      })
-    );
-    this.updateLineItemAmounts();
-  }
-
-  removeLineItem(index: number): void {
-    this.lineItems.removeAt(index);
-    this.updateLineItemAmounts();
-  }
-
-  clearLineItems(): void {
-    while (this.lineItems.length) {
-      this.lineItems.removeAt(0);
-    }
-    this.updateLineItemAmounts();
   }
 
   loadTasksForProject(projectId: string): void {
@@ -466,14 +315,34 @@ export class InvoiceFormComponent implements OnInit {
     });
   }
 
+  toggleEntry(entryId: string): void {
+    this.timeManager.toggleEntry(entryId);
+  }
+
+  toggleSelectAll(): void {
+    this.timeManager.toggleSelectAll();
+  }
+
+  isEntrySelected(entryId: string): boolean {
+    return this.timeManager.isEntrySelected(entryId);
+  }
+
+  getEntryDetail(entryId: string) {
+    return this.timeManager.getEntryDetail(entryId);
+  }
+
+  addLineItem(item?: InvoiceLineItem): void {
+    this.formBuilder.addLineItem(this.lineItems, item);
+    this.updateLineItemAmounts();
+  }
+
+  removeLineItem(index: number): void {
+    this.lineItems.removeAt(index);
+    this.updateLineItemAmounts();
+  }
+
   addExpense(expense?: InvoiceExpense): void {
-    this.expenses.push(
-      this.fb.group({
-        description: [expense?.description || '', Validators.required],
-        amount: [expense?.amount || 0, [Validators.required, Validators.min(0)]],
-        date: [expense?.date ? new Date(expense.date).toISOString().split('T')[0] : ''],
-      })
-    );
+    this.formBuilder.addExpense(this.expenses, expense);
     this.updateExpenseTotals();
   }
 
@@ -483,34 +352,21 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   clearExpenses(): void {
-    while (this.expenses.length) {
-      this.expenses.removeAt(0);
-    }
+    this.formBuilder.clearArray(this.expenses);
     this.updateExpenseTotals();
   }
 
   updateLineItemAmounts(): void {
-    this.lineItems.controls.forEach((control) => {
-      const quantity = control.get('quantity')?.value || 0;
-      const rate = control.get('rate')?.value || 0;
-      control.get('amount')?.setValue(quantity * rate, { emitEvent: false });
+    this.formBuilder.updateLineItemAmounts(this.lineItems, this.billingType, (total) => {
+      this.invoiceForm.get('subtotal')?.setValue(total, { emitEvent: false });
     });
-
-    if (this.billingType === 'manual') {
-      const lineItemTotal = this.lineItems.controls.reduce(
-        (sum, control) => sum + (control.get('amount')?.value || 0), 0
-      );
-      this.invoiceForm.get('subtotal')?.setValue(lineItemTotal, { emitEvent: false });
-    }
   }
 
   updateExpenseTotals(): void {
-    const expensesTotal = this.expenses.controls.reduce(
-      (sum, control) => sum + (control.get('amount')?.value || 0), 0
-    );
-
     const baseAmount = this.invoiceForm.get('amount')?.value || 0;
-    this.invoiceForm.get('subtotal')?.setValue(baseAmount + expensesTotal, { emitEvent: false });
+    this.formBuilder.updateExpenseTotals(this.expenses, baseAmount, (total) => {
+      this.invoiceForm.get('subtotal')?.setValue(total, { emitEvent: false });
+    });
   }
 
   onLineItemChange(): void {
@@ -518,7 +374,7 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   onTimeInputModeChange(mode: 'fetch' | 'manual'): void {
-    this.timeInputMode.set(mode);
+    this.timeManager.timeInputMode.set(mode);
     if (mode === 'manual') {
       this.invoiceForm.patchValue({
         totalHours: 0,
@@ -529,123 +385,30 @@ export class InvoiceFormComponent implements OnInit {
     }
   }
 
-  roundToHalfHour(hours: number): number {
-    return Math.round(hours / 0.5) * 0.5;
-  }
-
-  roundToHalfDay(hours: number, workDayHours: number): number {
-    if (hours <= 0) return 0;
-    const halfDayHours = workDayHours / 2;
-    const halfDayUnits = hours / halfDayHours;
-    const roundedUnits = Math.round(halfDayUnits);
-    return roundedUnits * 0.5;
-  }
-
   calculateManualAmount(): void {
-    if (this.billingType === 'hourly') {
-      const hours = this.invoiceForm.get('manualHours')?.value || 0;
-      const rate = this.invoiceForm.get('hourlyRate')?.value || 0;
-      const roundedHours = this.roundToHalfHour(hours);
-      const amount = roundedHours * rate;
-      this.invoiceForm.patchValue({
-        totalHours: roundedHours,
-        amount: Math.round(amount * 100) / 100,
-        subtotal: Math.round(amount * 100) / 100,
-      }, { emitEvent: false });
-    } else if (this.billingType === 'daily') {
-      const hours = this.invoiceForm.get('manualHours')?.value || 0;
-      const workDayHours = this.invoiceForm.get('workDayHours')?.value || 8;
-      const rate = this.invoiceForm.get('dailyRate')?.value || 0;
-      const roundedDays = this.roundToHalfDay(hours, workDayHours);
-      const amount = roundedDays * rate;
-      this.invoiceForm.patchValue({
-        totalDays: roundedDays,
-        amount: Math.round(amount * 100) / 100,
-        subtotal: Math.round(amount * 100) / 100,
-      }, { emitEvent: false });
-    }
+    this.calculations.calculateManualAmount(this.invoiceForm, this.billingType);
   }
 
-  private getRateForBillingType(): number {
-    const rateType = this.billingType;
-    return rateType === 'hourly'
-      ? this.invoiceForm.get('hourlyRate')?.value || 0
-      : this.invoiceForm.get('dailyRate')?.value || 0;
-  }
-
-  private validateRateForAggregation(): boolean {
-    const rate = this.getRateForBillingType();
-    if (!rate) {
-      this.error.set(this.contentStore.content('invoice.form.error.enterRate'));
-      return false;
-    }
-    this.aggregatingTime.set(true);
-    this.error.set('');
-    return true;
-  }
-
-  private buildBillingFields(formValue: InvoiceFormValue, payload: InvoicePayload): void {
-    if (formValue.billingType === 'hourly' || formValue.billingType === 'daily') {
-      payload.hourlyRate = formValue.hourlyRate;
-      payload.dailyRate = formValue.dailyRate;
-      payload.totalHours = formValue.totalHours;
-      payload.totalDays = formValue.totalDays;
-      payload.workDayHours = formValue.workDayHours;
-      payload.overtimeRate = formValue.overtimeRate;
-      payload.overtimeHours = formValue.overtimeHours;
-      if (formValue.startDate && formValue.endDate) {
-        payload.dateRange = {
-          startDate: new Date(formValue.startDate).toISOString(),
-          endDate: new Date(formValue.endDate).toISOString(),
-        };
-      }
-      if (this.selectedEntryIds().size > 0) {
-        payload.timeEntryIds = Array.from(this.selectedEntryIds());
-      }
-      if (this.timeInputMode() === 'manual' && 'manualHours' in payload) {
-        payload.manualHours = formValue.manualHours;
-        payload.manualDays = formValue.manualDays;
-      }
-    }
-  }
-
-  private mapExpenses(expenses: InvoiceFormExpense[]): InvoiceExpensePayload[] {
-    return expenses.map((expense) => ({
-      description: expense.description || '',
-      amount: expense.amount || 0,
-      date: expense.date ? new Date(expense.date).toISOString() : undefined,
-    }));
+  calculateSelectedEntriesAmount(): void {
+    this.calculations.calculateSelectedEntriesAmount(
+      this.invoiceForm,
+      this.billingType,
+      this.calculationResult()
+    );
   }
 
   calculateSelectedEntries(): void {
-    const selectedIds = Array.from(this.selectedEntryIds());
-    if (selectedIds.length === 0) {
-      this.error.set(this.contentStore.content('invoice.form.error.selectEntries'));
-      return;
-    }
+    const rate = this.calculations.getRateForBillingType(this.invoiceForm, this.billingType);
+    const workDayHours = this.invoiceForm.get('workDayHours')?.value || 8;
+    const overtimeRate = this.invoiceForm.get('overtimeRate')?.value || 1.5;
 
-    if (!this.validateRateForAggregation()) return;
-
-    this.invoiceForm.get('overtimeHours')?.setValue(0, { emitEvent: false });
-
-    const rateType = this.billingType;
-    const rate = this.getRateForBillingType();
-
-    this.invoiceStore.calculateTimeEntries({
-      timeEntryIds: selectedIds,
-      rateType: rateType as 'hourly' | 'daily',
-      hourlyRate: rateType === 'hourly' ? rate : undefined,
-      dailyRate: rateType === 'daily' ? rate : undefined,
-      calculationOptions: {
-        workDayHours: this.invoiceForm.get('workDayHours')?.value || 8,
-        overtimeRate: this.invoiceForm.get('overtimeRate')?.value || 1.5,
-      },
-    }).subscribe({
-      next: (result: TimeCalculationResult) => {
-        this.calculationResult.set(result);
-        this.calculationDetails.set(result.entries);
-
-        if (rateType === 'hourly') {
+    this.timeManager.calculateSelectedEntries(
+      this.billingType as 'hourly' | 'daily',
+      rate,
+      workDayHours,
+      overtimeRate,
+      (result) => {
+        if (this.billingType === 'hourly') {
           this.invoiceForm.patchValue({
             totalHours: result.totalBillableHours + result.totalOvertimeHours,
             amount: result.amount,
@@ -660,72 +423,33 @@ export class InvoiceFormComponent implements OnInit {
             subtotal: Math.round(baseAmount * 100) / 100,
           });
         }
-
-        this.aggregatingTime.set(false);
-      },
-      error: (err: unknown) => {
-        const error = err as { error?: { message?: string } };
-        this.error.set(error.error?.message || 'Failed to calculate time entries');
-        this.aggregatingTime.set(false);
-      },
-    });
-  }
-
-  calculateSelectedEntriesAmount(): void {
-    const result = this.calculationResult();
-    if (this.billingType !== 'daily' || !result) return;
-
-    const dailyRate = this.invoiceForm.get('dailyRate')?.value || 0;
-    const overtimeHours = this.invoiceForm.get('overtimeHours')?.value || 0;
-    const workDayHours = this.invoiceForm.get('workDayHours')?.value || 8;
-    const overtimeRateMultiplier = this.invoiceForm.get('overtimeRate')?.value || 1.5;
-
-    const cappedOvertimeHours = Math.min(overtimeHours, result.totalOvertimeHours);
-    const hourlyBaseRate = workDayHours > 0 ? dailyRate / workDayHours : 0;
-    const baseAmount = result.totalDays * dailyRate;
-    const overtimeAmount = cappedOvertimeHours * hourlyBaseRate * overtimeRateMultiplier;
-    const totalAmount = baseAmount + overtimeAmount;
-
-    this.invoiceForm.patchValue({
-      totalDays: result.totalDays,
-      amount: Math.round(totalAmount * 100) / 100,
-      subtotal: Math.round(totalAmount * 100) / 100,
-    }, { emitEvent: false });
+      }
+    );
   }
 
   aggregateTime(): void {
     const projectId = this.invoiceForm.get('projectId')?.value;
     const startDate = this.invoiceForm.get('startDate')?.value;
     const endDate = this.invoiceForm.get('endDate')?.value;
+    const rate = this.calculations.getRateForBillingType(this.invoiceForm, this.billingType);
 
-    if (!projectId || !startDate || !endDate) {
-      this.error.set(this.contentStore.content('invoice.form.error.selectProjectDate'));
-      return;
-    }
-
-    if (!this.validateRateForAggregation()) return;
-
-    const rateType = this.billingType;
-    const rate = this.getRateForBillingType();
-
-    this.invoiceStore.aggregateTime({
+    this.timeManager.aggregateTime(
       projectId,
-      startDate: new Date(startDate).toISOString(),
-      endDate: new Date(endDate).toISOString(),
-      rateType: rateType as 'hourly' | 'daily',
+      startDate,
+      endDate,
+      this.billingType as 'hourly' | 'daily',
       rate,
-    }).subscribe({
-      next: (result) => {
+      (result) => {
         let roundedHours = result.totalHours;
         let roundedDays = result.totalDays;
         let amount = result.amount;
 
-        if (rateType === 'hourly') {
-          roundedHours = this.roundToHalfHour(result.totalHours);
+        if (this.billingType === 'hourly') {
+          roundedHours = this.calculations.roundToHalfHour(result.totalHours);
           amount = roundedHours * rate;
         } else {
           const workDayHours = this.invoiceForm.get('workDayHours')?.value || 8;
-          roundedDays = this.roundToHalfDay(result.totalHours, workDayHours);
+          roundedDays = this.calculations.roundToHalfDay(result.totalHours, workDayHours);
           amount = roundedDays * rate;
         }
 
@@ -735,64 +459,8 @@ export class InvoiceFormComponent implements OnInit {
           amount: Math.round(amount * 100) / 100,
           subtotal: Math.round(amount * 100) / 100,
         });
-        this.aggregatingTime.set(false);
-      },
-      error: (err: unknown) => {
-        const error = err as { error?: { message?: string } };
-        this.error.set(error.error?.message || 'Failed to aggregate time');
-        this.aggregatingTime.set(false);
-      },
-    });
-  }
-
-  private buildCommonPayloadFields(formValue: InvoiceFormValue, payload: InvoicePayload, project: Project | undefined): void {
-    if (project?.clientId) {
-      payload.clientId = project.clientId;
-    }
-
-    if (formValue.taskId) {
-      payload.taskId = formValue.taskId;
-    }
-
-    this.buildBillingFields(formValue, payload);
-
-    if (formValue.billingType === 'manual' && formValue.lineItems?.length) {
-      payload.lineItems = formValue.lineItems.map((item) => ({
-        description: item.description || '',
-        quantity: item.quantity ?? 1,
-        rate: item.rate ?? 0,
-        amount: item.amount ?? 0,
-      }));
-    }
-
-    if (formValue.expenses?.length) {
-      payload.expenses = this.mapExpenses(formValue.expenses);
-    }
-  }
-
-  private handleSubmission(payload: InvoicePayload, execute: () => Observable<unknown>, errorKey: string): void {
-    execute().subscribe({
-      next: () => {
-        this.saving.set(false);
-        this.router.navigate(['/invoices']);
-      },
-      error: (err: unknown) => {
-        const error = err as { error?: { message?: string } };
-        this.error.set(error.error?.message || this.contentStore.content(errorKey));
-        this.saving.set(false);
-      },
-    });
-  }
-
-  private buildSharedFields(formValue: InvoiceFormValue) {
-    return {
-      billingType: formValue.billingType as 'budget' | 'hourly' | 'daily' | 'manual',
-      subtotal: formValue.subtotal ?? 0,
-      amount: formValue.amount ?? 0,
-      tax: formValue.tax || 0,
-      dueDate: formValue.dueDate ? new Date(formValue.dueDate).toISOString() : undefined,
-      notes: formValue.notes || undefined,
-    };
+      }
+    );
   }
 
   onSubmit(): void {
@@ -801,40 +469,32 @@ export class InvoiceFormComponent implements OnInit {
       return;
     }
 
-    this.saving.set(true);
-    this.error.set('');
-
-    const formValue = this.invoiceForm.value;
+    const formValue = this.invoiceForm.value as InvoiceFormValue;
     const project = this.projects().find((p) => p._id === formValue.projectId);
+    const selectedIds = Array.from(this.timeManager.selectedEntryIds());
+    const timeInputMode = this.timeManager.timeInputMode();
 
     if (this.mode() === 'create') {
-      const payload: CreateInvoicePayload = {
-        projectId: formValue.projectId,
-        clientName: formValue.clientName,
-        clientEmail: formValue.clientEmail,
-        ...this.buildSharedFields(formValue),
-      };
-
-      this.buildCommonPayloadFields(formValue, payload, project);
-      this.handleSubmission(payload, () => this.invoiceStore.createInvoice(payload), 'invoice.form.error.createFailed');
+      const payload = this.payloadBuilder.buildCreatePayload(formValue, project, selectedIds, timeInputMode);
+      this.submission.handleSubmission(
+        () => this.invoiceStore.createInvoice(payload),
+        'invoice.form.error.createFailed'
+      );
     } else {
       const id = this.invoiceId();
-      const payload: UpdateInvoicePayload = {
-        ...this.buildSharedFields(formValue),
-      };
-
-      this.buildCommonPayloadFields(formValue, payload, project);
-      this.handleSubmission(payload, () => this.invoiceStore.updateInvoice(id, payload), 'invoice.form.error.updateFailed');
+      const payload = this.payloadBuilder.buildUpdatePayload(formValue, project, selectedIds, timeInputMode);
+      this.submission.handleSubmission(
+        () => this.invoiceStore.updateInvoice(id, payload),
+        'invoice.form.error.updateFailed'
+      );
     }
   }
 
   formatDuration(seconds: number): string {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    return `${hours}h ${minutes}m`;
+    return this.calculations.formatDuration(seconds);
   }
 
   formatDate(date: Date | string): string {
-    return new Date(date).toLocaleDateString();
+    return this.calculations.formatDate(date);
   }
 }
