@@ -59,11 +59,11 @@ export class InvoiceFormComponent implements OnInit {
   readonly faSquare = faSquare;
 
   get lineItems(): FormArray {
-    return this.invoiceForm.controls.lineItems;
+    return this.invoiceForm.controls.lineItems as FormArray;
   }
 
   get expenses(): FormArray {
-    return this.invoiceForm.controls.expenses;
+    return this.invoiceForm.controls.expenses as FormArray;
   }
 
   get billingType(): string {
@@ -338,6 +338,11 @@ export class InvoiceFormComponent implements OnInit {
 
   removeLineItem(index: number): void {
     this.lineItems.removeAt(index);
+    this.updateLineItemAmounts();
+  }
+
+  clearLineItems(): void {
+    this.formBuilder.clearArray(this.lineItems);
     this.updateLineItemAmounts();
   }
 

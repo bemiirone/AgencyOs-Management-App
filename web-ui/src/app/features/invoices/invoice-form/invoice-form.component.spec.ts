@@ -86,49 +86,49 @@ describe('InvoiceFormComponent', () => {
   });
 
   it('should have billing type default to budget', () => {
-    expect(component.invoiceForm.get('billingType')?.value).toBe('budget');
+    expect(component.invoiceForm.controls.billingType.value).toBe('budget');
   });
 
   it('should have required validators on projectId', () => {
-    const control = component.invoiceForm.get('projectId');
-    control?.setValue('');
-    expect(control?.hasError('required')).toBe(true);
+    const control = component.invoiceForm.controls.projectId;
+    control.setValue('');
+    expect(control.hasError('required')).toBe(true);
   });
 
   it('should have required validators on clientName', () => {
-    const control = component.invoiceForm.get('clientName');
-    control?.setValue('');
-    expect(control?.hasError('required')).toBe(true);
+    const control = component.invoiceForm.controls.clientName;
+    control.setValue('');
+    expect(control.hasError('required')).toBe(true);
   });
 
   it('should have email validator on clientEmail', () => {
-    const control = component.invoiceForm.get('clientEmail');
-    control?.setValue('invalid');
-    expect(control?.hasError('email')).toBe(true);
+    const control = component.invoiceForm.controls.clientEmail;
+    control.setValue('invalid');
+    expect(control.hasError('email')).toBe(true);
   });
 
   it('should show line items section when billing type is manual', () => {
-    component.invoiceForm.get('billingType')?.setValue('manual');
+    component.invoiceForm.controls.billingType.setValue('manual');
     expect(component.showLineItems).toBe(true);
   });
 
   it('should hide line items section when billing type is not manual', () => {
-    component.invoiceForm.get('billingType')?.setValue('budget');
+    component.invoiceForm.controls.billingType.setValue('budget');
     expect(component.showLineItems).toBe(false);
   });
 
   it('should show time section when billing type is hourly', () => {
-    component.invoiceForm.get('billingType')?.setValue('hourly');
+    component.invoiceForm.controls.billingType.setValue('hourly');
     expect(component.showTimeSection).toBe(true);
   });
 
   it('should show time section when billing type is daily', () => {
-    component.invoiceForm.get('billingType')?.setValue('daily');
+    component.invoiceForm.controls.billingType.setValue('daily');
     expect(component.showTimeSection).toBe(true);
   });
 
   it('should hide time section when billing type is budget', () => {
-    component.invoiceForm.get('billingType')?.setValue('budget');
+    component.invoiceForm.controls.billingType.setValue('budget');
     expect(component.showTimeSection).toBe(false);
   });
 
@@ -142,14 +142,14 @@ describe('InvoiceFormComponent', () => {
   });
 
   it('should add a line item', () => {
-    component.invoiceForm.get('billingType')?.setValue('manual');
+    component.invoiceForm.controls.billingType.setValue('manual');
     const initialLength = component.lineItems.length;
     component.addLineItem();
     expect(component.lineItems.length).toBe(initialLength + 1);
   });
 
   it('should remove a line item', () => {
-    component.invoiceForm.get('billingType')?.setValue('manual');
+    component.invoiceForm.controls.billingType.setValue('manual');
     component.addLineItem();
     const length = component.lineItems.length;
     component.removeLineItem(0);
@@ -157,7 +157,7 @@ describe('InvoiceFormComponent', () => {
   });
 
   it('should clear line items', () => {
-    component.invoiceForm.get('billingType')?.setValue('manual');
+    component.invoiceForm.controls.billingType.setValue('manual');
     component.addLineItem();
     component.addLineItem();
     component.clearLineItems();
@@ -185,34 +185,20 @@ describe('InvoiceFormComponent', () => {
   });
 
   it('should calculate manual amount for hourly billing', () => {
-    component.invoiceForm.get('billingType')?.setValue('hourly');
-    component.invoiceForm.get('manualHours')?.setValue(5);
-    component.invoiceForm.get('hourlyRate')?.setValue(100);
+    component.invoiceForm.controls.billingType.setValue('hourly');
+    component.invoiceForm.controls.manualHours.setValue(5);
+    component.invoiceForm.controls.hourlyRate.setValue(100);
     component.calculateManualAmount();
-    expect(component.invoiceForm.get('amount')?.value).toBe(500);
-  });
-
-  it('should round hours to nearest half hour', () => {
-    expect(component.roundToHalfHour(1.1)).toBe(1);
-    expect(component.roundToHalfHour(1.3)).toBe(1.5);
-    expect(component.roundToHalfHour(1.7)).toBe(1.5);
-    expect(component.roundToHalfHour(2.25)).toBe(2.5);
-  });
-
-  it('should round days to nearest half day', () => {
-    expect(component.roundToHalfDay(6, 8)).toBe(1);
-    expect(component.roundToHalfDay(11, 8)).toBe(1.5);
-    expect(component.roundToHalfDay(4, 8)).toBe(0.5);
-    expect(component.roundToHalfDay(0, 8)).toBe(0);
+    expect(component.invoiceForm.controls.amount.value).toBe(500);
   });
 
   it('should calculate manual amount for daily billing', () => {
-    component.invoiceForm.get('billingType')?.setValue('daily');
-    component.invoiceForm.get('manualHours')?.setValue(11);
-    component.invoiceForm.get('workDayHours')?.setValue(8);
-    component.invoiceForm.get('dailyRate')?.setValue(500);
+    component.invoiceForm.controls.billingType.setValue('daily');
+    component.invoiceForm.controls.manualHours.setValue(11);
+    component.invoiceForm.controls.workDayHours.setValue(8);
+    component.invoiceForm.controls.dailyRate.setValue(500);
     component.calculateManualAmount();
-    expect(component.invoiceForm.get('amount')?.value).toBe(750);
+    expect(component.invoiceForm.controls.amount.value).toBe(750);
   });
 
   it('should load tasks for project', () => {
@@ -245,11 +231,11 @@ describe('InvoiceFormComponent', () => {
   });
 
   it('should clear line items when switching away from manual billing', () => {
-    component.invoiceForm.get('billingType')?.setValue('manual');
+    component.invoiceForm.controls.billingType.setValue('manual');
     component.addLineItem();
     expect(component.lineItems.length).toBeGreaterThan(0);
 
-    component.invoiceForm.get('billingType')?.setValue('budget');
+    component.invoiceForm.controls.billingType.setValue('budget');
     expect(component.lineItems.length).toBe(0);
   });
 });

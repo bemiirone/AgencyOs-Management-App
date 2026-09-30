@@ -720,15 +720,15 @@
               <input
                 type="checkbox"
                 class="toggle toggle-primary"
-                [checked]="expenses.length > 0"
+                [checked]="$any(expenses).length > 0"
                 (change)="
-                  expenses.length === 0 ? addExpense() : clearExpenses()
+                  $any(expenses).length === 0 ? addExpense() : clearExpenses()
                 "
               />
             </label>
           </div>
 
-          @if (expenses.length > 0) {
+          @if ($any(expenses).length > 0) {
             <div class="card bg-base-200 mb-4">
               <div class="card-body p-4">
                 <div class="flex justify-between items-center mb-2">
