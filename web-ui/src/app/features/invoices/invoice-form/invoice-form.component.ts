@@ -1,7 +1,7 @@
 import { Component, signal, inject, OnInit, ChangeDetectionStrategy, DestroyRef, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormArray } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowLeft, faSpinner, faSave, faPlus, faTrash, faClock, faCheckSquare, faSquare } from '@fortawesome/free-solid-svg-icons';
 import { InvoiceStore } from '../../../stores/invoice.store';
@@ -12,16 +12,39 @@ import { Project } from '../../../shared/models/project.model';
 import { Task } from '../../../shared/models/task.model';
 import { Invoice, InvoiceLineItem, InvoiceExpense } from '../../../shared/models/invoice.model';
 import { extractId, InvoiceFormValue } from './invoice-form.types';
-import { InvoiceFormBuilderService, InvoiceFormControls } from '../services/invoice-form-builder.service';
+import { InvoiceFormBuilderService } from '../services/invoice-form-builder.service';
 import { InvoiceFormCalculationsService } from '../services/invoice-form-calculations.service';
 import { TimeEntryManagerService } from '../services/time-entry-manager.service';
 import { InvoicePayloadBuilderService } from '../services/invoice-payload-builder.service';
 import { InvoiceSubmissionService } from '../services/invoice-submission.service';
 
+import { InvoiceHeaderComponent } from './invoice-header/invoice-header.component';
+import { InvoiceBasicInfoComponent } from './invoice-basic-info/invoice-basic-info.component';
+import { InvoiceBillingTypeSelectorComponent } from './invoice-billing-type-selector/invoice-billing-type-selector.component';
+import { InvoiceTimeFetchComponent } from './invoice-time-fetch/invoice-time-fetch.component';
+import { InvoiceTimeManualComponent } from './invoice-time-manual/invoice-time-manual.component';
+import { InvoiceLineItemsComponent } from './invoice-line-items/invoice-line-items.component';
+import { InvoiceExpensesComponent } from './invoice-expenses/invoice-expenses.component';
+import { InvoiceSummaryComponent } from './invoice-summary/invoice-summary.component';
+import { InvoiceFooterComponent } from './invoice-footer/invoice-footer.component';
+
 @Component({
   selector: 'app-invoice-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, FontAwesomeModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FontAwesomeModule,
+    InvoiceHeaderComponent,
+    InvoiceBasicInfoComponent,
+    InvoiceBillingTypeSelectorComponent,
+    InvoiceTimeFetchComponent,
+    InvoiceTimeManualComponent,
+    InvoiceLineItemsComponent,
+    InvoiceExpensesComponent,
+    InvoiceSummaryComponent,
+    InvoiceFooterComponent,
+  ],
   templateUrl: './invoice-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -236,7 +259,7 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   private onRateChange(): void {
-    if (this.timeInputMode() === 'manual' && this.billingType === 'hourly' || this.billingType === 'daily') {
+    if ((this.timeInputMode() === 'manual' && this.billingType === 'hourly') || this.billingType === 'daily') {
       this.calculateManualAmount();
     }
     this.calculateSelectedEntriesAmount();

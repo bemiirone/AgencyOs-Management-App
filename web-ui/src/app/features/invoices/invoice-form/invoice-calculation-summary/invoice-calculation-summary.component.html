@@ -1,0 +1,106 @@
+<div class="flex items-center gap-4 mt-4">
+  <button
+    type="button"
+    class="btn btn-secondary btn-sm"
+    (click)="calculate.emit()"
+    [disabled]="aggregating() || selectedCount() === 0"
+  >
+    @if (aggregating()) {
+      <fa-icon [icon]="faSpinner" class="animate-spin mr-2"></fa-icon>
+      {{ content.content('invoice.form.button.aggregating') }}
+    } @else {
+      <fa-icon [icon]="faClock" class="mr-2"></fa-icon>
+      {{ content.content('invoice.form.button.calculate') }}
+    }
+  </button>
+  @if (selectedCount() > 0) {
+    <span class="text-sm text-base-content/70">
+      {{ selectedCount() }} entries selected
+    </span>
+  }
+</div>
+
+@if (calculationResult()) {
+  <div class="mt-4 p-4 bg-base-100 rounded-lg">
+    <h4 class="font-medium mb-2">Calculation Summary</h4>
+    @if (billingType() === 'hourly') {
+      <div class="grid grid-cols-3 gap-4 text-sm">
+        <div>
+          <span class="text-base-content/70">Total Hours:</span>
+          <span class="ml-2 font-medium">{{ calculationResult()!.totalHours }}h</span>
+        </div>
+        <div>
+          <span class="text-base-content/70">Billable Hours:</span>
+          <span class="ml-2 font-medium">{{ calculationResult()!.totalBillableHours }}h</span>
+        </div>
+        <div>
+          <span class="text-base-content/70">Overtime Hours:</span>
+          <span class="ml-2 font-medium">{{ calculationResult()!.totalOvertimeHours }}h</span>
+        </div>
+      </div>
+    } @else if (billingType() === 'daily') {
+      <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+        <div>
+          <span class="text-base-content/70">Total Hours:</span>
+          <span class="ml-2 font-medium">{{ calculationResult()!.totalHours }}h</span>
+        </div>
+        <div>
+          <span class="text-base-content/70">Total Days:</span>
+          <span class="ml-2 font-medium">{{ calculationResult()!.totalDays }}</span>
+        </div>
+      </div>
+
+      @if (calculationResult()!.totalOvertimeHours > 0) {
+        <div class="form-control mt-2">
+          <div class="label">
+            <span class="label-text font-medium">Overtime Hours</span>
+            <span class="label-text-alt text-xs text-base-content/60">
+              Available: {{ availableOvertime() }}h
+            </span>
+          </div>
+          <input
+            type="number"
+            formControlName="overtimeHours"
+            class="input input-bordered w-full"
+            [class.input-error]="overtimeExceeds()"
+            min="0"
+            step="0.5"
+            [placeholder]="'Enter overtime hours (max ' + availableOvertime() + 'h)'"
+          />
+          @if (overtimeExceeds()) {
+            <span class="text-warning text-xs mt-1">
+              Overtime hours ({{ form().get('overtimeHours')?.value || 0 }}h) exceed available overtime ({{ availableOvertime() }}h). Only {{ availableOvertime() }}h will be billed.
+            </span>
+          }
+        </div>
+
+        <div class="mt-3 text-sm space-y-1">
+          @let dailyRate = form().get('dailyRate')?.value || 0;
+          @let workDayHoursVal = form().get('workDayHours')?.value || 8;
+          @let hourlyBase = workDayHoursVal > 0 ? dailyRate / workDayHoursVal : 0;
+          @let otHours = form().get('overtimeHours')?.value || 0;
+          @let cappedOtHours = otHours > availableOvertime() ? availableOvertime() : otHours;
+          @let otRateMultiplier = form().get('overtimeRate')?.value || 1.5;
+          @let baseAmt = calculationResult()!.totalDays * dailyRate;
+          @let otAmt = cappedOtHours * hourlyBase * otRateMultiplier;
+          <div class="flex justify-between">
+            <span class="text-base-content/70">Base ({{ calculationResult()!.totalDays }} days × {{ dailyRate | currency: 'GBP' : 'symbol' : '1.2-2' }}):</span>
+            <span class="font-medium">{{ baseAmt | currency: 'GBP' : 'symbol' : '1.2-2' }}</span>
+          </div>
+          @if (cappedOtHours > 0) {
+            <div class="flex justify-between">
+              <span class="text-base-content/70">Overtime ({{ cappedOtHours }}h × {{ hourlyBase | currency: 'GBP' : 'symbol' : '1.2-2' }}/h × {{ otRateMultiplier }}):</span>
+              <span class="font-medium">{{ otAmt | currency: 'GBP' : 'symbol' : '1.2-2' }}</span>
+            </div>
+          }
+        </div>
+      }
+    }
+    <div class="mt-2 text-sm border-t border-base-300 pt-2">
+      <span class="text-base-content/70">Calculated Amount:</span>
+      <span class="ml-2 font-medium text-lg">
+        {{ calculationResult()!.amount | currency: 'GBP' : 'symbol' : '1.2-2' }}
+      </span>
+    </div>
+  </div>
+}

@@ -1,960 +1,151 @@
-<div class="p-6">
-  <div class="mb-6">
-    <a
-      routerLink="/invoices"
-      queryParamsHandling="preserve"
-      class="btn btn-ghost btn-sm gap-2"
-    >
-      <fa-icon [icon]="faArrowLeft"></fa-icon>
-      {{ contentStore.content('invoice.form.back') }}
-    </a>
-  </div>
+<app-invoice-header
+  [loading]="loading()"
+  [mode]="mode()"
+  [error]="error()"
+>
+  <form [formGroup]="invoiceForm" (ngSubmit)="onSubmit()">
+    <app-invoice-basic-info
+      [form]="invoiceForm"
+      [projects]="projects()"
+      [tasks]="tasks()"
+    />
 
-  @if (loading()) {
-    <div class="flex justify-center py-16">
-      <fa-icon
-        [icon]="faSpinner"
-        class="animate-spin text-4xl text-primary"
-      ></fa-icon>
-    </div>
-  } @else {
-    <div class="card bg-base-100 shadow max-w-4xl">
-      <div class="card-body">
-        <h2 class="card-title text-2xl mb-4">
-          {{
-            mode() === 'create'
-              ? contentStore.content('invoice.form.title.create')
-              : contentStore.content('invoice.form.title.edit')
-          }}
-        </h2>
+    <app-invoice-billing-type-selector
+      [form]="invoiceForm"
+    />
 
-        @if (error()) {
-          <div class="alert alert-error mb-4">
-            <span>{{ error() }}</span>
-          </div>
-        }
-
-        <form [formGroup]="invoiceForm" (ngSubmit)="onSubmit()">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div class="form-control">
-              <div class="label">
-                <span class="label-text font-medium">{{
-                  contentStore.content('invoice.form.label.project')
-                }}</span>
-              </div>
-              <select
-                formControlName="projectId"
-                class="select select-bordered w-full"
-              >
-                <option value="">
-                  {{ contentStore.content('invoice.form.label.selectProject') }}
-                </option>
-                @for (project of projects(); track project._id) {
-                  <option [value]="project._id">{{ project.name }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="form-control">
-              <div class="label">
-                <span class="label-text font-medium">{{
-                  contentStore.content('invoice.form.label.task')
-                }}</span>
-              </div>
-              <select
-                formControlName="taskId"
-                class="select select-bordered w-full"
-              >
-                <option value="">
-                  {{ contentStore.content('invoice.form.label.allTasks') }}
-                </option>
-                @for (task of tasks(); track task._id) {
-                  <option [value]="task._id">{{ task.title }}</option>
-                }
-              </select>
-            </div>
-          </div>
-
-          <div class="form-control mb-4">
-            <div class="label">
-              <span class="label-text font-medium">{{
-                contentStore.content('invoice.form.label.dueDate')
-              }}</span>
-            </div>
-            <input
-              type="date"
-              formControlName="dueDate"
-              class="input input-bordered w-full"
-            />
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div class="form-control">
-              <div class="label">
-                <span class="label-text font-medium">{{
-                  contentStore.content('invoice.form.label.clientName')
-                }}</span>
-              </div>
-              <input
-                type="text"
-                formControlName="clientName"
-                class="input input-bordered w-full"
-                placeholder="{{
-                  contentStore.content(
-                    'invoice.form.label.clientName.placeholder'
-                  )
-                }}"
-              />
-            </div>
-
-            <div class="form-control">
-              <div class="label">
-                <span class="label-text font-medium">{{
-                  contentStore.content('invoice.form.label.clientEmail')
-                }}</span>
-              </div>
-              <input
-                type="email"
-                formControlName="clientEmail"
-                class="input input-bordered w-full"
-                placeholder="{{
-                  contentStore.content(
-                    'invoice.form.label.clientEmail.placeholder'
-                  )
-                }}"
-              />
-            </div>
-          </div>
-
-          <div class="form-control mb-4">
-            <div class="label">
-              <span class="label-text font-medium">{{
-                contentStore.content('invoice.form.label.billingType')
-              }}</span>
-            </div>
-            <div class="flex gap-4">
-              <label class="label cursor-pointer gap-2">
-                <input
-                  type="radio"
-                  formControlName="billingType"
-                  value="budget"
-                  class="radio radio-primary"
-                />
-                <span class="label-text">{{
-                  contentStore.content('invoice.form.billingType.budget')
-                }}</span>
-              </label>
-              <label class="label cursor-pointer gap-2">
-                <input
-                  type="radio"
-                  formControlName="billingType"
-                  value="hourly"
-                  class="radio radio-primary"
-                />
-                <span class="label-text">{{
-                  contentStore.content('invoice.form.billingType.hourly')
-                }}</span>
-              </label>
-              <label class="label cursor-pointer gap-2">
-                <input
-                  type="radio"
-                  formControlName="billingType"
-                  value="daily"
-                  class="radio radio-primary"
-                />
-                <span class="label-text">{{
-                  contentStore.content('invoice.form.billingType.daily')
-                }}</span>
-              </label>
-              <label class="label cursor-pointer gap-2">
-                <input
-                  type="radio"
-                  formControlName="billingType"
-                  value="manual"
-                  class="radio radio-primary"
-                />
-                <span class="label-text">{{
-                  contentStore.content('invoice.form.billingType.manual')
-                }}</span>
-              </label>
-            </div>
-          </div>
-
-          @if (showProjectBudget) {
-            <div class="form-control mb-4">
-              <div class="label">
-                <span class="label-text font-medium">{{
-                  contentStore.content('invoice.form.label.amount')
-                }}</span>
-              </div>
-              <input
-                type="number"
-                formControlName="amount"
-                class="input input-bordered w-full"
-                min="0"
-                step="0.01"
-              />
-            </div>
-          }
-
-          @if (showTimeSection) {
-            <div class="form-control mb-4">
-              <div class="label">
-                <span class="label-text font-medium">{{
-                  contentStore.content('invoice.form.label.timeInputMethod')
-                }}</span>
-              </div>
-              <div class="flex gap-4">
-                <label class="label cursor-pointer gap-2">
-                  <input
-                    type="radio"
-                    [checked]="timeInputMode() === 'fetch'"
-                    (change)="onTimeInputModeChange('fetch')"
-                    class="radio radio-primary"
-                  />
-                  <span class="label-text">{{
-                    contentStore.content('invoice.form.label.fetchTime')
-                  }}</span>
-                </label>
-                <label class="label cursor-pointer gap-2">
-                  <input
-                    type="radio"
-                    [checked]="timeInputMode() === 'manual'"
-                    (change)="onTimeInputModeChange('manual')"
-                    class="radio radio-primary"
-                  />
-                  <span class="label-text">{{
-                    contentStore.content('invoice.form.label.manualInput')
-                  }}</span>
-                </label>
-              </div>
-            </div>
-          }
-
-          @if (showTimeFetch) {
-            <div class="card bg-base-200 mb-4">
-              <div class="card-body p-4">
-                <h3 class="card-title text-lg mb-2">
-                  <fa-icon [icon]="faClock" class="mr-2"></fa-icon>
-                  {{ contentStore.content('invoice.form.section.fetchTime') }}
-                </h3>
-
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                  <div class="form-control">
-                    <div class="label">
-                      <span class="label-text">
-                        {{
-                          billingType === 'hourly'
-                            ? contentStore.content('invoice.form.label.hourlyRate')
-                            : contentStore.content('invoice.form.label.dailyRate')
-                        }}
-                        <span class="text-error">*</span>
-                      </span>
-                    </div>
-                    <input
-                      type="number"
-                      [formControlName]="
-                        billingType === 'hourly' ? 'hourlyRate' : 'dailyRate'
-                      "
-                      class="input input-bordered w-full"
-                      [class.input-error]="(billingType === 'hourly' ? invoiceForm.get('hourlyRate')?.invalid : invoiceForm.get('dailyRate')?.invalid) && (invoiceForm.get('hourlyRate')?.touched || invoiceForm.get('dailyRate')?.touched)"
-                      min="0"
-                      step="0.01"
-                    />
-                    @if ((billingType === 'hourly' && invoiceForm.get('hourlyRate')?.touched && !invoiceForm.get('hourlyRate')?.value) ||
-                        (billingType === 'daily' && invoiceForm.get('dailyRate')?.touched && !invoiceForm.get('dailyRate')?.value)) {
-                      <span class="text-error text-xs mt-1">Rate is required</span>
-                    }
-                  </div>
-
-                  <div class="form-control">
-                    <div class="label">
-                      <span class="label-text">{{
-                        contentStore.content('invoice.form.label.workDayLength')
-                      }}</span>
-                    </div>
-                    <input
-                      type="number"
-                      formControlName="workDayHours"
-                      class="input input-bordered w-full"
-                      min="1"
-                      max="24"
-                      step="0.5"
-                      placeholder="e.g., 8"
-                    />
-                  </div>
-
-                  <div class="form-control">
-                    <div class="label">
-                      <span class="label-text">{{
-                        contentStore.content('invoice.form.label.overtimeRate')
-                      }}</span>
-                    </div>
-                    <input
-                      type="number"
-                      formControlName="overtimeRate"
-                      class="input input-bordered w-full"
-                      min="1"
-                      step="0.1"
-                      placeholder="e.g., 1.5"
-                    />
-                  </div>
-
-                  <div class="form-control">
-                    <div class="label">
-                      <span class="label-text">&nbsp;</span>
-                    </div>
-                    <div class="flex gap-2">
-                      <button
-                        type="button"
-                        class="btn btn-sm btn-secondary flex-1"
-                        (click)="toggleSelectAll()"
-                        [disabled]="timeEntries().length === 0"
-                      >
-                        <fa-icon [icon]="allSelected ? faCheckSquare : faSquare" class="mr-2"></fa-icon>
-                        {{ allSelected ? 'Deselect All' : 'Select All' }}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                @if (loadingTimeEntries()) {
-                  <div class="flex justify-center py-8">
-                    <fa-icon [icon]="faSpinner" class="animate-spin text-2xl text-primary"></fa-icon>
-                  </div>
-                } @else if (timeEntries().length === 0) {
-                  <div class="text-center py-8 text-base-content/50">
-                    <p>No billable time entries found for this project.</p>
-                  </div>
-                } @else {
-                  <div class="overflow-x-auto">
-                    <table class="table table-sm w-full">
-                      <thead>
-                        <tr>
-                          <th class="w-10"></th>
-                          <th>Date</th>
-                          <th>Description</th>
-                          <th>Duration</th>
-                          <th>Mode</th>
-                          @if (billingType === 'hourly' && calculationResult()) {
-                            <th>Billable</th>
-                            <th>Overtime</th>
-                          } @else if (billingType === 'daily' && calculationResult()) {
-                            <th>Billable Hrs</th>
-                          }
-                        </tr>
-                      </thead>
-                      <tbody>
-                        @for (entry of timeEntries(); track entry._id) {
-                          <tr class="hover cursor-pointer" (click)="toggleEntry(entry._id)">
-                            <td>
-                              <fa-icon
-                                [icon]="isEntrySelected(entry._id) ? faCheckSquare : faSquare"
-                                [class.text-primary]="isEntrySelected(entry._id)"
-                              ></fa-icon>
-                            </td>
-                            <td>{{ formatDate(entry.startTime) }}</td>
-                            <td>{{ entry.description || 'No description' }}</td>
-                            <td>{{ formatDuration(entry.duration) }}</td>
-                            <td>
-                              <span
-                                class="badge badge-sm"
-                                [class.badge-success]="entry.calculationMode === 'automatic'"
-                                [class.badge-ghost]="entry.calculationMode === 'manual'"
-                              >
-                                {{ entry.calculationMode === 'automatic' ? 'Auto' : 'Manual' }}
-                              </span>
-                            </td>
-                            @if (billingType === 'hourly' && calculationResult()) {
-                              @let detail = getEntryDetail(entry._id);
-                              <td>{{ detail?.billableHours || 0 }}h</td>
-                              <td>{{ detail?.overtimeHours || 0 }}h</td>
-                            } @else if (billingType === 'daily' && calculationResult()) {
-                              @let detail = getEntryDetail(entry._id);
-                              <td>{{ detail?.billableHours || 0 }}h</td>
-                            }
-                          </tr>
-                        }
-                      </tbody>
-                    </table>
-                  </div>
-                }
-
-                <div class="flex items-center gap-4 mt-4">
-                  <button
-                    type="button"
-                    class="btn btn-secondary btn-sm"
-                    (click)="calculateSelectedEntries()"
-                    [disabled]="aggregatingTime() || selectedEntryIds().size === 0"
-                  >
-                    @if (aggregatingTime()) {
-                      <fa-icon [icon]="faSpinner" class="animate-spin mr-2"></fa-icon>
-                      {{ contentStore.content('invoice.form.button.aggregating') }}
-                    } @else {
-                      <fa-icon [icon]="faClock" class="mr-2"></fa-icon>
-                      {{ contentStore.content('invoice.form.button.calculate') || 'Calculate Selected' }}
-                    }
-                  </button>
-                  @if (selectedEntryIds().size > 0) {
-                    <span class="text-sm text-base-content/70">
-                      {{ selectedCount }} entries selected
-                    </span>
-                  }
-                </div>
-
-                @if (calculationResult()) {
-                  <div class="mt-4 p-4 bg-base-100 rounded-lg">
-                    <h4 class="font-medium mb-2">Calculation Summary</h4>
-                    @if (billingType === 'hourly') {
-                      <div class="grid grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <span class="text-base-content/70">Total Hours:</span>
-                          <span class="ml-2 font-medium">{{ calculationResult()!.totalHours }}h</span>
-                        </div>
-                        <div>
-                          <span class="text-base-content/70">Billable Hours:</span>
-                          <span class="ml-2 font-medium">{{ calculationResult()!.totalBillableHours }}h</span>
-                        </div>
-                        <div>
-                          <span class="text-base-content/70">Overtime Hours:</span>
-                          <span class="ml-2 font-medium">{{ calculationResult()!.totalOvertimeHours }}h</span>
-                        </div>
-                      </div>
-                    } @else if (billingType === 'daily') {
-                      <div class="grid grid-cols-2 gap-4 text-sm mb-4">
-                        <div>
-                          <span class="text-base-content/70">Total Hours:</span>
-                          <span class="ml-2 font-medium">{{ calculationResult()!.totalHours }}h</span>
-                        </div>
-                        <div>
-                          <span class="text-base-content/70">Total Days:</span>
-                          <span class="ml-2 font-medium">{{ calculationResult()!.totalDays }}</span>
-                        </div>
-                      </div>
-
-                      @if (calculationResult()!.totalOvertimeHours > 0) {
-                        <div class="form-control mt-2">
-                          <div class="label">
-                            <span class="label-text font-medium">Overtime Hours</span>
-                            <span class="label-text-alt text-xs text-base-content/60">
-                              Available: {{ availableOvertimeHours }}h
-                            </span>
-                          </div>
-                          <input
-                            type="number"
-                            formControlName="overtimeHours"
-                            class="input input-bordered w-full"
-                            [class.input-error]="overtimeExceedsAvailable"
-                            min="0"
-                            step="0.5"
-                            placeholder="Enter overtime hours (max {{ availableOvertimeHours }}h)"
-                          />
-                          @if (overtimeExceedsAvailable) {
-                            <span class="text-warning text-xs mt-1">
-                              Overtime hours ({{ invoiceForm.get('overtimeHours')?.value || 0 }}h) exceed available overtime ({{ availableOvertimeHours }}h). Only {{ availableOvertimeHours }}h will be billed.
-                            </span>
-                          }
-                        </div>
-
-                        <div class="mt-3 text-sm space-y-1">
-                          @let dailyRate = invoiceForm.get('dailyRate')?.value || 0;
-                          @let workDayHoursVal = invoiceForm.get('workDayHours')?.value || 8;
-                          @let hourlyBase = workDayHoursVal > 0 ? dailyRate / workDayHoursVal : 0;
-                          @let otHours = invoiceForm.get('overtimeHours')?.value || 0;
-                          @let cappedOtHours = otHours > availableOvertimeHours ? availableOvertimeHours : otHours;
-                          @let otRateMultiplier = invoiceForm.get('overtimeRate')?.value || 1.5;
-                          @let baseAmt = calculationResult()!.totalDays * dailyRate;
-                          @let otAmt = cappedOtHours * hourlyBase * otRateMultiplier;
-                          <div class="flex justify-between">
-                            <span class="text-base-content/70">Base ({{ calculationResult()!.totalDays }} days × {{ dailyRate | currency: 'GBP' : 'symbol' : '1.2-2' }}):</span>
-                            <span class="font-medium">{{ baseAmt | currency: 'GBP' : 'symbol' : '1.2-2' }}</span>
-                          </div>
-                          @if (cappedOtHours > 0) {
-                            <div class="flex justify-between">
-                              <span class="text-base-content/70">Overtime ({{ cappedOtHours }}h × {{ hourlyBase | currency: 'GBP' : 'symbol' : '1.2-2' }}/h × {{ otRateMultiplier }}):</span>
-                              <span class="font-medium">{{ otAmt | currency: 'GBP' : 'symbol' : '1.2-2' }}</span>
-                            </div>
-                          }
-                        </div>
-                      }
-                    }
-                    <div class="mt-2 text-sm border-t border-base-300 pt-2">
-                      <span class="text-base-content/70">Calculated Amount:</span>
-                      <span class="ml-2 font-medium text-lg">
-                        {{ calculationResult()!.amount | currency: 'GBP' : 'symbol' : '1.2-2' }}
-                      </span>
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-
-            <div class="form-control mb-4">
-              <div class="label">
-                <span class="label-text font-medium">{{
-                  contentStore.content('invoice.form.label.amount')
-                }}</span>
-              </div>
-              <input
-                type="number"
-                formControlName="amount"
-                class="input input-bordered w-full"
-                min="0"
-                step="0.01"
-              />
-            </div>
-          }
-
-          @if (showTimeManual) {
-            <div class="card bg-base-200 mb-4">
-              <div class="card-body p-4">
-                <h3 class="card-title text-lg mb-2">
-                  <fa-icon [icon]="faClock" class="mr-2"></fa-icon>
-                  {{ contentStore.content('invoice.form.section.manualTime') }}
-                </h3>
-
-                @if (billingType === 'hourly') {
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="form-control">
-                      <div class="label">
-                        <span class="label-text">{{
-                          contentStore.content('invoice.form.label.hoursWorked')
-                        }}</span>
-                      </div>
-                      <input
-                        type="number"
-                        formControlName="manualHours"
-                        class="input input-bordered w-full"
-                        min="0"
-                        step="0.1"
-                        placeholder="e.g., 6.5"
-                      />
-                    </div>
-
-                    <div class="form-control">
-                      <div class="label">
-                        <span class="label-text">{{
-                          contentStore.content('invoice.form.label.hourlyRate')
-                        }}</span>
-                      </div>
-                      <input
-                        type="number"
-                        formControlName="hourlyRate"
-                        class="input input-bordered w-full"
-                        min="0"
-                        step="0.01"
-                      />
-                    </div>
-                  </div>
-
-                  <div class="mt-2 text-sm text-base-content/70">
-                    Rounded Hours:
-                    {{ invoiceForm.get('totalHours')?.value || 0 }} |
-                    Calculated:
-                    {{
-                      invoiceForm.get('amount')?.value
-                        | currency: 'GBP' : 'symbol' : '1.2-2'
-                    }}
-                  </div>
-                }
-
-                @if (billingType === 'daily') {
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="form-control">
-                      <div class="label">
-                        <span class="label-text">{{
-                          contentStore.content('invoice.form.label.hoursWorked')
-                        }}</span>
-                      </div>
-                      <input
-                        type="number"
-                        formControlName="manualHours"
-                        class="input input-bordered w-full"
-                        min="0"
-                        step="0.1"
-                        placeholder="e.g., 11"
-                      />
-                    </div>
-
-                    <div class="form-control">
-                      <div class="label">
-                        <span class="label-text">{{
-                          contentStore.content(
-                            'invoice.form.label.workDayLength'
-                          )
-                        }}</span>
-                      </div>
-                      <input
-                        type="number"
-                        formControlName="workDayHours"
-                        class="input input-bordered w-full"
-                        min="1"
-                        max="24"
-                        step="0.5"
-                        placeholder="e.g., 8"
-                      />
-                    </div>
-
-                    <div class="form-control">
-                      <div class="label">
-                        <span class="label-text">{{
-                          contentStore.content('invoice.form.label.dailyRate')
-                        }}</span>
-                      </div>
-                      <input
-                        type="number"
-                        formControlName="dailyRate"
-                        class="input input-bordered w-full"
-                        min="0"
-                        step="0.01"
-                      />
-                    </div>
-                  </div>
-
-                  <div class="mt-2 text-sm text-base-content/70">
-                    Rounded Days:
-                    {{ invoiceForm.get('totalDays')?.value || 0 }} | Calculated:
-                    {{
-                      invoiceForm.get('amount')?.value
-                        | currency: 'GBP' : 'symbol' : '1.2-2'
-                    }}
-                  </div>
-                }
-              </div>
-            </div>
-          }
-
-          @if (showLineItems) {
-            <div class="card bg-base-200 mb-4">
-              <div class="card-body p-4">
-                <div class="flex justify-between items-center mb-2">
-                  <h3 class="card-title text-lg">
-                    {{ contentStore.content('invoice.form.section.lineItems') }}
-                  </h3>
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-primary"
-                    (click)="addLineItem()"
-                  >
-                    <fa-icon [icon]="faPlus" class="mr-2"></fa-icon>
-                    {{
-                      contentStore.content('invoice.form.button.addLineItem')
-                    }}
-                  </button>
-                </div>
-
-                <div formArrayName="lineItems">
-                  @for (item of lineItems.controls; track $index) {
-                    <div
-                      [formGroupName]="$index"
-                      class="grid grid-cols-12 gap-2 mb-2 items-end"
-                    >
-                      <div class="col-span-4 form-control">
-                        <input
-                          type="text"
-                          formControlName="description"
-                          class="input input-bordered input-sm w-full"
-                          placeholder="{{
-                            contentStore.content(
-                              'invoice.detail.table.description'
-                            )
-                          }}"
-                        />
-                      </div>
-                      <div class="col-span-2 form-control">
-                        <input
-                          type="number"
-                          formControlName="quantity"
-                          class="input input-bordered input-sm w-full"
-                          placeholder="Qty"
-                          min="0"
-                          step="1"
-                          (input)="onLineItemChange()"
-                        />
-                      </div>
-                      <div class="col-span-2 form-control">
-                        <input
-                          type="number"
-                          formControlName="rate"
-                          class="input input-bordered input-sm w-full"
-                          placeholder="Rate"
-                          min="0"
-                          step="0.01"
-                          (input)="onLineItemChange()"
-                        />
-                      </div>
-                      <div class="col-span-3 form-control">
-                        <input
-                          type="number"
-                          formControlName="amount"
-                          class="input input-bordered input-sm w-full"
-                          placeholder="{{
-                            contentStore.content('invoice.detail.table.amount')
-                          }}"
-                          min="0"
-                          step="0.01"
-                          readonly
-                        />
-                      </div>
-                      <div class="col-span-1">
-                        <button
-                          type="button"
-                          class="btn btn-sm btn-error btn-ghost"
-                          (click)="removeLineItem($index)"
-                        >
-                          <fa-icon [icon]="faTrash"></fa-icon>
-                        </button>
-                      </div>
-                    </div>
-                  }
-                </div>
-              </div>
-            </div>
-          }
-
-          <div class="form-control mb-4">
-            <label class="label cursor-pointer">
-              <span class="label-text font-medium">{{
-                contentStore.content('invoice.form.label.addExpenses')
-              }}</span>
-              <input
-                type="checkbox"
-                class="toggle toggle-primary"
-                [checked]="$any(expenses).length > 0"
-                (change)="
-                  $any(expenses).length === 0 ? addExpense() : clearExpenses()
-                "
-              />
-            </label>
-          </div>
-
-          @if ($any(expenses).length > 0) {
-            <div class="card bg-base-200 mb-4">
-              <div class="card-body p-4">
-                <div class="flex justify-between items-center mb-2">
-                  <h3 class="card-title text-lg">
-                    {{ contentStore.content('invoice.form.section.expenses') }}
-                  </h3>
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-primary"
-                    (click)="addExpense()"
-                  >
-                    <fa-icon [icon]="faPlus" class="mr-2"></fa-icon>
-                    {{ contentStore.content('invoice.form.button.addExpense') }}
-                  </button>
-                </div>
-
-                <div formArrayName="expenses">
-                  @for (expense of expenses.controls; track $index) {
-                    <div
-                      [formGroupName]="$index"
-                      class="grid grid-cols-12 gap-2 mb-2 items-end"
-                    >
-                      <div class="col-span-5 form-control">
-                        <input
-                          type="text"
-                          formControlName="description"
-                          class="input input-bordered input-sm w-full"
-                          placeholder="{{
-                            contentStore.content(
-                              'invoice.detail.table.description'
-                            )
-                          }}"
-                        />
-                      </div>
-                      <div class="col-span-3 form-control">
-                        <input
-                          type="number"
-                          formControlName="amount"
-                          class="input input-bordered input-sm w-full"
-                          placeholder="{{
-                            contentStore.content('invoice.detail.table.amount')
-                          }}"
-                          min="0"
-                          step="0.01"
-                          (input)="updateExpenseTotals()"
-                        />
-                      </div>
-                      <div class="col-span-3 form-control">
-                        <input
-                          type="date"
-                          formControlName="date"
-                          class="input input-bordered input-sm w-full"
-                        />
-                      </div>
-                      <div class="col-span-1">
-                        <button
-                          type="button"
-                          class="btn btn-sm btn-error btn-ghost"
-                          (click)="removeExpense($index)"
-                        >
-                          <fa-icon [icon]="faTrash"></fa-icon>
-                        </button>
-                      </div>
-                    </div>
-                  }
-                </div>
-              </div>
-            </div>
-          }
-
-          @if (billingType !== 'manual') {
-            <div class="card bg-base-200 mb-4">
-              <div class="card-body p-4">
-                <h3 class="card-title text-lg mb-3">Invoice Summary</h3>
-
-                @if (billingType === 'budget') {
-                  <div class="flex justify-between text-sm py-2 border-b border-base-300">
-                    <span class="text-base-content/70">Project Budget:</span>
-                    <span class="font-medium">{{ billableAmount | currency: 'GBP' : 'symbol' : '1.2-2' }}</span>
-                  </div>
-                }
-
-                @if (billingType === 'hourly') {
-                  @if (billableAmount > 0) {
-                    <div class="flex justify-between text-sm py-2 border-b border-base-300">
-                      <span class="text-base-content/70">
-                        Billable Hours ({{ invoiceForm.get('totalHours')?.value || 0 }}h × {{ invoiceForm.get('hourlyRate')?.value | currency: 'GBP' : 'symbol' : '1.2-2' }}/h):
-                      </span>
-                      <span class="font-medium">{{ billableAmount | currency: 'GBP' : 'symbol' : '1.2-2' }}</span>
-                    </div>
-                  }
-                  @if (overtimeAmount > 0) {
-                    <div class="flex justify-between text-sm py-2 border-b border-base-300">
-                      <span class="text-base-content/70">
-                        Overtime Hours ({{ effectiveOvertimeHours }}h × rate {{ effectiveOvertimeRate | currency: 'GBP' : 'symbol' : '1.2-2' }}):
-                      </span>
-                      <span class="font-medium">{{ overtimeAmount | currency: 'GBP' : 'symbol' : '1.2-2' }}</span>
-                    </div>
-                  }
-                }
-
-                @if (billingType === 'daily') {
-                  @if (billableAmount > 0) {
-                    <div class="flex justify-between text-sm py-2 border-b border-base-300">
-                      <span class="text-base-content/70">
-                        Working Days ({{ invoiceForm.get('totalDays')?.value || 0 }} days × {{ invoiceForm.get('dailyRate')?.value | currency: 'GBP' : 'symbol' : '1.2-2' }}/day):
-                      </span>
-                      <span class="font-medium">{{ billableAmount | currency: 'GBP' : 'symbol' : '1.2-2' }}</span>
-                    </div>
-                  }
-                  @if (overtimeAmount > 0) {
-                    <div class="flex justify-between text-sm py-2 border-b border-base-300">
-                      <span class="text-base-content/70">
-                        Overtime Hours ({{ effectiveOvertimeHours }}h × rate {{ effectiveOvertimeRate | currency: 'GBP' : 'symbol' : '1.2-2' }}):
-                      </span>
-                      <span class="font-medium">{{ overtimeAmount | currency: 'GBP' : 'symbol' : '1.2-2' }}</span>
-                    </div>
-                  }
-                }
-
-                @if (expensesTotal > 0) {
-                  <div class="flex justify-between text-sm py-2 border-b border-base-300">
-                    <span class="text-base-content/70">Expenses:</span>
-                    <span class="font-medium">{{ expensesTotal | currency: 'GBP' : 'symbol' : '1.2-2' }}</span>
-                  </div>
-                }
-
-                <div class="flex justify-between text-sm py-2 font-semibold border-t border-base-300 mt-2">
-                  <span>{{ contentStore.content('invoice.form.label.subtotal') }}:</span>
-                  <span>{{ subtotal | currency: 'GBP' : 'symbol' : '1.2-2' }}</span>
-                </div>
-              </div>
-            </div>
-          }
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div class="form-control">
-              <div class="label">
-                <span class="label-text font-medium">{{
-                  contentStore.content('invoice.form.label.tax')
-                }}</span>
-              </div>
-              <input
-                type="number"
-                formControlName="tax"
-                class="input input-bordered w-full"
-                min="0"
-                step="0.01"
-              />
-            </div>
-
-            @if (billingType === 'manual') {
-              <div class="form-control">
-                <div class="label">
-                  <span class="label-text font-medium">{{
-                    contentStore.content('invoice.form.label.subtotal')
-                  }}</span>
-                </div>
-                <input
-                  type="number"
-                  formControlName="subtotal"
-                  class="input input-bordered w-full"
-                  readonly
-                />
-              </div>
-            }
-          </div>
-
-          <div class="alert alert-info mb-4">
-            <div>
-              <strong
-                >{{ contentStore.content('invoice.form.label.total') }}
-                {{ total | currency: 'GBP' : 'symbol' : '1.2-2' }}</strong
-              >
-            </div>
-          </div>
-
-          <div class="form-control mb-6">
-            <div class="label">
-              <span class="label-text font-medium">{{
-                contentStore.content('invoice.form.label.notes')
-              }}</span>
-            </div>
-            <textarea
-              formControlName="notes"
-              class="textarea textarea-bordered w-full"
-              rows="3"
-              placeholder="{{
-                contentStore.content('invoice.form.label.notes.placeholder')
-              }}"
-            ></textarea>
-          </div>
-
-          <div class="flex gap-3">
-            <button
-              type="submit"
-              class="btn btn-primary flex-1"
-              [disabled]="invoiceForm.invalid || saving()"
-            >
-              @if (saving()) {
-                <fa-icon [icon]="faSpinner" class="animate-spin mr-2"></fa-icon>
-                {{
-                  mode() === 'create'
-                    ? contentStore.content('invoice.form.button.creating')
-                    : contentStore.content('invoice.form.button.saving')
-                }}
-              } @else {
-                <fa-icon [icon]="faSave" class="mr-2"></fa-icon>
-                {{
-                  mode() === 'create'
-                    ? contentStore.content('invoice.form.button.generate')
-                    : contentStore.content('invoice.form.button.saveChanges')
-                }}
-              }
-            </button>
-            <a
-              [routerLink]="
-                mode() === 'create' ? '/invoices' : ['/invoices', invoiceId()]
-              "
-              queryParamsHandling="preserve"
-              class="btn btn-ghost"
-              >{{ contentStore.content('invoice.form.button.cancel') }}</a
-            >
-          </div>
-        </form>
+    @if (showProjectBudget) {
+      <div class="form-control mb-4">
+        <div class="label">
+          <span class="label-text font-medium">{{
+            contentStore.content('invoice.form.label.amount')
+          }}</span>
+        </div>
+        <input
+          type="number"
+          formControlName="amount"
+          class="input input-bordered w-full"
+          min="0"
+          step="0.01"
+        />
       </div>
-    </div>
-  }
-</div>
+    }
+
+    @if (showTimeSection) {
+      <div class="form-control mb-4">
+        <div class="label">
+          <span class="label-text font-medium">{{
+            contentStore.content('invoice.form.label.timeInputMethod')
+          }}</span>
+        </div>
+        <div class="flex gap-4">
+          <label class="label cursor-pointer gap-2">
+            <input
+              type="radio"
+              [checked]="timeInputMode() === 'fetch'"
+              (change)="onTimeInputModeChange('fetch')"
+              class="radio radio-primary"
+            />
+            <span class="label-text">{{
+              contentStore.content('invoice.form.label.fetchTime')
+            }}</span>
+          </label>
+          <label class="label cursor-pointer gap-2">
+            <input
+              type="radio"
+              [checked]="timeInputMode() === 'manual'"
+              (change)="onTimeInputModeChange('manual')"
+              class="radio radio-primary"
+            />
+            <span class="label-text">{{
+              contentStore.content('invoice.form.label.manualInput')
+            }}</span>
+          </label>
+        </div>
+      </div>
+    }
+
+    @if (showTimeFetch) {
+      <app-invoice-time-fetch
+        [form]="invoiceForm"
+        [billingType]="billingType"
+        [entries]="timeEntries()"
+        [selectedIds]="selectedEntryIds()"
+        [loading]="loadingTimeEntries()"
+        [calculationResult]="calculationResult()"
+        [calculationDetails]="calculationDetails()"
+        [selectedCount]="selectedCount"
+        [availableOvertime]="availableOvertimeHours"
+        [overtimeExceeds]="overtimeExceedsAvailable"
+        [aggregating]="aggregatingTime()"
+        [allSelected]="allSelected"
+        (toggleEntry)="toggleEntry($event)"
+        (toggleSelectAll)="toggleSelectAll()"
+        (calculate)="calculateSelectedEntries()"
+      />
+
+      <div class="form-control mb-4">
+        <div class="label">
+          <span class="label-text font-medium">{{
+            contentStore.content('invoice.form.label.amount')
+          }}</span>
+        </div>
+        <input
+          type="number"
+          formControlName="amount"
+          class="input input-bordered w-full"
+          min="0"
+          step="0.01"
+        />
+      </div>
+    }
+
+    @if (showTimeManual) {
+      <app-invoice-time-manual
+        [form]="invoiceForm"
+        [billingType]="billingType"
+      />
+    }
+
+    @if (showLineItems) {
+      <app-invoice-line-items
+        [lineItems]="lineItems"
+        [form]="invoiceForm"
+        (add)="addLineItem()"
+        (remove)="removeLineItem($event)"
+        (change)="onLineItemChange()"
+      />
+    }
+
+    <app-invoice-expenses
+      [expenses]="expenses"
+      [form]="invoiceForm"
+      (add)="addExpense()"
+      (remove)="removeExpense($event)"
+      (clear)="clearExpenses()"
+      (updateTotals)="updateExpenseTotals()"
+    />
+
+    @if (showSummaryBreakdown) {
+      <app-invoice-summary
+        [billingType]="billingType"
+        [billableAmount]="billableAmount"
+        [overtimeAmount]="overtimeAmount"
+        [overtimeHours]="effectiveOvertimeHours"
+        [overtimeRate]="effectiveOvertimeRate"
+        [expensesTotal]="expensesTotal"
+        [subtotal]="subtotal"
+      />
+    }
+
+    <app-invoice-footer
+      [form]="invoiceForm"
+      [saving]="saving()"
+      [mode]="mode()"
+      [invoiceId]="invoiceId()"
+      [total]="total"
+      [billingType]="billingType"
+      (submit)="onSubmit()"
+    />
+  </form>
+</app-invoice-header>

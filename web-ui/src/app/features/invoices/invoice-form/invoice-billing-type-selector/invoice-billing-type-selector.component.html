@@ -1,0 +1,53 @@
+<div class="form-control mb-4">
+  <div class="label">
+    <span class="label-text font-medium">{{
+      content.content('invoice.form.label.billingType')
+    }}</span>
+  </div>
+  <div class="flex gap-4">
+    <label class="label cursor-pointer gap-2">
+      <input
+        type="radio"
+        formControlName="billingType"
+        value="budget"
+        class="radio radio-primary"
+      />
+      <span class="label-text">{{
+        content.content('invoice.form.billingType.budget')
+      }}</span>
+    </label>
+    <label class="label cursor-pointer gap-2">
+      <input
+        type="radio"
+        formControlName="billingType"
+        value="hourly"
+        class="radio radio-primary"
+      />
+      <span class="label-text">{{
+        content.content('invoice.form.billingType.hourly')
+      }}</span>
+    </label>
+    <label class="label cursor-pointer gap-2">
+      <input
+        type="radio"
+        formControlName="billingType"
+        value="daily"
+        class="radio radio-primary"
+      />
+      <span class="label-text">{{
+        content.content('invoice.form.billingType.daily')
+      }}</span>
+    </label>
+    <label class="label cursor-pointer gap-2">
+      <input
+        type="radio"
+        formControlName="billingType"
+        value="manual"
+        class="radio radio-primary"
+      />
+      <span class="label-text">{{
+        content.content('invoice.form.billingType.manual')
+      }}</span>
+    </label>
+  </div>
+</div>

@@ -1,3 +1,4 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -7,10 +8,15 @@ import { InvoiceFormComponent } from './invoice-form.component';
 import { InvoiceStore } from '../../../stores/invoice.store';
 import { ProjectStore } from '../../../stores/project.store';
 import { TaskStore } from '../../../stores/task.store';
+import { ContentStore } from '../../../stores/content.store';
 import { ToastService } from '../../../core/services/toast.service';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Task } from '../../../shared/models/task.model';
+
+const mockContentStore = {
+  content: vi.fn((key: string) => key),
+};
 
 const mockInvoiceStore = {
   loadInvoice: vi.fn(() => of({})),
@@ -59,7 +65,8 @@ describe('InvoiceFormComponent', () => {
     vi.clearAllMocks();
 
     await TestBed.configureTestingModule({
-      imports: [InvoiceFormComponent, ReactiveFormsModule],
+      imports: [InvoiceFormComponent],
+      schemas: [NO_ERRORS_SCHEMA],
       providers: [
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
@@ -67,6 +74,7 @@ describe('InvoiceFormComponent', () => {
         { provide: InvoiceStore, useValue: mockInvoiceStore },
         { provide: ProjectStore, useValue: mockProjectStore },
         { provide: TaskStore, useValue: mockTaskStore },
+        { provide: ContentStore, useValue: mockContentStore },
         { provide: ToastService, useValue: mockToastService },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
       ],
@@ -74,7 +82,7 @@ describe('InvoiceFormComponent', () => {
 
     fixture = TestBed.createComponent(InvoiceFormComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    component.ngOnInit();
   });
 
   it('should create', () => {

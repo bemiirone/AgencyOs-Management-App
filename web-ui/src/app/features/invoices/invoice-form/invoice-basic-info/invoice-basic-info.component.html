@@ -1,0 +1,88 @@
+<form [formGroup]="form()" class="space-y-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    <div class="form-control">
+      <div class="label">
+        <span class="label-text font-medium">{{
+          content.content('invoice.form.label.project')
+        }}</span>
+      </div>
+      <select
+        formControlName="projectId"
+        class="select select-bordered w-full"
+      >
+        <option value="">
+          {{ content.content('invoice.form.label.selectProject') }}
+        </option>
+        @for (project of projects(); track project._id) {
+          <option [value]="project._id">{{ project.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-control">
+      <div class="label">
+        <span class="label-text font-medium">{{
+          content.content('invoice.form.label.task')
+        }}</span>
+      </div>
+      <select
+        formControlName="taskId"
+        class="select select-bordered w-full"
+      >
+        <option value="">
+          {{ content.content('invoice.form.label.allTasks') }}
+        </option>
+        @for (task of tasks(); track task._id) {
+          <option [value]="task._id">{{ task.title }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <div class="form-control mb-4">
+    <div class="label">
+      <span class="label-text font-medium">{{
+        content.content('invoice.form.label.dueDate')
+      }}</span>
+    </div>
+    <input
+      type="date"
+      formControlName="dueDate"
+      class="input input-bordered w-full"
+    />
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    <div class="form-control">
+      <div class="label">
+        <span class="label-text font-medium">{{
+          content.content('invoice.form.label.clientName')
+        }}</span>
+      </div>
+      <input
+        type="text"
+        formControlName="clientName"
+        class="input input-bordered w-full"
+        [placeholder]="
+          content.content('invoice.form.label.clientName.placeholder')
+        "
+      />
+    </div>
+
+    <div class="form-control">
+      <div class="label">
+        <span class="label-text font-medium">{{
+          content.content('invoice.form.label.clientEmail')
+        }}</span>
+      </div>
+      <input
+        type="email"
+        formControlName="clientEmail"
+        class="input input-bordered w-full"
+        [placeholder]="
+          content.content('invoice.form.label.clientEmail.placeholder')
+        "
+      />
+    </div>
+  </div>
+</form>

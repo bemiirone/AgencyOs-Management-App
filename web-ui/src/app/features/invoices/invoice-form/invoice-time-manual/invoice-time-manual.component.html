@@ -1,0 +1,105 @@
+<div class="card bg-base-200 mb-4">
+  <div class="card-body p-4">
+    <h3 class="card-title text-lg mb-2">
+      <fa-icon [icon]="faClock" class="mr-2"></fa-icon>
+      {{ content.content('invoice.form.section.manualTime') }}
+    </h3>
+
+    @if (billingType() === 'hourly') {
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="form-control">
+          <div class="label">
+            <span class="label-text">{{
+              content.content('invoice.form.label.hoursWorked')
+            }}</span>
+          </div>
+          <input
+            type="number"
+            formControlName="manualHours"
+            class="input input-bordered w-full"
+            min="0"
+            step="0.1"
+            placeholder="e.g., 6.5"
+          />
+        </div>
+
+        <div class="form-control">
+          <div class="label">
+            <span class="label-text">{{
+              content.content('invoice.form.label.hourlyRate')
+            }}</span>
+          </div>
+          <input
+            type="number"
+            formControlName="hourlyRate"
+            class="input input-bordered w-full"
+            min="0"
+            step="0.01"
+          />
+        </div>
+      </div>
+
+      <div class="mt-2 text-sm text-base-content/70">
+        Rounded Hours: {{ form().get('totalHours')?.value || 0 }} |
+        Calculated: {{ form().get('amount')?.value | currency: 'GBP' : 'symbol' : '1.2-2' }}
+      </div>
+    }
+
+    @if (billingType() === 'daily') {
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="form-control">
+          <div class="label">
+            <span class="label-text">{{
+              content.content('invoice.form.label.hoursWorked')
+            }}</span>
+          </div>
+          <input
+            type="number"
+            formControlName="manualHours"
+            class="input input-bordered w-full"
+            min="0"
+            step="0.1"
+            placeholder="e.g., 11"
+          />
+        </div>
+
+        <div class="form-control">
+          <div class="label">
+            <span class="label-text">{{
+              content.content('invoice.form.label.workDayLength')
+            }}</span>
+          </div>
+          <input
+            type="number"
+            formControlName="workDayHours"
+            class="input input-bordered w-full"
+            min="1"
+            max="24"
+            step="0.5"
+            placeholder="e.g., 8"
+          />
+        </div>
+
+        <div class="form-control">
+          <div class="label">
+            <span class="label-text">{{
+              content.content('invoice.form.label.dailyRate')
+            }}</span>
+          </div>
+          <input
+            type="number"
+            formControlName="dailyRate"
+            class="input input-bordered w-full"
+            min="0"
+            step="0.01"
+          />
+        </div>
+      </div>
+
+      <div class="mt-2 text-sm text-base-content/70">
+        Rounded Days: {{ form().get('totalDays')?.value || 0 }} |
+        Calculated: {{ form().get('amount')?.value | currency: 'GBP' : 'symbol' : '1.2-2' }}
+      </div>
+    }
+  </div>
+</div>
