@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Observable } from 'rxjs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowLeft, faSpinner, faSave, faPlus, faTrash, faClock, faCheckSquare, faSquare } from '@fortawesome/free-solid-svg-icons';
 import { InvoiceStore } from '../../../stores/invoice.store';
@@ -163,7 +164,8 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   get overtimeAmount(): number {
-    if (!this.calculationResult() || this.calculationResult()!.totalOvertimeHours <= 0) {
+    const result = this.calculationResult();
+    if (!result || result.totalOvertimeHours <= 0) {
       return 0;
     }
     const overtimeHours = this.invoiceForm.get('overtimeHours')?.value || 0;
@@ -176,7 +178,8 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   get effectiveOvertimeHours(): number {
-    if (!this.calculationResult()) return 0;
+    const result = this.calculationResult();
+    if (!result) return 0;
     const overtimeHours = this.invoiceForm.get('overtimeHours')?.value || 0;
     return Math.min(overtimeHours, this.availableOvertimeHours);
   }
@@ -669,11 +672,9 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   calculateSelectedEntriesAmount(): void {
-    if (this.billingType !== 'daily' || !this.calculationResult()) {
-      return;
-    }
+    const result = this.calculationResult();
+    if (this.billingType !== 'daily' || !result) return;
 
-    const result = this.calculationResult()!;
     const dailyRate = this.invoiceForm.get('dailyRate')?.value || 0;
     const overtimeHours = this.invoiceForm.get('overtimeHours')?.value || 0;
     const workDayHours = this.invoiceForm.get('workDayHours')?.value || 8;
@@ -769,6 +770,31 @@ export class InvoiceFormComponent implements OnInit {
     }
   }
 
+  private handleSubmission(payload: InvoicePayload, execute: () => Observable<unknown>, errorKey: string): void {
+    execute().subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.router.navigate(['/invoices']);
+      },
+      error: (err: unknown) => {
+        const error = err as { error?: { message?: string } };
+        this.error.set(error.error?.message || this.contentStore.content(errorKey));
+        this.saving.set(false);
+      },
+    });
+  }
+
+  private buildSharedFields(formValue: InvoiceFormValue) {
+    return {
+      billingType: formValue.billingType as 'budget' | 'hourly' | 'daily' | 'manual',
+      subtotal: formValue.subtotal ?? 0,
+      amount: formValue.amount ?? 0,
+      tax: formValue.tax || 0,
+      dueDate: formValue.dueDate ? new Date(formValue.dueDate).toISOString() : undefined,
+      notes: formValue.notes || undefined,
+    };
+  }
+
   onSubmit(): void {
     if (this.invoiceForm.invalid) {
       this.invoiceForm.markAllAsTouched();
@@ -786,51 +812,19 @@ export class InvoiceFormComponent implements OnInit {
         projectId: formValue.projectId,
         clientName: formValue.clientName,
         clientEmail: formValue.clientEmail,
-        billingType: formValue.billingType,
-        subtotal: formValue.subtotal,
-        amount: formValue.amount,
-        tax: formValue.tax || 0,
-        dueDate: formValue.dueDate ? new Date(formValue.dueDate).toISOString() : undefined,
-        notes: formValue.notes || undefined,
+        ...this.buildSharedFields(formValue),
       };
 
       this.buildCommonPayloadFields(formValue, payload, project);
-
-      this.invoiceStore.createInvoice(payload).subscribe({
-        next: () => {
-          this.saving.set(false);
-          this.router.navigate(['/invoices']);
-        },
-        error: (err: unknown) => {
-          const error = err as { error?: { message?: string } };
-          this.error.set(error.error?.message || this.contentStore.content('invoice.form.error.createFailed'));
-          this.saving.set(false);
-        },
-      });
+      this.handleSubmission(payload, () => this.invoiceStore.createInvoice(payload), 'invoice.form.error.createFailed');
     } else {
       const id = this.invoiceId();
       const payload: UpdateInvoicePayload = {
-        billingType: formValue.billingType,
-        subtotal: formValue.subtotal,
-        amount: formValue.amount,
-        tax: formValue.tax || 0,
-        dueDate: formValue.dueDate ? new Date(formValue.dueDate).toISOString() : undefined,
-        notes: formValue.notes || undefined,
+        ...this.buildSharedFields(formValue),
       };
 
       this.buildCommonPayloadFields(formValue, payload, project);
-
-      this.invoiceStore.updateInvoice(id, payload).subscribe({
-        next: () => {
-          this.saving.set(false);
-          this.router.navigate(['/invoices']);
-        },
-        error: (err: unknown) => {
-          const error = err as { error?: { message?: string } };
-          this.error.set(error.error?.message || this.contentStore.content('invoice.form.error.updateFailed'));
-          this.saving.set(false);
-        },
-      });
+      this.handleSubmission(payload, () => this.invoiceStore.updateInvoice(id, payload), 'invoice.form.error.updateFailed');
     }
   }
 
