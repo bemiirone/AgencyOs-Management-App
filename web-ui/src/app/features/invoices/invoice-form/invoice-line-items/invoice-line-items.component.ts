@@ -23,5 +23,6 @@ export class InvoiceLineItemsComponent {
 
   add = output<void>();
   remove = output<number>();
+  // eslint-disable-next-line @angular-eslint/no-output-native
   change = output<void>();
 }

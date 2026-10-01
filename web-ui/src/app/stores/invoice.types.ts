@@ -1,4 +1,24 @@
-import { TimeEntryCalculationDetail } from '../shared/models/invoice.model';
+export interface TimeEntryCalculationDetail {
+  timeEntryId: string;
+  description: string;
+  date: string;
+  totalHours: number;
+  billableHours: number;
+  overtimeHours: number;
+  calculationMode: 'automatic' | 'manual';
+}
+
+export interface TimeAggregationResult {
+  totalSeconds: number;
+  totalHours: number;
+  totalBillableHours: number;
+  totalOvertimeHours: number;
+  totalDays: number;
+  entryCount: number;
+  amount: number;
+  timeEntryIds: string[];
+  entries: TimeEntryCalculationDetail[];
+}
 
 export interface InvoiceBillingDetails {
   clientId?: string;

@@ -1,7 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { TimeEntry } from '../../../shared/models/time-entry.model';
-import { TimeEntryCalculationDetail } from '../../../shared/models/invoice.model';
-import { TimeCalculationResult } from '../../../stores/invoice.types';
+import { TimeCalculationResult, TimeEntryCalculationDetail, TimeAggregationResult } from '../../../stores/invoice.types';
 import { InvoiceStore } from '../../../stores/invoice.store';
 import { ContentStore } from '../../../stores/content.store';
 

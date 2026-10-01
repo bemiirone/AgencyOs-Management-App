@@ -26,6 +26,7 @@ export class InvoiceFooterComponent {
   total = input(0);
   billingType = input<string>('budget');
 
+  // eslint-disable-next-line @angular-eslint/no-output-native
   submit = output<void>();
 
   billingTypeIsManual(): boolean {

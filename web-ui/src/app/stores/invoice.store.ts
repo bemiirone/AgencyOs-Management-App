@@ -1,11 +1,11 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, tap, throwError } from 'rxjs';
-import { Invoice, TimeAggregationResult } from '../shared/models/invoice.model';
+import { Invoice } from '../shared/models/invoice.model';
 import { TimeEntry } from '../shared/models/time-entry.model';
 import { API_CONFIG } from '../core/config/api.config';
 import { ToastService } from '../core/services/toast.service';
-import { CreateInvoicePayload, UpdateInvoicePayload, CalculateTimePayload, TimeCalculationResult } from './invoice.types';
+import { CreateInvoicePayload, UpdateInvoicePayload, CalculateTimePayload, TimeCalculationResult, TimeAggregationResult } from './invoice.types';
 
 interface ErrorResponse {
   error?: {

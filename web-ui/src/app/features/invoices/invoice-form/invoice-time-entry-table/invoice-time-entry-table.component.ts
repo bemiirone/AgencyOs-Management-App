@@ -4,8 +4,7 @@ import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCheckSquare, faSquare, faClock, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { TimeEntry } from '../../../../shared/models/time-entry.model';
-import { TimeEntryCalculationDetail } from '../../../../shared/models/invoice.model';
-import { TimeCalculationResult } from '../../../../stores/invoice.types';
+import { TimeEntryCalculationDetail, TimeCalculationResult } from '../../../../stores/invoice.types';
 
 @Component({
   selector: 'app-invoice-time-entry-table',

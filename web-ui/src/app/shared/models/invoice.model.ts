@@ -49,24 +49,4 @@ export interface InvoiceExpense {
   date?: Date;
 }
 
-export interface TimeEntryCalculationDetail {
-  timeEntryId: string;
-  description: string;
-  date: string;
-  totalHours: number;
-  billableHours: number;
-  overtimeHours: number;
-  calculationMode: 'automatic' | 'manual';
-}
 
-export interface TimeAggregationResult {
-  totalSeconds: number;
-  totalHours: number;
-  totalBillableHours: number;
-  totalOvertimeHours: number;
-  totalDays: number;
-  entryCount: number;
-  amount: number;
-  timeEntryIds: string[];
-  entries: TimeEntryCalculationDetail[];
-}
