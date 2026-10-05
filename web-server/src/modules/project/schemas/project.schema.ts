@@ -47,6 +47,12 @@ export class Project extends BaseDocument {
 
   @Prop()
   declare lastDueDateReminderSent: Date;
+
+  @Prop({ default: false })
+  declare canAddExpenses: boolean;
+
+  @Prop({ default: false })
+  declare canAddOvertime: boolean;
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);

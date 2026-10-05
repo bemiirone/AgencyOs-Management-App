@@ -8,6 +8,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowLeft, faSpinner, faSave } from '@fortawesome/free-solid-svg-icons';
 import { ProjectStore } from '../../../stores/project.store';
 import { ToastService } from '../../../core/services/toast.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Project } from '../../../shared/models/project.model';
 import { CreateProjectPayload, UpdateProjectPayload } from '../project.models';
 import { API_CONFIG } from '../../../core/config/api.config';
@@ -26,12 +27,14 @@ export class ProjectFormComponent implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly http = inject(HttpClient);
   private readonly fb = inject(FormBuilder);
+  private readonly auth = inject(AuthService);
 
   readonly mode = signal<'create' | 'edit'>('create');
   readonly loading = signal(false);
   readonly saving = signal(false);
   readonly error = signal('');
   readonly projectId = signal('');
+  readonly isAdmin = signal(false);
 
   readonly faArrowLeft = faArrowLeft;
   readonly faSpinner = faSpinner;
@@ -47,6 +50,8 @@ export class ProjectFormComponent implements OnInit {
     startDate: [''],
     endDate: [''],
     budget: [0],
+    canAddExpenses: [false],
+    canAddOvertime: [false],
   });
 
   get nameControl() { return this.projectForm.get('name'); }
@@ -54,6 +59,7 @@ export class ProjectFormComponent implements OnInit {
   get clientEmailControl() { return this.projectForm.get('clientEmail'); }
 
   ngOnInit(): void {
+    this.isAdmin.set(this.auth.isAdmin());
     const id = this.route.snapshot.paramMap.get('id');
 
     if (id) {
@@ -73,6 +79,8 @@ export class ProjectFormComponent implements OnInit {
             startDate: project.startDate ? new Date(project.startDate).toISOString().split('T')[0] : '',
             endDate: project.endDate ? new Date(project.endDate).toISOString().split('T')[0] : '',
             budget: project.budget || 0,
+            canAddExpenses: project.canAddExpenses ?? false,
+            canAddOvertime: project.canAddOvertime ?? false,
           });
           this.setupValidation();
           this.loading.set(false);
@@ -120,6 +128,8 @@ export class ProjectFormComponent implements OnInit {
         status: formValue.status,
         clientName: formValue.clientName,
         clientEmail: formValue.clientEmail,
+        canAddExpenses: formValue.canAddExpenses,
+        canAddOvertime: formValue.canAddOvertime,
       };
 
       if (formValue.clientId) projectData.clientId = formValue.clientId;
@@ -143,6 +153,8 @@ export class ProjectFormComponent implements OnInit {
         name: formValue.name,
         description: formValue.description,
         status: formValue.status,
+        canAddExpenses: formValue.canAddExpenses,
+        canAddOvertime: formValue.canAddOvertime,
       };
 
       if (formValue.clientName) projectData.clientName = formValue.clientName;

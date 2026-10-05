@@ -12,6 +12,8 @@ export interface Project {
   startDate?: string | Date;
   endDate?: string | Date;
   budget?: number;
+  canAddExpenses: boolean;
+  canAddOvertime: boolean;
   createdAt: string | Date;
   updatedAt: string | Date;
 }

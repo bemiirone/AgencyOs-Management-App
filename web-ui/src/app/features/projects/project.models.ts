@@ -10,6 +10,8 @@ export interface CreateProjectPayload {
   startDate?: Date;
   endDate?: Date;
   budget?: number;
+  canAddExpenses?: boolean;
+  canAddOvertime?: boolean;
 }
 
 export interface UpdateProjectPayload {
@@ -22,4 +24,6 @@ export interface UpdateProjectPayload {
   startDate?: Date;
   endDate?: Date;
   budget?: number;
+  canAddExpenses?: boolean;
+  canAddOvertime?: boolean;
 }

@@ -163,6 +163,24 @@
             />
           </div>
 
+          @if (isAdmin()) {
+            <div class="divider my-4">Admin Settings</div>
+
+            <div class="form-control mb-4">
+              <label class="label cursor-pointer">
+                <span class="label-text font-medium">Allow Expenses</span>
+                <input type="checkbox" formControlName="canAddExpenses" class="toggle toggle-primary" />
+              </label>
+            </div>
+
+            <div class="form-control mb-4">
+              <label class="label cursor-pointer">
+                <span class="label-text font-medium">Allow Overtime</span>
+                <input type="checkbox" formControlName="canAddOvertime" class="toggle toggle-primary" />
+              </label>
+            </div>
+          }
+
           <div class="flex gap-3">
             <button
               type="submit"

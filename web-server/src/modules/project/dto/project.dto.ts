@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsOptional, IsEnum, IsDateString, IsNumber, IsEmail } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsEnum, IsDateString, IsNumber, IsEmail, IsBoolean } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { ProjectStatus } from '../schemas/project.schema';
 import { PartialType } from '@nestjs/mapped-types';
@@ -54,6 +54,16 @@ export class CreateProjectDto {
   @IsNumber()
   @IsOptional()
   declare budget?: number;
+
+  @ApiProperty({ required: false, default: false })
+  @IsBoolean()
+  @IsOptional()
+  declare canAddExpenses?: boolean;
+
+  @ApiProperty({ required: false, default: false })
+  @IsBoolean()
+  @IsOptional()
+  declare canAddOvertime?: boolean;
 }
 
 export class UpdateProjectDto extends PartialType(CreateProjectDto) {}
