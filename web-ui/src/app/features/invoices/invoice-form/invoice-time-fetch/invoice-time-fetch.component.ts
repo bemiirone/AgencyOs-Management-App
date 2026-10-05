@@ -32,6 +32,7 @@ export class InvoiceTimeFetchComponent {
   overtimeExceeds = input(false);
   aggregating = input(false);
   allSelected = input(false);
+  canAddOvertime = input(true);
 
   toggleEntry = output<string>();
   toggleSelectAll = output<void>();

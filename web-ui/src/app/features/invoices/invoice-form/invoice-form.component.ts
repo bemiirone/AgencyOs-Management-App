@@ -71,6 +71,8 @@ export class InvoiceFormComponent implements OnInit {
   readonly invoiceId = signal('');
   readonly projects = signal<Project[]>([]);
   readonly tasks = signal<Task[]>([]);
+  readonly canAddExpenses = signal(true);
+  readonly canAddOvertime = signal(true);
 
   readonly faArrowLeft = faArrowLeft;
   readonly faSpinner = faSpinner;
@@ -237,11 +239,15 @@ export class InvoiceFormComponent implements OnInit {
       const project = this.projects().find((p) => p._id === projectId);
       if (project) {
         this.formBuilder.populateFromProject(this.invoiceForm, project);
+        this.canAddExpenses.set(project.canAddExpenses ?? true);
+        this.canAddOvertime.set(project.canAddOvertime ?? true);
       }
       this.loadTasksForProject(projectId);
       this.timeManager.loadTimeEntries(projectId);
     } else {
       this.tasks.set([]);
+      this.canAddExpenses.set(true);
+      this.canAddOvertime.set(true);
       this.timeManager.clearSelection();
       this.invoiceForm.controls.taskId.setValue('');
     }
@@ -274,6 +280,12 @@ export class InvoiceFormComponent implements OnInit {
       next: (invoice: Invoice) => {
         const projectId = extractId(invoice.projectId) || '';
         const taskId = extractId(invoice.taskId);
+
+        const project = this.projects().find((p) => p._id === projectId);
+        if (project) {
+          this.canAddExpenses.set(project.canAddExpenses ?? true);
+          this.canAddOvertime.set(project.canAddOvertime ?? true);
+        }
 
         this.invoiceForm.patchValue({
           projectId: projectId || '',

@@ -33,10 +33,12 @@
           <span class="text-base-content/70">Billable Hours:</span>
           <span class="ml-2 font-medium">{{ calculationResult()!.totalBillableHours }}h</span>
         </div>
-        <div>
-          <span class="text-base-content/70">Overtime Hours:</span>
-          <span class="ml-2 font-medium">{{ calculationResult()!.totalOvertimeHours }}h</span>
-        </div>
+        @if (canAddOvertime()) {
+          <div>
+            <span class="text-base-content/70">Overtime Hours:</span>
+            <span class="ml-2 font-medium">{{ calculationResult()!.totalOvertimeHours }}h</span>
+          </div>
+        }
       </div>
     } @else if (billingType() === 'daily') {
       <div class="grid grid-cols-2 gap-4 text-sm mb-4">
@@ -50,7 +52,7 @@
         </div>
       </div>
 
-      @if (calculationResult()!.totalOvertimeHours > 0) {
+      @if (canAddOvertime() && calculationResult()!.totalOvertimeHours > 0) {
         <div class="form-control mt-2">
           <div class="label">
             <span class="label-text font-medium">Overtime Hours</span>

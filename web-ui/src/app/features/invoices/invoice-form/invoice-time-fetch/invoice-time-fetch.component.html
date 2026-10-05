@@ -15,6 +15,7 @@
       [calculationResult]="calculationResult()"
       [calculationDetails]="calculationDetails()"
       [allSelected]="allSelected()"
+      [canAddOvertime]="canAddOvertime()"
       (toggle)="toggleEntry.emit($event)"
       (toggleAll)="toggleSelectAll.emit()"
     />
@@ -27,6 +28,7 @@
       [availableOvertime]="availableOvertime()"
       [overtimeExceeds]="overtimeExceeds()"
       [aggregating]="aggregating()"
+      [canAddOvertime]="canAddOvertime()"
       (calculate)="calculate.emit()"
     />
   </div>

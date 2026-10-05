@@ -79,6 +79,7 @@
         [overtimeExceeds]="overtimeExceedsAvailable"
         [aggregating]="aggregatingTime()"
         [allSelected]="allSelected"
+        [canAddOvertime]="canAddOvertime()"
         (toggleEntry)="toggleEntry($event)"
         (toggleSelectAll)="toggleSelectAll()"
         (calculate)="calculateSelectedEntries()"
@@ -120,6 +121,7 @@
     <app-invoice-expenses
       [expenses]="expenses"
       [form]="invoiceForm"
+      [canAddExpenses]="canAddExpenses()"
       (add)="addExpense()"
       (remove)="removeExpense($event)"
       (clear)="clearExpenses()"

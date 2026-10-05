@@ -26,6 +26,7 @@ export class InvoiceCalculationSummaryComponent {
   availableOvertime = input(0);
   overtimeExceeds = input(false);
   aggregating = input(false);
+  canAddOvertime = input(true);
 
   calculate = output<void>();
 }

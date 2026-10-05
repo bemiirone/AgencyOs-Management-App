@@ -27,6 +27,7 @@ export class InvoiceTimeEntryTableComponent {
   calculationResult = input<TimeCalculationResult | null>(null);
   calculationDetails = input<TimeEntryCalculationDetail[]>([]);
   allSelected = input(false);
+  canAddOvertime = input(true);
 
   toggle = output<string>();
   toggleAll = output<void>();

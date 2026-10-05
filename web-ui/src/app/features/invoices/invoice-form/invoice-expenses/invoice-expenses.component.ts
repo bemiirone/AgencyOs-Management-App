@@ -20,6 +20,7 @@ export class InvoiceExpensesComponent {
 
   expenses = input.required<FormArray>();
   form = input.required<FormGroup>();
+  canAddExpenses = input(true);
 
   add = output<void>();
   remove = output<number>();
