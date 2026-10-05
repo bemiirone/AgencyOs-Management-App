@@ -42,8 +42,17 @@ export class InvoiceFormBuilderService {
       clientName: this.fb.nonNullable.control('', Validators.required),
       clientEmail: this.fb.nonNullable.control('', [Validators.required, Validators.email]),
       billingType: this.fb.nonNullable.control('budget', Validators.required),
-      lineItems: this.fb.array<FormGroup<any>[]>([]),
-      expenses: this.fb.array<FormGroup<any>[]>([]),
+      lineItems: this.fb.array<FormGroup<{
+        description: FormControl<string>;
+        quantity: FormControl<number>;
+        rate: FormControl<number>;
+        amount: FormControl<number>;
+      }>[]>([]),
+      expenses: this.fb.array<FormGroup<{
+        description: FormControl<string>;
+        amount: FormControl<number>;
+        date: FormControl<string>;
+      }>[]>([]),
       startDate: this.fb.nonNullable.control(''),
       endDate: this.fb.nonNullable.control(''),
       hourlyRate: this.fb.nonNullable.control(0, Validators.required),
