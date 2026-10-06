@@ -15,6 +15,10 @@ interface LookupWorkspacesDto {
   email: string;
 }
 
+interface RefreshTokenDto {
+  refreshToken: string;
+}
+
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
@@ -72,5 +76,23 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Workspaces found' })
   async lookupWorkspaces(@Body() dto: LookupWorkspacesDto) {
     return this.authService.lookupWorkspacesByEmail(dto.email);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  @ApiOperation({ summary: 'Get current user profile' })
+  @ApiResponse({ status: 200, description: 'Profile retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async getProfile(@Req() req: RequestWithUser) {
+    return this.authService.getProfile(req.user.userId);
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Refresh access token using refresh token' })
+  @ApiResponse({ status: 200, description: 'Tokens refreshed successfully' })
+  @ApiResponse({ status: 401, description: 'Invalid or expired refresh token' })
+  async refresh(@Body() dto: RefreshTokenDto) {
+    return this.authService.refreshToken(dto.refreshToken);
   }
 }

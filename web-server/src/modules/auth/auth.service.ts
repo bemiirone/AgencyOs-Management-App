@@ -328,6 +328,44 @@ export class AuthService {
     }));
   }
 
+  async getProfile(userId: string) {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const { password, ...result } = user.toObject();
+    return {
+      id: result._id.toString(),
+      email: result.email,
+      name: result.name,
+      isActive: result.isActive,
+      createdAt: result.createdAt,
+      updatedAt: result.updatedAt,
+    };
+  }
+
+  async refreshToken(token: string) {
+    try {
+      const payload = this.jwtService.verify(token, {
+        secret: this.configService.get<string>('jwt.secret') || 'default-secret',
+      });
+
+      const user = await this.userModel.findById(payload.sub);
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      if (user.isActive === false) {
+        throw new UnauthorizedException('Account is deactivated');
+      }
+
+      return this.generateTokens(payload.sub, payload.email, payload.tenantId, payload.role);
+    } catch (error) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+  }
+
   async lookupWorkspacesByEmail(email: string): Promise<WorkspaceInfo[]> {
     const user = await this.userModel.findOne({ email });
     if (!user) {

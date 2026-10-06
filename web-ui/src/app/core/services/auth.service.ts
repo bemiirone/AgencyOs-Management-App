@@ -97,6 +97,27 @@ export class AuthService {
     await this.router.navigate(['/login']);
   }
 
+  async refreshAccessToken(): Promise<boolean> {
+    const refreshToken = this.storageService.getRefreshToken();
+    if (!refreshToken) {
+      await this.logout();
+      return false;
+    }
+
+    try {
+      const response = await firstValueFrom(
+        this.http.post<{ accessToken: string; refreshToken: string }>(API_CONFIG.AUTH.REFRESH, { refreshToken })
+      );
+
+      this.storageService.setToken(response.accessToken);
+      this.storageService.setRefreshToken(response.refreshToken);
+      return true;
+    } catch {
+      await this.logout();
+      return false;
+    }
+  }
+
   async refreshProfile(): Promise<User> {
     const user = await firstValueFrom(
       this.http.get<User>(API_CONFIG.AUTH.PROFILE)
