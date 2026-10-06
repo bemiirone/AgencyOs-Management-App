@@ -1,5 +1,13 @@
 import { environment } from '../../../environments/environment';
 
+function buildPaginatedUrl(base: string, page?: number, limit?: number): string {
+  const params = new URLSearchParams();
+  if (page) params.set('page', page.toString());
+  if (limit) params.set('limit', limit.toString());
+  const query = params.toString();
+  return `${base}${query ? `?${query}` : ''}`;
+}
+
 export const API_CONFIG = {
   baseUrl: environment.apiBaseUrl,
   AUTH: {
@@ -14,26 +22,14 @@ export const API_CONFIG = {
     LOOKUP_WORKSPACES: '/api/auth/lookup-workspaces',
   },
   PROJECTS: {
-    LIST: (page?: number, limit?: number) => {
-      const params = new URLSearchParams();
-      if (page) params.set('page', page.toString());
-      if (limit) params.set('limit', limit.toString());
-      const query = params.toString();
-      return `/api/projects${query ? `?${query}` : ''}`;
-    },
+    LIST: (page?: number, limit?: number) => buildPaginatedUrl('/api/projects', page, limit),
     DETAIL: (id: string) => `/api/projects/${id}`,
     CREATE: '/api/projects',
     UPDATE: (id: string) => `/api/projects/${id}`,
     DELETE: (id: string) => `/api/projects/${id}`,
   },
   TASKS: {
-    LIST: (page?: number, limit?: number) => {
-      const params = new URLSearchParams();
-      if (page) params.set('page', page.toString());
-      if (limit) params.set('limit', limit.toString());
-      const query = params.toString();
-      return `/api/tasks${query ? `?${query}` : ''}`;
-    },
+    LIST: (page?: number, limit?: number) => buildPaginatedUrl('/api/tasks', page, limit),
     BY_PROJECT: (projectId: string) => `/api/tasks/project/${projectId}`,
     DETAIL: (id: string) => `/api/tasks/${id}`,
     CREATE: '/api/tasks',
