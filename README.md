@@ -2,6 +2,8 @@
 
 A full-stack multi-tenant B2B SaaS platform for digital agencies to manage their operations, including projects, tasks, time tracking, invoicing, and client management.
 
+For an end-to-end explanation of the backend, including authentication, workspaces, MongoDB, and WebSocket time tracking, see the [Backend architecture guide](docs/backend-architecture.md).
+
 ## Tech Stack
 
 ### Frontend
@@ -58,7 +60,7 @@ agency-os/
 
 ## Key Features
 
-- **Multi-Tenancy**: Every document is scoped by `tenantId` with automatic data isolation via a global interceptor
+- **Multi-Tenancy**: Tenant-owned documents are scoped by `tenantId` in service-level database queries
 - **Role-Based Access Control**: Admin, Manager, Member, and Client roles with granular permissions
 - **Real-Time Time Tracking**: Live timer synchronization via WebSocket
 - **Project & Task Management**: Full CRUD with status workflows
