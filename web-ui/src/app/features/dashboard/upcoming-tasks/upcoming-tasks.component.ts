@@ -35,7 +35,7 @@ export class UpcomingTasksComponent {
     today.setHours(0, 0, 0, 0);
 
     return this.tasks()
-      .filter((task) => task.dueDate)
+      .filter((task) => task.dueDate && task.status !== 'done')
       .sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime())
       .slice(0, 5)
       .map((task) => {
