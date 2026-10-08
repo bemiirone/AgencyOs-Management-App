@@ -5,12 +5,14 @@ import { InvoiceController } from './invoice.controller';
 import { Invoice, InvoiceSchema } from './schemas/invoice.schema';
 import { TimeEntry, TimeEntrySchema } from '../time/schemas/time-entry.schema';
 import { Project, ProjectSchema } from '../project/schemas/project.schema';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Invoice.name, schema: InvoiceSchema }]),
     MongooseModule.forFeature([{ name: TimeEntry.name, schema: TimeEntrySchema }]),
     MongooseModule.forFeature([{ name: Project.name, schema: ProjectSchema }]),
+    EmailModule,
   ],
   controllers: [InvoiceController],
   providers: [InvoiceService],

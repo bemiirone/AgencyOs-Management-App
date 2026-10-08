@@ -9,6 +9,7 @@ import { NotificationService } from '../notification/notification.service';
 import { NotificationType } from '../notification/schemas/notification.schema';
 import { TenantService } from '../tenant/tenant.service';
 import { NotificationSettingsService } from '../notification-settings/notification-settings.service';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class DueDateCheckerService {
@@ -22,6 +23,7 @@ export class DueDateCheckerService {
     private notificationService: NotificationService,
     private tenantService: TenantService,
     private settingsService: NotificationSettingsService,
+    private emailService: EmailService,
   ) {}
 
   async checkAllDueDates() {
@@ -260,6 +262,14 @@ export class DueDateCheckerService {
         'invoice',
         invoice._id.toString(),
       );
+    }
+
+    if (type === 'overdue') {
+      try {
+        await this.emailService.sendOverdueReminderEmail(invoice);
+      } catch (error) {
+        this.logger.error(`Failed to send overdue email for invoice ${invoice.invoiceNumber}: ${error.message}`);
+      }
     }
 
     const reminderField = type === 'dueSoon' ? 'lastDueSoonReminderSent' : 'lastOverdueReminderSent';

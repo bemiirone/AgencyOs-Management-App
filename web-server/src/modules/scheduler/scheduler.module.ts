@@ -11,6 +11,7 @@ import { TenantMember, TenantMemberSchema } from '../tenant/schemas/tenant-membe
 import { NotificationModule } from '../notification/notification.module';
 import { TenantModule } from '../tenant/tenant.module';
 import { NotificationSettingsModule } from '../notification-settings/notification-settings.module';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { NotificationSettingsModule } from '../notification-settings/notificatio
     NotificationModule,
     TenantModule,
     NotificationSettingsModule,
+    EmailModule,
   ],
   controllers: [SchedulerController],
   providers: [DueDateSchedulerService, DueDateCheckerService],

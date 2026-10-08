@@ -6,6 +6,7 @@ import { Invoice, InvoiceStatus } from './schemas/invoice.schema';
 import { CreateInvoiceDto, UpdateInvoiceDto, TimeAggregationQueryDto, CalculateTimeEntriesDto } from './dto/invoice.dto';
 import { TimeEntry } from '../time/schemas/time-entry.schema';
 import { Project } from '../project/schemas/project.schema';
+import { EmailService } from '../email/email.service';
 
 interface TimeEntryCalculationDetail {
   timeEntryId: string;
@@ -38,6 +39,7 @@ export class InvoiceService {
     @InjectModel(TimeEntry.name) private timeEntryModel: Model<TimeEntry>,
     @InjectModel(Project.name) private projectModel: Model<Project>,
     private configService: ConfigService,
+    private emailService: EmailService,
   ) {
     const secretKey = this.configService.get<string>('stripe.secretKey');
     this.isMockMode = !secretKey || secretKey.includes('placeholder');
@@ -119,6 +121,19 @@ export class InvoiceService {
 
     if (invoice.status !== InvoiceStatus.DRAFT) {
       throw new BadRequestException('Only draft invoices can be sent');
+    }
+
+    const project = await this.projectModel.findById(invoice.projectId).exec();
+    if (!project) {
+      throw new NotFoundException('Project not found');
+    }
+
+    try {
+      await this.emailService.sendInvoiceEmail(invoice, project);
+    } catch (error) {
+      throw new BadRequestException(
+        `Failed to send invoice email: ${error.message}. Invoice remains in draft status.`,
+      );
     }
 
     invoice.status = InvoiceStatus.SENT;
@@ -326,6 +341,12 @@ export class InvoiceService {
     invoice.stripePaymentIntentId = `mock_pi_${Date.now()}`;
 
     await invoice.save();
+
+    try {
+      await this.emailService.sendPaymentConfirmationEmail(invoice);
+    } catch (error) {
+      console.error('Failed to send payment confirmation:', error);
+    }
 
     return invoice;
   }

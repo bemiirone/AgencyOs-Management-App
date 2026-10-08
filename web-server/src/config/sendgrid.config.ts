@@ -4,4 +4,5 @@ export default registerAs('sendgrid', () => ({
   apiKey: process.env.SENDGRID_API_KEY || '',
   fromEmail: process.env.SENDGRID_FROM_EMAIL || 'noreply@agencyos.com',
   fromName: process.env.SENDGRID_FROM_NAME || 'AgencyOS',
+  clientPortalUrl: process.env.CLIENT_PORTAL_URL || 'http://localhost:4200',
 }));
