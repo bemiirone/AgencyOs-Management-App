@@ -42,6 +42,16 @@
 </div>
 
 <div class="form-control mb-6">
+  <label class="label cursor-pointer justify-start gap-3 mb-2">
+    <input type="checkbox" class="checkbox checkbox-sm" formControlName="sendOverdueReminders" />
+    <div>
+      <span class="label-text font-medium">Send overdue email reminders</span>
+      <p class="text-xs text-base-content/60 mt-1">Automatically email the client when this invoice becomes overdue (one-time only)</p>
+    </div>
+  </label>
+</div>
+
+<div class="form-control mb-6">
   <div class="label">
     <span class="label-text font-medium">{{
       content.content('invoice.form.label.notes')

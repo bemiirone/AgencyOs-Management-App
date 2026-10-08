@@ -306,6 +306,7 @@ export class InvoiceFormComponent implements OnInit {
           notes: invoice.notes || '',
           startDate: invoice.dateRange?.startDate ? new Date(invoice.dateRange.startDate).toISOString().split('T')[0] : '',
           endDate: invoice.dateRange?.endDate ? new Date(invoice.dateRange.endDate).toISOString().split('T')[0] : '',
+          sendOverdueReminders: invoice.sendOverdueReminders || false,
         });
 
         if (invoice.lineItems?.length) {

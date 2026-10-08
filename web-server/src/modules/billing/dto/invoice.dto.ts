@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsOptional, IsNumber, IsDateString, IsArray, ValidateNested, IsEnum, IsIn, Min, Max } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsNumber, IsDateString, IsArray, ValidateNested, IsEnum, IsIn, Min, Max, IsBoolean } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { InvoiceStatus, BillingType } from '../schemas/invoice.schema';
 import { Type } from 'class-transformer';
@@ -209,6 +209,11 @@ export class CreateInvoiceDto extends BaseInvoiceDto {
   @IsArray()
   @IsOptional()
   declare taskIds?: string[];
+
+  @ApiProperty({ required: false, default: false })
+  @IsBoolean()
+  @IsOptional()
+  declare sendOverdueReminders?: boolean;
 }
 
 export class UpdateInvoiceDto extends PartialType(BaseInvoiceUpdateDto) {
@@ -216,6 +221,11 @@ export class UpdateInvoiceDto extends PartialType(BaseInvoiceUpdateDto) {
   @IsEnum(InvoiceStatus)
   @IsOptional()
   declare status?: InvoiceStatus;
+
+  @ApiProperty({ required: false, default: false })
+  @IsBoolean()
+  @IsOptional()
+  declare sendOverdueReminders?: boolean;
 }
 
 export class TimeAggregationQueryDto {

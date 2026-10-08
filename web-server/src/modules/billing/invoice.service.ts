@@ -374,6 +374,22 @@ export class InvoiceService {
     return invoice;
   }
 
+  async resendOverdueReminder(id: string, tenantId: string) {
+    const invoice = await this.findOne(id, tenantId);
+
+    if (invoice.status !== InvoiceStatus.OVERDUE) {
+      throw new BadRequestException('Only overdue invoices can resend reminders');
+    }
+
+    if (!invoice.sendOverdueReminders) {
+      throw new BadRequestException('Overdue reminders are not enabled for this invoice');
+    }
+
+    await this.emailService.sendOverdueReminderEmail(invoice);
+
+    return { success: true, message: 'Overdue reminder sent successfully' };
+  }
+
   private async generateInvoiceNumber(tenantId: string): Promise<string> {
     const count = await this.invoiceModel.countDocuments({ tenantId }).exec();
     const year = new Date().getFullYear();

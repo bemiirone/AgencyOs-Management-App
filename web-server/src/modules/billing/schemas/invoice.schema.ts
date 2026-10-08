@@ -144,6 +144,9 @@ export class Invoice extends BaseDocument {
 
   @Prop()
   declare lastOverdueReminderSent: Date;
+
+  @Prop({ default: false })
+  declare sendOverdueReminders: boolean;
 }
 
 export const InvoiceSchema = SchemaFactory.createForClass(Invoice);

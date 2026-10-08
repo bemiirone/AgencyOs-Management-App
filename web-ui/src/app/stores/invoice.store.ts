@@ -192,6 +192,18 @@ export class InvoiceStore {
     );
   }
 
+  resendOverdueReminder(id: string) {
+    return this.http.post(API_CONFIG.INVOICES.RESEND_OVERDUE(id), {}).pipe(
+      tap(() => {
+        this.toast.success('Overdue reminder sent successfully');
+      }),
+      catchError((error: ErrorResponse) => {
+        this.toast.error(error.error?.message || 'Failed to resend overdue reminder');
+        return throwError(() => error);
+      })
+    );
+  }
+
   loadTimeEntriesForProject(projectId: string) {
     return this.http.get<TimeEntry[]>(API_CONFIG.TIME_ENTRIES.BILLABLE_BY_PROJECT(projectId)).pipe(
       catchError((error: ErrorResponse) => {

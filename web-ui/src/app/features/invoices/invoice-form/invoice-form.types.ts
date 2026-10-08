@@ -44,6 +44,7 @@ export interface InvoiceFormValue {
   endDate?: string;
   lineItems?: InvoiceFormLineItem[];
   expenses?: InvoiceFormExpense[];
+  sendOverdueReminders?: boolean;
 }
 
 export interface InvoiceExpensePayload {

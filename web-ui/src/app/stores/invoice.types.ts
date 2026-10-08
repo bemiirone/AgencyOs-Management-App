@@ -49,6 +49,7 @@ export interface CreateInvoicePayload extends InvoiceBillingDetails {
   notes?: string;
   manualHours?: number;
   manualDays?: number;
+  sendOverdueReminders?: boolean;
 }
 
 export interface UpdateInvoicePayload extends InvoiceBillingDetails {
@@ -61,6 +62,7 @@ export interface UpdateInvoicePayload extends InvoiceBillingDetails {
   dueDate?: string;
   timeEntryIds?: string[];
   notes?: string;
+  sendOverdueReminders?: boolean;
 }
 
 export interface CalculateTimePayload {

@@ -70,6 +70,12 @@ export class InvoiceController {
     return this.invoiceService.processPayment(id, tenantId, paymentMethodId);
   }
 
+  @Post(':id/resend-overdue')
+  @ApiOperation({ summary: 'Manually resend overdue reminder email' })
+  async resendOverdue(@Param('id') id: string, @TenantId() tenantId: string) {
+    return this.invoiceService.resendOverdueReminder(id, tenantId);
+  }
+
   @Post('aggregate-time')
   @ApiOperation({ summary: 'Aggregate billable time entries for invoice generation (by date range)' })
   async aggregateTime(

@@ -29,6 +29,7 @@ export interface InvoiceFormControls {
   tax: FormControl<number>;
   dueDate: FormControl<string>;
   notes: FormControl<string>;
+  sendOverdueReminders: FormControl<boolean>;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -69,6 +70,7 @@ export class InvoiceFormBuilderService {
       tax: this.fb.nonNullable.control(0),
       dueDate: this.fb.nonNullable.control(''),
       notes: this.fb.nonNullable.control(''),
+      sendOverdueReminders: this.fb.nonNullable.control(false),
     });
   }
 

@@ -22,6 +22,12 @@
             {{ contentStore.content('invoice.detail.markAsPaid') }}
           </button>
         }
+        @if (inv.status === 'overdue' && inv.sendOverdueReminders) {
+          <button class="btn btn-warning btn-sm" (click)="openResendOverdueConfirm()">
+            <fa-icon [icon]="faBell" class="mr-2"></fa-icon>
+            Resend Overdue Reminder
+          </button>
+        }
         <button class="btn btn-ghost btn-sm" onclick="window.print()">
           <fa-icon [icon]="faPrint" class="mr-2"></fa-icon>
           {{ contentStore.content('invoice.detail.print') }}
@@ -246,4 +252,12 @@
   [confirmText]="contentStore.content('invoice.detail.confirm.markPaid.action')"
   variant="success"
   (confirmed)="markAsPaid()"
+/>
+
+<app-confirm-dialog
+  #resendOverdueDialog
+  message="Resend the overdue reminder email to the client?"
+  confirmText="Resend"
+  variant="warning"
+  (confirmed)="resendOverdueReminder()"
 />

@@ -264,7 +264,7 @@ export class DueDateCheckerService {
       );
     }
 
-    if (type === 'overdue') {
+    if (type === 'overdue' && invoice.sendOverdueReminders) {
       try {
         await this.emailService.sendOverdueReminderEmail(invoice);
       } catch (error) {

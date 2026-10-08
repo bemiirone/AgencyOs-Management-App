@@ -2,7 +2,7 @@ import { Component, signal, inject, OnInit, ChangeDetectionStrategy, ViewChild }
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faArrowLeft, faSpinner, faEdit, faPaperPlane, faPrint, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faSpinner, faEdit, faPaperPlane, faPrint, faCheck, faBell } from '@fortawesome/free-solid-svg-icons';
 import { InvoiceStore } from '../../../stores/invoice.store';
 import { ContentStore } from '../../../stores/content.store';
 import { Invoice } from '../../../shared/models/invoice.model';
@@ -30,9 +30,11 @@ export class InvoiceDetailComponent implements OnInit {
   readonly faPaperPlane = faPaperPlane;
   readonly faPrint = faPrint;
   readonly faCheck = faCheck;
+  readonly faBell = faBell;
 
   @ViewChild('confirmDialog') confirmDialog!: ConfirmDialogComponent;
   @ViewChild('markPaidDialog') markPaidDialog!: ConfirmDialogComponent;
+  @ViewChild('resendOverdueDialog') resendOverdueDialog!: ConfirmDialogComponent;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -122,6 +124,24 @@ export class InvoiceDetailComponent implements OnInit {
         this.invoice.set(invoice);
       },
       error: (err) => console.error('Failed to mark invoice as paid:', err),
+    });
+  }
+
+  openResendOverdueConfirm(): void {
+    this.resendOverdueDialog.open();
+  }
+
+  resendOverdueReminder(): void {
+    const id = this.invoice()?._id;
+    if (!id) return;
+
+    this.invoiceStore.resendOverdueReminder(id).subscribe({
+      next: () => {
+        this.invoiceStore.loadInvoice(id).subscribe({
+          next: (invoice) => this.invoice.set(invoice),
+        });
+      },
+      error: (err) => console.error('Failed to resend overdue reminder:', err),
     });
   }
 

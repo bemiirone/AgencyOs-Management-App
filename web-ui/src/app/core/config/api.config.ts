@@ -58,6 +58,7 @@ export const API_CONFIG = {
     UPDATE: (id: string) => `/api/invoices/${id}`,
     SEND: (id: string) => `/api/invoices/${id}/send`,
     PAY: (id: string) => `/api/invoices/${id}/pay`,
+    RESEND_OVERDUE: (id: string) => `/api/invoices/${id}/resend-overdue`,
     DELETE: (id: string) => `/api/invoices/${id}`,
     AGGREGATE_TIME: '/api/invoices/aggregate-time',
     CALCULATE_TIME: '/api/invoices/calculate-time',

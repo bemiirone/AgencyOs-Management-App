@@ -32,6 +32,7 @@ export interface Invoice {
   timeEntryIds?: string[];
   taskIds?: string[];
   notes?: string;
+  sendOverdueReminders?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -22,6 +22,7 @@ export class InvoicePayloadBuilderService {
       tax: formValue.tax || 0,
       dueDate: formValue.dueDate ? new Date(formValue.dueDate).toISOString() : undefined,
       notes: formValue.notes || undefined,
+      sendOverdueReminders: formValue.sendOverdueReminders || false,
     };
   }
 
