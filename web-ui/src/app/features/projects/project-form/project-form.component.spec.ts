@@ -25,6 +25,8 @@ describe('ProjectFormComponent', () => {
     budget: 10000,
     startDate: new Date('2024-01-01'),
     endDate: new Date('2024-06-01'),
+    canAddExpenses: true,
+    canAddOvertime: false,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -127,6 +129,8 @@ describe('ProjectFormComponent', () => {
         status: 'draft',
         clientName: 'Test Client',
         clientEmail: 'test@example.com',
+        canAddExpenses: false,
+        canAddOvertime: false,
       });
     });
 
@@ -165,6 +169,8 @@ describe('ProjectFormComponent', () => {
         startDate: new Date('2024-01-01'),
         endDate: new Date('2024-06-01'),
         budget: 5000,
+        canAddExpenses: false,
+        canAddOvertime: false,
       });
     });
 

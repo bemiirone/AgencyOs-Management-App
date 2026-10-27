@@ -22,8 +22,8 @@ describe('TaskListComponent', () => {
   ];
 
   const mockProjects = [
-    { _id: 'project-1', name: 'Project Alpha', status: 'active' as const, tenantId: 'tenant-1', ownerId: 'owner-1', createdAt: new Date(), updatedAt: new Date() },
-    { _id: 'project-2', name: 'Project Beta', status: 'draft' as const, tenantId: 'tenant-1', ownerId: 'owner-1', createdAt: new Date(), updatedAt: new Date() },
+    { _id: 'project-1', name: 'Project Alpha', status: 'active' as const, tenantId: 'tenant-1', ownerId: 'owner-1', canAddExpenses: true, canAddOvertime: false, createdAt: new Date(), updatedAt: new Date() },
+    { _id: 'project-2', name: 'Project Beta', status: 'draft' as const, tenantId: 'tenant-1', ownerId: 'owner-1', canAddExpenses: false, canAddOvertime: false, createdAt: new Date(), updatedAt: new Date() },
   ];
 
   const mockTasks = [

@@ -148,6 +148,26 @@ describe('TimeEntryService', () => {
         service.stop('nonexistent', tenantId, userId),
       ).rejects.toThrow('Time entry not found');
     });
+
+    it('should return existing entry without modifying when already stopped (idempotent)', async () => {
+      const startTime = new Date(Date.now() - 120000);
+      const endTime = new Date(Date.now() - 60000);
+      const stoppedEntry = {
+        ...mockTimeEntry,
+        startTime,
+        endTime,
+        isRunning: false,
+        duration: 60,
+        save: vi.fn(),
+      };
+      mockModel.findOne.mockReturnValue(createChainableMock(stoppedEntry));
+
+      const result = await service.stop('entry-1', tenantId, userId);
+
+      expect(result.isRunning).toBe(false);
+      expect(result.duration).toBe(60);
+      expect(stoppedEntry.save).not.toHaveBeenCalled();
+    });
   });
 
   describe('findAll', () => {

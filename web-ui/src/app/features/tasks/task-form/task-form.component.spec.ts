@@ -21,9 +21,9 @@ describe('TaskFormComponent', () => {
   let routerMock: any;
 
   const mockProjects = [
-    { _id: 'project-1', name: 'Active Project', status: 'active' as const, tenantId: 'tenant-1', ownerId: 'owner-1', createdAt: new Date(), updatedAt: new Date() },
-    { _id: 'project-2', name: 'Draft Project', status: 'draft' as const, tenantId: 'tenant-1', ownerId: 'owner-1', createdAt: new Date(), updatedAt: new Date() },
-    { _id: 'project-3', name: 'On Hold Project', status: 'on_hold' as const, tenantId: 'tenant-1', ownerId: 'owner-1', createdAt: new Date(), updatedAt: new Date() },
+    { _id: 'project-1', name: 'Active Project', status: 'active' as const, tenantId: 'tenant-1', ownerId: 'owner-1', canAddExpenses: true, canAddOvertime: false, createdAt: new Date(), updatedAt: new Date() },
+    { _id: 'project-2', name: 'Draft Project', status: 'draft' as const, tenantId: 'tenant-1', ownerId: 'owner-1', canAddExpenses: false, canAddOvertime: false, createdAt: new Date(), updatedAt: new Date() },
+    { _id: 'project-3', name: 'On Hold Project', status: 'on_hold' as const, tenantId: 'tenant-1', ownerId: 'owner-1', canAddExpenses: false, canAddOvertime: true, createdAt: new Date(), updatedAt: new Date() },
   ];
 
   const mockUsers = [

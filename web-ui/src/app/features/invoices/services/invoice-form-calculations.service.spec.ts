@@ -29,6 +29,7 @@ function createTestForm(): FormGroup<InvoiceFormControls> {
     tax: new FormControl(0, { nonNullable: true }),
     dueDate: new FormControl('', { nonNullable: true }),
     notes: new FormControl('', { nonNullable: true }),
+    sendOverdueReminders: new FormControl(false, { nonNullable: true }),
   });
 }
 

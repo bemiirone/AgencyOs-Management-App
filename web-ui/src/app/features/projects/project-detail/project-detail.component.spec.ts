@@ -29,6 +29,8 @@ describe('ProjectDetailComponent', () => {
     budget: 10000,
     startDate: new Date('2024-01-01'),
     endDate: new Date('2024-06-01'),
+    canAddExpenses: true,
+    canAddOvertime: false,
     createdAt: new Date(),
     updatedAt: new Date(),
   };

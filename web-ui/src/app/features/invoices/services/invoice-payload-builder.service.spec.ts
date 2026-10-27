@@ -113,6 +113,8 @@ describe('InvoicePayloadBuilderService', () => {
         clientEmail: 'test@example.com',
         tenantId: 'tenant-1',
         ownerId: 'owner-1',
+        canAddExpenses: true,
+        canAddOvertime: false,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
