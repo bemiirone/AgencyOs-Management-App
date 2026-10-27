@@ -30,18 +30,6 @@ export class TimeEntryStore {
         this._elapsedSeconds.set(data.elapsed);
       }
     });
-
-    this.ws.on<{ timeEntryId: string; duration: number }>('timerStopped', (data) => {
-      if (this._runningEntry()?._id === data.timeEntryId) {
-        this._runningEntry.set(null);
-        this._elapsedSeconds.set(0);
-        this._entries.update((entries) =>
-          entries.map((e) =>
-            e._id === data.timeEntryId ? { ...e, isRunning: false, duration: data.duration } : e
-          )
-        );
-      }
-    });
   }
 
   loadEntries(userId?: string) {
@@ -154,8 +142,6 @@ export class TimeEntryStore {
     this._isLoading.set(true);
     this._error.set(null);
 
-    this.ws.emit('stopTimer', { timeEntryId: id });
-
     return this.http.post<TimeEntry>(API_CONFIG.TIME_ENTRIES.STOP(id), {}).pipe(
       tap((entry) => {
         this._runningEntry.set(null);
@@ -165,6 +151,8 @@ export class TimeEntryStore {
         );
         this._isLoading.set(false);
         this.toast.success(`Timer stopped — ${this.formatDurationShort(entry.duration)}`);
+        // Clear the server-side tick interval
+        this.ws.emit('clearTimerTick', {});
       }),
       catchError((error) => {
         this._error.set(error.error?.message || 'Failed to stop timer');

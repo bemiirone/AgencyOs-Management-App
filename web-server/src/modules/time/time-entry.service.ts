@@ -34,6 +34,11 @@ export class TimeEntryService {
       throw new NotFoundException('Time entry not found');
     }
 
+    // Idempotent: if already stopped, just return the existing entry
+    if (!timeEntry.isRunning) {
+      return timeEntry;
+    }
+
     const endTime = new Date();
     const duration = Math.floor((endTime.getTime() - timeEntry.startTime.getTime()) / 1000);
 

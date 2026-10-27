@@ -32,7 +32,8 @@ export class TimeGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   async handleConnection(client: Socket) {
     console.log(`[WS Gateway] Client connected: ${client.id}`);
-    console.log(`[WS Gateway] Query params:`, client.handshake.query);
+    const { token, ...safeQuery } = client.handshake.query as Record<string, unknown>;
+    console.log(`[WS Gateway] Query params:`, safeQuery);
   }
 
   async handleDisconnect(client: Socket) {
@@ -76,31 +77,12 @@ export class TimeGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     return { event: 'timerStarted', data: { timeEntryId } };
   }
 
-  @SubscribeMessage('stopTimer')
-  async handleStopTimer(
-    @MessageBody() data: { timeEntryId: string },
-    @ConnectedSocket() client: Socket,
-  ) {
-    console.log(`[WS Gateway] stopTimer received from ${client.id}:`, data);
-    const { timeEntryId } = data;
-
+  @SubscribeMessage('clearTimerTick')
+  handleClearTimerTick(@ConnectedSocket() client: Socket) {
     const interval = this.timerIntervals.get(client.id);
     if (interval) {
       clearInterval(interval);
       this.timerIntervals.delete(client.id);
     }
-
-    const timeEntry = await this.timeEntryService.stop(
-      timeEntryId,
-      client.data.user?.tenantId,
-      client.data.user?.userId,
-    );
-
-    this.server.to(client.id).emit('timerStopped', {
-      timeEntryId,
-      duration: timeEntry.duration,
-    });
-
-    return { event: 'timerStopped', data: { timeEntryId, duration: timeEntry.duration } };
   }
 }
